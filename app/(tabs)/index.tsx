@@ -96,12 +96,16 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (user) {
+      console.log('User is available, fetching todos...');
       fetchTodos();
+    } else {
+      console.log('User is not available, skipping todo fetch.');
     }
   }, [user]);
 
   const fetchTodos = async () => {
     setLoading(true);
+    console.log('Fetching todos...');
     const { data, error } = await supabase
       .from('todos')
       .select('*')
@@ -109,10 +113,13 @@ export default function HomeScreen() {
 
     if (error) {
       console.error('Error fetching todos:', error);
+      console.log('Error fetching todos:', error.message);
     } else {
       setTodos(data as Todo[]);
+      console.log('Todos fetched successfully. Number of todos:', data?.length);
     }
     setLoading(false);
+    console.log('Loading state after fetch:', false);
   };
 
   const addTodo = async () => {
