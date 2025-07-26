@@ -96,16 +96,12 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (user) {
-      console.log('User is available, fetching todos...');
       fetchTodos();
-    } else {
-      console.log('User is not available, skipping todo fetch.');
     }
   }, [user]);
 
   const fetchTodos = async () => {
     setLoading(true);
-    console.log('Fetching todos...');
     const { data, error } = await supabase
       .from('todos')
       .select('*')
@@ -113,13 +109,10 @@ export default function HomeScreen() {
 
     if (error) {
       console.error('Error fetching todos:', error);
-      console.log('Error fetching todos:', error.message);
     } else {
       setTodos(data as Todo[]);
-      console.log('Todos fetched successfully. Number of todos:', data?.length);
     }
     setLoading(false);
-    console.log('Loading state after fetch:', false);
   };
 
   const addTodo = async () => {
@@ -253,259 +246,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <FlatList
-      data={todos}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => (
-        <View style={[styles.todoListItem, { borderBottomColor: colors.border }]}>
-          <Text style={[item.is_complete ? styles.completed : { color: colors.text }]}>{item.title}</Text>
-        </View>
-      )}
-      ListEmptyComponent={<Text style={{ color: colors.textSecondary, textAlign: 'center', paddingVertical: 10 }}>No todos yet. Add one!</Text>}
-      ListHeaderComponent={() => (
-        <View>
-          {/* Header */}
-          <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.header}>
-            <Animated.View
-              style={[
-                styles.headerContent,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                },
-              ]}
-            >
-              <View style={styles.welcomeSection}>
-                <Text style={[styles.greeting, { color: colors.textSecondary }]}>
-                  {getGreeting()}, {user?.firstName || 'Learner'} 👋
-                </Text>
-                <Text style={[styles.welcomeTitle, { color: colors.text }]}>
-                  Ready to learn something new?
-                </Text>
-              </View>
-
-              {/* Stats Overview */}
-              <View style={[styles.statsContainer, { backgroundColor: colors.overlayLight }]}>
-                <View style={styles.statItem}>
-                  <View style={[styles.statIcon, { backgroundColor: colors.primary + '30' }]}>
-                    <BookOpen size={20} color={colors.primary} />
-                  </View>
-                  <Text style={[styles.statNumber, { color: colors.text }]}>127</Text>
-                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Problems</Text>
-                </View>
-
-                <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-
-                <View style={styles.statItem}>
-                  <View style={[styles.statIcon, { backgroundColor: colors.primaryDark + '30' }]}>
-                    <Clock size={20} color={colors.primaryDark} />
-                  </View>
-                  <Text style={[styles.statNumber, { color: colors.text }]}>42</Text>
-                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Hours</Text>
-                </View>
-
-                <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-
-                <View style={styles.statItem}>
-                  <View style={[styles.statIcon, { backgroundColor: colors.error + '30' }]}>
-                    <Flame size={20} color={colors.error} />
-                  </View>
-                  <Text style={[styles.statNumber, { color: colors.text }]}>7</Text>
-                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Day Streak</Text>
-                </View>
-              </View>
-            </Animated.View>
-          </LinearGradient>
-
-          <View style={styles.content}>
-            {/* Guest Banner */}
-            {user?.isGuest && <GuestBanner />}
-
-            {/* Todos List - Header and Input */}
-            <Animated.View
-              style={[
-                styles.section,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                },
-              ]}
-            >
-              <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>My Todos</Text>
-              </View>
-              <View style={[styles.todoCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-                <View style={styles.todoInputContainer}>
-                  <TextInput
-                    style={[styles.todoInput, { borderColor: colors.border, color: colors.text }]}
-                    placeholder="Add a new todo..."
-                    placeholderTextColor={colors.textSecondary}
-                    value={newTodoTitle}
-                    onChangeText={setNewTodoTitle}
-                  />
-                  <TouchableOpacity
-                    style={[styles.addTodoButton, { backgroundColor: colors.primary }]}
-                    onPress={addTodo}
-                  >
-                    <Ionicons name="add" size={24} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </Animated.View>
-
-            {/* Quick Actions */}
-            <Animated.View
-              style={[
-                styles.section,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                },
-              ]}
-            >
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
-              <View style={styles.quickActionsGrid}>
-                {quickActions.map((action, index) => (
-                  <TouchableOpacity
-                    key={action.id}
-                    style={[styles.quickActionCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
-                    activeOpacity={0.8}
-                  >
-                    <LinearGradient
-                      colors={[action.color + '20', action.color + '10']}
-                      style={styles.quickActionGradient}
-                    >
-                      <View style={[styles.quickActionIcon, { backgroundColor: action.color + '30' }]}>
-                        <action.icon size={24} color={action.color} />
-                      </View>
-                      <Text style={[styles.quickActionTitle, { color: colors.text }]}>{action.title}</Text>
-                      <Text style={[styles.quickActionDescription, { color: colors.textSecondary }]}>
-                        {action.description}
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </Animated.View>
-
-            {/* Recent Activity */}
-            <Animated.View
-              style={[
-                styles.section,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                },
-              ]}
-            >
-              <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
-                <TouchableOpacity>
-                  <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
-                </TouchableOpacity>
-              </View>
-
-              {recentActivities.map((activity) => (
-                <TouchableOpacity
-                  key={activity.id}
-                  style={[styles.activityCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
-                  activeOpacity={0.8}
-                >
-                  <Image source={{ uri: activity.imageUrl }} style={styles.activityImage} />
-                  <View style={styles.activityContent}>
-                    <Text style={[styles.activityTitle, { color: colors.text }]}>{activity.title}</Text>
-                    <Text style={[styles.activitySubject, { color: colors.primary }]}>{activity.subject}</Text>
-                    <View style={styles.activityMeta}>
-                      <Text style={[styles.activityTime, { color: colors.textSecondary }]}>{activity.timeAgo}</Text>
-                      <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(activity.difficulty) + '20' }]}>
-                        <Text style={[styles.difficultyText, { color: getDifficultyColor(activity.difficulty) }]}>
-                          {activity.difficulty}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  <ChevronRight size={20} color={colors.textTertiary} />
-                </TouchableOpacity>
-              ))}
-            </Animated.View>
-
-            {/* Achievements Progress */}
-            <Animated.View
-              style={[
-                styles.section,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                },
-              ]}
-            >
-              <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Achievements</Text>
-                <TouchableOpacity>
-                  <Text style={[styles.seeAllText, { color: colors.primary }]}>View All</Text>
-                </TouchableOpacity>
-              </View>
-
-              {achievements.map((achievement) => (
-                <View
-                  key={achievement.id}
-                  style={[styles.achievementCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
-                >
-                  <View style={[styles.achievementIcon, { backgroundColor: achievement.color + '20' }]}>
-                    <achievement.icon size={24} color={achievement.color} />
-                  </View>
-                  <View style={styles.achievementContent}>
-                    <Text style={[styles.achievementTitle, { color: colors.text }]}>{achievement.title}</Text>
-                    <Text style={[styles.achievementDescription, { color: colors.textSecondary }]}>
-                      {achievement.description}
-                    </Text>
-                    <View style={styles.progressContainer}>
-                      <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
-                        <View
-                          style={[
-                            styles.progressFill,
-                            {
-                              width: `${(achievement.progress / achievement.maxProgress) * 100}%`,
-                              backgroundColor: achievement.color,
-                            },
-                          ]}
-                        />
-                      </View>
-                      <Text style={[styles.progressText, { color: colors.textSecondary }]}>
-                        {achievement.progress}/{achievement.maxProgress}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              ))}
-            </Animated.View>
-
-            {/* Motivational Quote */}
-            <Animated.View
-              style={[
-                styles.section,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                },
-              ]}
-            >
-              <View style={[styles.quoteCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-                <LinearGradient
-                  colors={[colors.accent + '20', colors.accent + '10']}
-                  style={styles.quoteGradient}
-                >
-                  <Star size={32} color={colors.accent} />
-                  <Text style={[styles.quoteText, { color: colors.text }]}>
-                    "The beautiful thing about learning is that no one can take it away from you."
-                  </Text>
-                  <Text style={[styles.quoteAuthor, { color: colors.textSecondary }]}>— B.B. King</Text>
-                </LinearGradient>
-              </View>
-            </Animated.View>
-          </View>
-        </View>
-      )}
+    <ScrollView 
       style={[styles.container, { backgroundColor: colors.background }]}
       showsVerticalScrollIndicator={false}
       refreshControl={
@@ -516,7 +257,265 @@ export default function HomeScreen() {
           colors={[colors.primary]}
         />
       }
-    />
+    >
+      {/* Header */}
+      <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.header}>
+        <Animated.View
+          style={[
+            styles.headerContent,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <View style={styles.welcomeSection}>
+            <Text style={[styles.greeting, { color: colors.textSecondary }]}>
+              {getGreeting()}, {user?.firstName || 'Learner'} 👋
+            </Text>
+            <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+              Ready to learn something new?
+            </Text>
+          </View>
+
+          {/* Stats Overview */}
+          <View style={[styles.statsContainer, { backgroundColor: colors.overlayLight }]}>
+            <View style={styles.statItem}>
+              <View style={[styles.statIcon, { backgroundColor: colors.primary + '30' }]}>
+                <BookOpen size={20} color={colors.primary} />
+              </View>
+              <Text style={[styles.statNumber, { color: colors.text }]}>127</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Problems</Text>
+            </View>
+            
+            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+            
+            <View style={styles.statItem}>
+              <View style={[styles.statIcon, { backgroundColor: colors.primaryDark + '30' }]}>
+                <Clock size={20} color={colors.primaryDark} />
+              </View>
+              <Text style={[styles.statNumber, { color: colors.text }]}>42</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Hours</Text>
+            </View>
+            
+            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+            <View style={styles.statItem}></View>
+              <View style={[styles.statIcon, { backgroundColor: colors.error + '30' }]}>
+              <Flame size={20} color={colors.error} />
+              </View>
+              <Text style={[styles.statNumber, { color: colors.text }]}>7</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Day Streak</Text>
+            </View>
+            </View>
+          </Animated.View>
+          </LinearGradient>
+
+          <View style={styles.content}>
+          {/* Guest Banner */}
+          {user?.isGuest && <GuestBanner />}
+
+          {/* Todos List */}
+          <Animated.View
+            style={[
+            styles.section,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+            ]}
+          >
+            <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>My Todos</Text>
+            </View>
+            <View style={[styles.todoCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+            <View style={styles.todoInputContainer}>
+              <TextInput
+              style={[styles.todoInput, { borderColor: colors.border, color: colors.text }]}
+              placeholder="Add a new todo..."
+              placeholderTextColor={colors.textSecondary}
+              value={newTodoTitle}
+              onChangeText={setNewTodoTitle}
+              />
+              <TouchableOpacity
+              style={[styles.addTodoButton, { backgroundColor: colors.primary }]}
+              onPress={addTodo}
+              >
+              <Ionicons name="add" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+            <View>
+              {todos.length > 0 ? (
+              todos.map((item) => (
+                <View 
+                key={item.id.toString()} 
+                style={[styles.todoListItem, { borderBottomColor: colors.border }]}
+                >
+                <Text style={[item.is_complete ? styles.completed : { color: colors.text }]}>
+                  {item.title}
+                </Text>
+                </View>
+              ))
+              ) : (
+              <Text style={{ color: colors.textSecondary, textAlign: 'center', paddingVertical: 10 }}>
+                No todos yet. Add one!
+              </Text>
+              )}
+            </View>
+            </View>
+          </Animated.View>
+
+          {/* Quick Actions */}
+          <Animated.View
+            style={[
+            styles.section,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+            ]}
+          >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
+          <View style={styles.quickActionsGrid}>
+            {quickActions.map((action, index) => (
+              <TouchableOpacity
+                key={action.id}
+                style={[styles.quickActionCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={[action.color + '20', action.color + '10']}
+                  style={styles.quickActionGradient}
+                >
+                  <View style={[styles.quickActionIcon, { backgroundColor: action.color + '30' }]}>
+                    <action.icon size={24} color={action.color} />
+                  </View>
+                  <Text style={[styles.quickActionTitle, { color: colors.text }]}>{action.title}</Text>
+                  <Text style={[styles.quickActionDescription, { color: colors.textSecondary }]}>
+                    {action.description}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Animated.View>
+
+        {/* Recent Activity */}
+        <Animated.View
+          style={[
+            styles.section,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
+            <TouchableOpacity>
+              <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {recentActivities.map((activity) => (
+            <TouchableOpacity
+              key={activity.id}
+              style={[styles.activityCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
+              activeOpacity={0.8}
+            >
+              <Image source={{ uri: activity.imageUrl }} style={styles.activityImage} />
+              <View style={styles.activityContent}>
+                <Text style={[styles.activityTitle, { color: colors.text }]}>{activity.title}</Text>
+                <Text style={[styles.activitySubject, { color: colors.primary }]}>{activity.subject}</Text>
+                <View style={styles.activityMeta}>
+                  <Text style={[styles.activityTime, { color: colors.textSecondary }]}>{activity.timeAgo}</Text>
+                  <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(activity.difficulty) + '20' }]}>
+                    <Text style={[styles.difficultyText, { color: getDifficultyColor(activity.difficulty) }]}>
+                      {activity.difficulty}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <ChevronRight size={20} color={colors.textTertiary} />
+            </TouchableOpacity>
+          ))}
+        </Animated.View>
+
+        {/* Achievements Progress */}
+        <Animated.View
+          style={[
+            styles.section,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Achievements</Text>
+            <TouchableOpacity>
+              <Text style={[styles.seeAllText, { color: colors.primary }]}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {achievements.map((achievement) => (
+            <View
+              key={achievement.id}
+              style={[styles.achievementCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
+            >
+              <View style={[styles.achievementIcon, { backgroundColor: achievement.color + '20' }]}>
+                <achievement.icon size={24} color={achievement.color} />
+              </View>
+              <View style={styles.achievementContent}>
+                <Text style={[styles.achievementTitle, { color: colors.text }]}>{achievement.title}</Text>
+                <Text style={[styles.achievementDescription, { color: colors.textSecondary }]}>
+                  {achievement.description}
+                </Text>
+                <View style={styles.progressContainer}>
+                  <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
+                    <View
+                      style={[
+                        styles.progressFill,
+                        {
+                          width: `${(achievement.progress / achievement.maxProgress) * 100}%`,
+                          backgroundColor: achievement.color,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.progressText, { color: colors.textSecondary }]}>
+                    {achievement.progress}/{achievement.maxProgress}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          ))}
+        </Animated.View>
+
+        {/* Motivational Quote */}
+        <Animated.View
+          style={[
+            styles.section,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <View style={[styles.quoteCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+            <LinearGradient
+              colors={[colors.accent + '20', colors.accent + '10']}
+              style={styles.quoteGradient}
+            >
+              <Star size={32} color={colors.accent} />
+              <Text style={[styles.quoteText, { color: colors.text }]}>
+                "The beautiful thing about learning is that no one can take it away from you."
+              </Text>
+              <Text style={[styles.quoteAuthor, { color: colors.textSecondary }]}>— B.B. King</Text>
+            </LinearGradient>
+          </View>
+        </Animated.View>
+      </View>
+    </ScrollView>
   );
 }
 
