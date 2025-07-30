@@ -299,74 +299,81 @@ export default function HomeScreen() {
             </View>
             
             <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-            
-            <View style={styles.statItem}>
+            <View style={styles.statItem}></View>
               <View style={[styles.statIcon, { backgroundColor: colors.error + '30' }]}>
-                <Flame size={20} color={colors.error} />
+              <Flame size={20} color={colors.error} />
               </View>
               <Text style={[styles.statNumber, { color: colors.text }]}>7</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Day Streak</Text>
             </View>
-          </View>
-        </Animated.View>
-      </LinearGradient>
+            </View>
+          </Animated.View>
+          </LinearGradient>
 
-      <View style={styles.content}>
-        {/* Guest Banner */}
-        {user?.isGuest && <GuestBanner />}
+          <View style={styles.content}>
+          {/* Guest Banner */}
+          {user?.isGuest && <GuestBanner />}
 
-        {/* Todos List */}
-        <Animated.View
-          style={[
+          {/* Todos List */}
+          <Animated.View
+            style={[
             styles.section,
             {
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
             },
-          ]}
-        >
-          <View style={styles.sectionHeader}>
+            ]}
+          >
+            <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>My Todos</Text>
-          </View>
-          <View style={[styles.todoCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+            </View>
+            <View style={[styles.todoCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
             <View style={styles.todoInputContainer}>
               <TextInput
-                style={[styles.todoInput, { borderColor: colors.border, color: colors.text }]}
-                placeholder="Add a new todo..."
-                placeholderTextColor={colors.textSecondary}
-                value={newTodoTitle}
-                onChangeText={setNewTodoTitle}
+              style={[styles.todoInput, { borderColor: colors.border, color: colors.text }]}
+              placeholder="Add a new todo..."
+              placeholderTextColor={colors.textSecondary}
+              value={newTodoTitle}
+              onChangeText={setNewTodoTitle}
               />
               <TouchableOpacity
-                style={[styles.addTodoButton, { backgroundColor: colors.primary }]}
-                onPress={addTodo}
+              style={[styles.addTodoButton, { backgroundColor: colors.primary }]}
+              onPress={addTodo}
               >
-                <Ionicons name="add" size={24} color="#fff" />
+              <Ionicons name="add" size={24} color="#fff" />
               </TouchableOpacity>
             </View>
-            <FlatList
-              data={todos}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <View style={[styles.todoListItem, { borderBottomColor: colors.border }]}>
-                  <Text style={[item.is_complete ? styles.completed : { color: colors.text }]}>{item.title}</Text>
+            <View>
+              {todos.length > 0 ? (
+              todos.map((item) => (
+                <View 
+                key={item.id.toString()} 
+                style={[styles.todoListItem, { borderBottomColor: colors.border }]}
+                >
+                <Text style={[item.is_complete ? styles.completed : { color: colors.text }]}>
+                  {item.title}
+                </Text>
                 </View>
+              ))
+              ) : (
+              <Text style={{ color: colors.textSecondary, textAlign: 'center', paddingVertical: 10 }}>
+                No todos yet. Add one!
+              </Text>
               )}
-              ListEmptyComponent={<Text style={{ color: colors.textSecondary, textAlign: 'center', paddingVertical: 10 }}>No todos yet. Add one!</Text>}
-            />
-          </View>
-        </Animated.View>
+            </View>
+            </View>
+          </Animated.View>
 
-        {/* Quick Actions */}
-        <Animated.View
-          style={[
+          {/* Quick Actions */}
+          <Animated.View
+            style={[
             styles.section,
             {
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
             },
-          ]}
-        >
+            ]}
+          >
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
             {quickActions.map((action, index) => (
