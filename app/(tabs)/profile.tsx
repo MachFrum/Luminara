@@ -8,23 +8,29 @@ import {
   Alert
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
-// Icon mapping for replacement
-const User = (props) => <Ionicons name="person-outline" {...props} />;
-const Settings = (props) => <Ionicons name="settings-outline" {...props} />;
-const Bell = (props) => <Ionicons name="notifications-outline" {...props} />;
-const Shield = (props) => <Ionicons name="shield-checkmark-outline" {...props} />;
-const HelpCircle = (props) => <Ionicons name="help-circle-outline" {...props} />;
-const LogOut = (props) => <Ionicons name="log-out-outline" {...props} />;
-const Camera = (props) => <Ionicons name="camera-outline" {...props} />;
-const Moon = (props) => <Ionicons name="moon-outline" {...props} />;
-const Volume2 = (props) => <Ionicons name="volume-medium-outline" {...props} />;
-const Monitor = (props) => <Ionicons name="desktop-outline" {...props} />;
-const Users = (props) => <Ionicons name="people-outline" {...props} />;
-const Crown = (props) => <Ionicons name="ribbon-outline" {...props} />;
-const ChevronRight = (props) => <Ionicons name="chevron-forward-outline" {...props} />;
-const Smartphone = (props) => <Ionicons name="phone-portrait-outline" {...props} />;
+// Feather icon components with proper TypeScript types
+interface IconProps {
+  color: string;
+  size: number;
+}
+
+const User: React.FC<IconProps> = ({ color, size }) => <Feather name="user" size={size} color={color} />;
+const Settings: React.FC<IconProps> = ({ color, size }) => <Feather name="settings" size={size} color={color} />;
+const Bell: React.FC<IconProps> = ({ color, size }) => <Feather name="bell" size={size} color={color} />;
+const Shield: React.FC<IconProps> = ({ color, size }) => <Feather name="shield" size={size} color={color} />;
+const HelpCircle: React.FC<IconProps> = ({ color, size }) => <Feather name="help-circle" size={size} color={color} />;
+const LogOut: React.FC<IconProps> = ({ color, size }) => <Feather name="log-out" size={size} color={color} />;
+const Camera: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
+const Moon: React.FC<IconProps> = ({ color, size }) => <Feather name="moon" size={size} color={color} />;
+const Volume2: React.FC<IconProps> = ({ color, size }) => <Feather name="volume-2" size={size} color={color} />;
+const Monitor: React.FC<IconProps> = ({ color, size }) => <Feather name="monitor" size={size} color={color} />;
+const Users: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
+const Crown: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const ChevronRight: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
+const Smartphone: React.FC<IconProps> = ({ color, size }) => <Feather name="smartphone" size={size} color={color} />;
+
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -48,6 +54,7 @@ export default function ProfileScreen() {
   const handleDevMach = () => {
     router.push('/dev-mach');
   };
+  
   const settingsGroups = [
     {
       title: "Account",

@@ -5,106 +5,69 @@ import * as SecureStore from 'expo-secure-store';
 export type Theme = 'light' | 'dark';
 
 interface ThemeColors {
-  // Background colors
+  primary: string;
   background: string;
   surface: string;
-  surfaceSecondary: string;
-  surfaceTertiary: string;
-  
-  // Text colors
+  accent: string;
   text: string;
   textSecondary: string;
-  textTertiary: string;
-  
-  // Primary colors
-  primary: string;
-  primaryLight: string;
-  primaryDark: string;
-  
-  // Accent colors
-  accent: string;
-  accentLight: string;
-  
-  // Status colors
-  success: string;
-  warning: string;
-  error: string;
-  
-  // Border colors
-  border: string;
-  borderLight: string;
-  
-  // Shadow colors
-  shadow: string;
-  
-  // Overlay colors
-  overlay: string;
-  overlayLight: string;
 }
 
 const lightTheme: ThemeColors = {
-  background: '#F9FAFB',
+  primary: '#0A0A0A',
+  background: '#F5F5F7',
   surface: '#FFFFFF',
-  surfaceSecondary: '#F3F4F6',
-  surfaceTertiary: '#E5E7EB',
-  
-  text: '#1F2937',
+  accent: '#34D399',
+  text: '#0A0A0A',
   textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
-  
-  primary: '#8A2BE2',
-  primaryLight: '#9B59B6',
-  primaryDark: '#6A1B9A',
-  
-  accent: '#6366F1',
-  accentLight: '#8B5CF6',
-  
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  
-  border: '#E5E7EB',
-  borderLight: '#F3F4F6',
-  
-  shadow: '#000000',
-  
-  overlay: 'rgba(0, 0, 0, 0.5)',
-  overlayLight: 'rgba(0, 0, 0, 0.1)',
 };
 
 const darkTheme: ThemeColors = {
-  background: '#0F0F0F',
-  surface: '#1A1A1A',
-  surfaceSecondary: '#262626',
-  surfaceTertiary: '#404040',
-  
-  text: '#FFFFFF',
-  textSecondary: '#D1D5DB',
-  textTertiary: '#9CA3AF',
-  
-  primary: '#A855F7',
-  primaryLight: '#C084FC',
-  primaryDark: '#7C3AED',
-  
-  accent: '#8B5CF6',
-  accentLight: '#A78BFA',
-  
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  
-  border: '#374151',
-  borderLight: '#4B5563',
-  
-  shadow: '#000000',
-  
-  overlay: 'rgba(0, 0, 0, 0.7)',
-  overlayLight: 'rgba(255, 255, 255, 0.1)',
+  primary: '#FFFFFF',
+  background: '#121212',
+  surface: '#1E1E1E',
+  accent: '#34D399',
+  text: '#E5E5E5',
+  textSecondary: '#A1A1AA',
+};
+
+interface Typography {
+  h1: { fontSize: number; fontWeight: 'bold' };
+  h2: { fontSize: number; fontWeight: 'bold' };
+  h3: { fontSize: number; fontWeight: 'bold' };
+  body: { fontSize: number; fontWeight: 'normal' };
+  caption: { fontSize: number; fontWeight: 'normal' };
+}
+
+const typography: Typography = {
+  h1: { fontSize: 32, fontWeight: 'bold' },
+  h2: { fontSize: 24, fontWeight: 'bold' },
+  h3: { fontSize: 20, fontWeight: 'bold' },
+  body: { fontSize: 16, fontWeight: 'normal' },
+  caption: { fontSize: 12, fontWeight: 'normal' },
+};
+
+interface Spacing {
+  xs: number;
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+}
+
+const spacing: Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 40,
 };
 
 interface ThemeContextType {
   theme: Theme;
   colors: ThemeColors;
+  typography: Typography;
+  spacing: Spacing;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
 }
@@ -162,7 +125,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, colors, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, colors, typography, spacing, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -13,33 +13,41 @@ import {
   FlatList,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import GuestBanner from '@/components/GuestBanner';
 import { supabase } from '@/lib/supabase';
+import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
 
-// Icon mapping for replacement
-const BookOpen = (props) => <Ionicons name="book-outline" {...props} />;
-const TrendingUp = (props) => <Ionicons name="trending-up-outline" {...props} />;
-const Target = (props) => <Ionicons name="aperture-outline" {...props} />;
-const Clock = (props) => <Ionicons name="time-outline" {...props} />;
-const Star = (props) => <Ionicons name="star-outline" {...props} />;
-const Flame = (props) => <Ionicons name="flame-outline" {...props} />;
-const Trophy = (props) => <Ionicons name="trophy-outline" {...props} />;
-const ChevronRight = (props) => <Ionicons name="chevron-forward-outline" {...props} />;
-const Zap = (props) => <Ionicons name="flash-outline" {...props} />;
-const Brain = (props) => <Ionicons name="brain-outline" {...props} />;
-const Users = (props) => <Ionicons name="people-outline" {...props} />;
-const Award = (props) => <Ionicons name="ribbon-outline" {...props} />;
+// Feather icon components with proper TypeScript types
+interface IconProps {
+  color: string;
+  size: number;
+}
+
+const BookOpen: React.FC<IconProps> = ({ color, size }) => <Feather name="book-open" size={size} color={color} />;
+const TrendingUp: React.FC<IconProps> = ({ color, size }) => <Feather name="trending-up" size={size} color={color} />;
+const Target: React.FC<IconProps> = ({ color, size }) => <Feather name="target" size={size} color={color} />;
+const Clock: React.FC<IconProps> = ({ color, size }) => <Feather name="clock" size={size} color={color} />;
+const Star: React.FC<IconProps> = ({ color, size }) => <Feather name="star" size={size} color={color} />;
+const Flame: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
+const Trophy: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const ChevronRight: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
+const Zap: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
+const Brain: React.FC<IconProps> = ({ color, size }) => <Feather name="cpu" size={size} color={color} />;
+const Users: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
+const Award: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const Plus: React.FC<IconProps> = ({ color, size }) => <Feather name="plus" size={size} color={color} />;
 
 interface QuickAction {
   id: string;
   title: string;
   description: string;
-  icon: any;
+  icon: React.FC<IconProps>;
   color: string;
   route: string;
 }
@@ -57,7 +65,7 @@ interface Achievement {
   id: string;
   title: string;
   description: string;
-  icon: any;
+  icon: React.FC<IconProps>;
   color: string;
   progress: number;
   maxProgress: number;
@@ -71,7 +79,7 @@ type Todo = {
 
 export default function HomeScreen() {
   const { user } = useAuth();
-  const { colors } = useTheme();
+  const { colors, typography, spacing } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -117,6 +125,7 @@ export default function HomeScreen() {
 
   const addTodo = async () => {
     if (!newTodoTitle.trim() || !user) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     const { data, error } = await supabase
       .from('todos')
@@ -137,7 +146,7 @@ export default function HomeScreen() {
       title: 'Start Learning',
       description: 'Ask a question or solve a problem',
       icon: Brain,
-      color: colors.primary,
+      color: colors.accent,
       route: '/learn',
     },
     {
@@ -145,7 +154,7 @@ export default function HomeScreen() {
       title: 'View Progress',
       description: 'Track your learning journey',
       icon: TrendingUp,
-      color: colors.primaryDark,
+      color: colors.accent,
       route: '/progress',
     },
     {
@@ -161,7 +170,7 @@ export default function HomeScreen() {
       title: 'Achievements',
       description: 'View your accomplishments',
       icon: Award,
-      color: colors.warning,
+      color: colors.accent,
       route: '/achievements',
     },
   ];
@@ -199,7 +208,7 @@ export default function HomeScreen() {
       title: 'Problem Solver',
       description: 'Solve 50 problems',
       icon: Target,
-      color: colors.primary,
+      color: colors.accent,
       progress: 35,
       maxProgress: 50,
     },
@@ -208,7 +217,7 @@ export default function HomeScreen() {
       title: 'Streak Master',
       description: '7 day learning streak',
       icon: Flame,
-      color: colors.error,
+      color: colors.accent,
       progress: 7,
       maxProgress: 7,
     },
@@ -217,13 +226,14 @@ export default function HomeScreen() {
       title: 'Quick Learner',
       description: 'Complete 5 topics',
       icon: Zap,
-      color: colors.warning,
+      color: colors.accent,
       progress: 3,
       maxProgress: 5,
     },
   ];
 
   const onRefresh = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setRefreshing(true);
     await fetchTodos();
     setRefreshing(false);
@@ -231,9 +241,9 @@ export default function HomeScreen() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return colors.success;
-      case 'medium': return colors.warning;
-      case 'hard': return colors.error;
+      case 'easy': return colors.accent;
+      case 'medium': return colors.textSecondary;
+      case 'hard': return colors.primary;
       default: return colors.textSecondary;
     }
   };
@@ -253,13 +263,13 @@ export default function HomeScreen() {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor={colors.primary}
-          colors={[colors.primary]}
+          tintColor={colors.accent}
+          colors={[colors.accent]}
         />
       }
     >
       {/* Header */}
-      <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.header}>
+      <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.header}>
         <Animated.View
           style={[
             styles.headerContent,
@@ -270,130 +280,123 @@ export default function HomeScreen() {
           ]}
         >
           <View style={styles.welcomeSection}>
-            <Text style={[styles.greeting, { color: colors.textSecondary }]}>
+            <Text style={[styles.greeting, { color: colors.textSecondary, ...typography.caption }]}>
               {getGreeting()}, {user?.firstName || 'Learner'} 👋
             </Text>
-            <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+            <Text style={[styles.welcomeTitle, { color: colors.primary, ...typography.h1 }]}>
               Ready to learn something new?
             </Text>
           </View>
 
           {/* Stats Overview */}
-          <View style={[styles.statsContainer, { backgroundColor: colors.overlayLight }]}>
+          <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <View style={[styles.statIcon, { backgroundColor: colors.primary + '30' }]}>
-                <BookOpen size={20} color={colors.primary} />
-              </View>
-              <Text style={[styles.statNumber, { color: colors.text }]}>127</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Problems</Text>
+              <BookOpen size={20} color={colors.accent} />
+              <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>127</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Problems</Text>
             </View>
             
-            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+            <View style={[styles.statDivider, { backgroundColor: colors.textSecondary }]} />
             
             <View style={styles.statItem}>
-              <View style={[styles.statIcon, { backgroundColor: colors.primaryDark + '30' }]}>
-                <Clock size={20} color={colors.primaryDark} />
-              </View>
-              <Text style={[styles.statNumber, { color: colors.text }]}>42</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Hours</Text>
+              <Clock size={20} color={colors.accent} />
+              <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>42</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Hours</Text>
             </View>
             
-            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-            <View style={styles.statItem}></View>
-              <View style={[styles.statIcon, { backgroundColor: colors.error + '30' }]}>
-              <Flame size={20} color={colors.error} />
-              </View>
-              <Text style={[styles.statNumber, { color: colors.text }]}>7</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Day Streak</Text>
+            <View style={[styles.statDivider, { backgroundColor: colors.textSecondary }]} />
+            
+            <View style={styles.statItem}>
+              <Flame size={20} color={colors.accent} />
+              <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>7</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Day Streak</Text>
             </View>
-            </View>
-          </Animated.View>
-          </LinearGradient>
+          </BlurView>
+        </Animated.View>
+      </BlurView>
 
-          <View style={styles.content}>
-          {/* Guest Banner */}
-          {user?.isGuest && <GuestBanner />}
+      <View style={styles.content}>
+        {/* Guest Banner */}
+        {user?.isGuest && <GuestBanner />}
 
-          {/* Todos List */}
-          <Animated.View
-            style={[
+        {/* Todos List */}
+        <Animated.View
+          style={[
             styles.section,
             {
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
             },
-            ]}
-          >
-            <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>My Todos</Text>
-            </View>
-            <View style={[styles.todoCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+          ]}
+        >
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>My Todos</Text>
+          </View>
+          <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.todoCard}>
             <View style={styles.todoInputContainer}>
               <TextInput
-              style={[styles.todoInput, { borderColor: colors.border, color: colors.text }]}
-              placeholder="Add a new todo..."
-              placeholderTextColor={colors.textSecondary}
-              value={newTodoTitle}
-              onChangeText={setNewTodoTitle}
+                style={[styles.todoInput, { borderColor: colors.textSecondary, color: colors.text, ...typography.body }]}
+                placeholder="Add a new todo..."
+                placeholderTextColor={colors.textSecondary}
+                value={newTodoTitle}
+                onChangeText={setNewTodoTitle}
               />
               <TouchableOpacity
-              style={[styles.addTodoButton, { backgroundColor: colors.primary }]}
-              onPress={addTodo}
+                style={[styles.addTodoButton, { backgroundColor: colors.accent }]}
+                onPress={addTodo}
               >
-              <Ionicons name="add" size={24} color="#fff" />
+                <Plus size={24} color={colors.primary} />
               </TouchableOpacity>
             </View>
             <View>
               {todos.length > 0 ? (
-              todos.map((item) => (
-                <View 
-                key={item.id.toString()} 
-                style={[styles.todoListItem, { borderBottomColor: colors.border }]}
-                >
-                <Text style={[item.is_complete ? styles.completed : { color: colors.text }]}>
-                  {item.title}
-                </Text>
-                </View>
-              ))
+                todos.map((item) => (
+                  <View 
+                    key={item.id.toString()} 
+                    style={[styles.todoListItem, { borderBottomColor: colors.textSecondary }]}
+                  >
+                    <Text style={[item.is_complete ? styles.completed : { color: colors.text, ...typography.body }]}>
+                      {item.title}
+                    </Text>
+                  </View>
+                ))
               ) : (
-              <Text style={{ color: colors.textSecondary, textAlign: 'center', paddingVertical: 10 }}>
-                No todos yet. Add one!
-              </Text>
+                <Text style={{ color: colors.textSecondary, textAlign: 'center', paddingVertical: spacing.md, ...typography.body }}>
+                  No todos yet. Add one!
+                </Text>
               )}
             </View>
-            </View>
-          </Animated.View>
+          </BlurView>
+        </Animated.View>
 
-          {/* Quick Actions */}
-          <Animated.View
-            style={[
+        {/* Quick Actions */}
+        <Animated.View
+          style={[
             styles.section,
             {
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
             },
-            ]}
-          >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
+          ]}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
             {quickActions.map((action, index) => (
               <TouchableOpacity
                 key={action.id}
-                style={[styles.quickActionCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
+                style={styles.quickActionCard}
                 activeOpacity={0.8}
+                onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
               >
-                <LinearGradient
-                  colors={[action.color + '20', action.color + '10']}
-                  style={styles.quickActionGradient}
-                >
-                  <View style={[styles.quickActionIcon, { backgroundColor: action.color + '30' }]}>
+                <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.quickActionBlur}>
+                  <View style={[styles.quickActionIcon, { backgroundColor: colors.surface }]}>
                     <action.icon size={24} color={action.color} />
                   </View>
-                  <Text style={[styles.quickActionTitle, { color: colors.text }]}>{action.title}</Text>
-                  <Text style={[styles.quickActionDescription, { color: colors.textSecondary }]}>
+                  <Text style={[styles.quickActionTitle, { color: colors.primary, ...typography.body }]}>{action.title}</Text>
+                  <Text style={[styles.quickActionDescription, { color: colors.textSecondary, ...typography.caption }]}>
                     {action.description}
                   </Text>
-                </LinearGradient>
+                </BlurView>
               </TouchableOpacity>
             ))}
           </View>
@@ -410,32 +413,35 @@ export default function HomeScreen() {
           ]}
         >
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
-            <TouchableOpacity>
-              <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
+            <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>Recent Activity</Text>
+            <TouchableOpacity onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}>
+              <Text style={[styles.seeAllText, { color: colors.accent, ...typography.body }]}>See All</Text>
             </TouchableOpacity>
           </View>
           
           {recentActivities.map((activity) => (
             <TouchableOpacity
               key={activity.id}
-              style={[styles.activityCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
+              style={styles.activityCard}
               activeOpacity={0.8}
+              onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
             >
-              <Image source={{ uri: activity.imageUrl }} style={styles.activityImage} />
-              <View style={styles.activityContent}>
-                <Text style={[styles.activityTitle, { color: colors.text }]}>{activity.title}</Text>
-                <Text style={[styles.activitySubject, { color: colors.primary }]}>{activity.subject}</Text>
-                <View style={styles.activityMeta}>
-                  <Text style={[styles.activityTime, { color: colors.textSecondary }]}>{activity.timeAgo}</Text>
-                  <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(activity.difficulty) + '20' }]}>
-                    <Text style={[styles.difficultyText, { color: getDifficultyColor(activity.difficulty) }]}>
-                      {activity.difficulty}
-                    </Text>
+              <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.activityBlur}>
+                <Image source={{ uri: activity.imageUrl }} style={styles.activityImage} />
+                <View style={styles.activityContent}>
+                  <Text style={[styles.activityTitle, { color: colors.primary, ...typography.body }]}>{activity.title}</Text>
+                  <Text style={[styles.activitySubject, { color: colors.accent, ...typography.caption }]}>{activity.subject}</Text>
+                  <View style={styles.activityMeta}>
+                    <Text style={[styles.activityTime, { color: colors.textSecondary, ...typography.caption }]}>{activity.timeAgo}</Text>
+                    <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(activity.difficulty) }]}>
+                      <Text style={[styles.difficultyText, { color: colors.primary, ...typography.caption }]}>
+                        {activity.difficulty}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-              <ChevronRight size={20} color={colors.textTertiary} />
+                <ChevronRight size={20} color={colors.textSecondary} />
+              </BlurView>
             </TouchableOpacity>
           ))}
         </Animated.View>
@@ -451,42 +457,44 @@ export default function HomeScreen() {
           ]}
         >
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Achievements</Text>
-            <TouchableOpacity>
-              <Text style={[styles.seeAllText, { color: colors.primary }]}>View All</Text>
+            <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>Achievements</Text>
+            <TouchableOpacity onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}>
+              <Text style={[styles.seeAllText, { color: colors.accent, ...typography.body }]}>View All</Text>
             </TouchableOpacity>
           </View>
           
           {achievements.map((achievement) => (
             <View
               key={achievement.id}
-              style={[styles.achievementCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
+              style={styles.achievementCard}
             >
-              <View style={[styles.achievementIcon, { backgroundColor: achievement.color + '20' }]}>
-                <achievement.icon size={24} color={achievement.color} />
-              </View>
-              <View style={styles.achievementContent}>
-                <Text style={[styles.achievementTitle, { color: colors.text }]}>{achievement.title}</Text>
-                <Text style={[styles.achievementDescription, { color: colors.textSecondary }]}>
-                  {achievement.description}
-                </Text>
-                <View style={styles.progressContainer}>
-                  <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
-                    <View
-                      style={[
-                        styles.progressFill,
-                        {
-                          width: `${(achievement.progress / achievement.maxProgress) * 100}%`,
-                          backgroundColor: achievement.color,
-                        },
-                      ]}
-                    />
-                  </View>
-                  <Text style={[styles.progressText, { color: colors.textSecondary }]}>
-                    {achievement.progress}/{achievement.maxProgress}
-                  </Text>
+              <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.achievementBlur}>
+                <View style={[styles.achievementIcon, { backgroundColor: colors.surface }]}>
+                  <achievement.icon size={24} color={colors.accent} />
                 </View>
-              </View>
+                <View style={styles.achievementContent}>
+                  <Text style={[styles.achievementTitle, { color: colors.primary, ...typography.body }]}>{achievement.title}</Text>
+                  <Text style={[styles.achievementDescription, { color: colors.textSecondary, ...typography.caption }]}>
+                    {achievement.description}
+                  </Text>
+                  <View style={styles.progressContainer}>
+                    <View style={[styles.progressBar, { backgroundColor: colors.textSecondary }]}>
+                      <View
+                        style={[
+                          styles.progressFill,
+                          {
+                            width: `${(achievement.progress / achievement.maxProgress) * 100}%`,
+                            backgroundColor: colors.accent,
+                          },
+                        ]}
+                      />
+                    </View>
+                    <Text style={[styles.progressText, { color: colors.textSecondary, ...typography.caption }]}>
+                      {achievement.progress}/{achievement.maxProgress}
+                    </Text>
+                  </View>
+                </View>
+              </BlurView>
             </View>
           ))}
         </Animated.View>
@@ -501,18 +509,19 @@ export default function HomeScreen() {
             },
           ]}
         >
-          <View style={[styles.quoteCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+          <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.quoteCard}>
             <LinearGradient
-              colors={[colors.accent + '20', colors.accent + '10']}
+              colors={[colors.accent, '#22c58b']}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
               style={styles.quoteGradient}
             >
-              <Star size={32} color={colors.accent} />
-              <Text style={[styles.quoteText, { color: colors.text }]}>
+              <Star size={32} color={colors.primary} />
+              <Text style={[styles.quoteText, { color: colors.primary, ...typography.body }]}>
                 "The beautiful thing about learning is that no one can take it away from you."
               </Text>
-              <Text style={[styles.quoteAuthor, { color: colors.textSecondary }]}>— B.B. King</Text>
+              <Text style={[styles.quoteAuthor, { color: colors.primary, ...typography.caption }]}>— B.B. King</Text>
             </LinearGradient>
-          </View>
+          </BlurView>
         </Animated.View>
       </View>
     </ScrollView>
@@ -527,6 +536,9 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    overflow: 'hidden',
   },
   headerContent: {
     alignItems: 'center',
@@ -536,22 +548,21 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   greeting: {
-    fontSize: 16,
     marginBottom: 8,
   },
   welcomeTitle: {
-    fontSize: 24,
-    fontWeight: '700',
     textAlign: 'center',
-    color: '#FFF',
   },
   statsContainer: {
     flexDirection: 'row',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 20,
+    padding: 15,
     alignItems: 'center',
     justifyContent: 'space-around',
     width: '100%',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    overflow: 'hidden',
   },
   statItem: {
     alignItems: 'center',
@@ -566,18 +577,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statNumber: {
-    fontSize: 20,
-    fontWeight: '700',
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
     textAlign: 'center',
   },
   statDivider: {
     width: 1,
     height: 40,
     marginHorizontal: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   content: {
     padding: 20,
@@ -592,11 +601,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontWeight: 'bold',
   },
   seeAllText: {
-    fontSize: 14,
     fontWeight: '600',
   },
   quickActionsGrid: {
@@ -606,64 +613,65 @@ const styles = StyleSheet.create({
   },
   quickActionCard: {
     width: (width - 60) / 2,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  quickActionGradient: {
+  quickActionBlur: {
     padding: 20,
     alignItems: 'center',
-    minHeight: 140,
+    minHeight: 160,
   },
   quickActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
   },
   quickActionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
     marginBottom: 4,
     textAlign: 'center',
   },
   quickActionDescription: {
-    fontSize: 12,
     textAlign: 'center',
     lineHeight: 16,
   },
   activityCard: {
+    marginBottom: 12,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  activityBlur: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   activityImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     marginRight: 16,
   },
   activityContent: {
     flex: 1,
   },
   activityTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
     marginBottom: 4,
   },
   activitySubject: {
-    fontSize: 14,
     marginBottom: 8,
   },
   activityMeta: {
@@ -671,34 +679,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  activityTime: {
-    fontSize: 12,
-  },
+  activityTime: {},
   difficultyBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 15,
   },
   difficultyText: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontWeight: 'bold',
     textTransform: 'uppercase',
   },
   achievementCard: {
+    marginBottom: 12,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  achievementBlur: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   achievementIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -707,12 +716,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   achievementTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
     marginBottom: 4,
   },
   achievementDescription: {
-    fontSize: 14,
     marginBottom: 8,
   },
   progressContainer: {
@@ -721,50 +728,47 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     flex: 1,
-    height: 6,
-    borderRadius: 3,
+    height: 8,
+    borderRadius: 4,
     marginRight: 12,
   },
   progressFill: {
     height: '100%',
-    borderRadius: 3,
+    borderRadius: 4,
   },
   progressText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontWeight: 'bold',
     minWidth: 40,
   },
   quoteCard: {
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   quoteGradient: {
     padding: 24,
     alignItems: 'center',
   },
   quoteText: {
-    fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
     lineHeight: 24,
     marginVertical: 16,
   },
   quoteAuthor: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   todoCard: {
-    borderRadius: 12,
+    borderRadius: 20,
     padding: 16,
     marginBottom: 12,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   todoInputContainer: {
     flexDirection: 'row',
@@ -773,16 +777,15 @@ const styles = StyleSheet.create({
   todoInput: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
     marginRight: 10,
   },
   addTodoButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
+    width: 50,
+    height: 50,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -792,6 +795,5 @@ const styles = StyleSheet.create({
   },
   completed: {
     textDecorationLine: 'line-through',
-    color: '#aaa',
   },
 });

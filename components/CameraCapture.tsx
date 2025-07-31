@@ -10,22 +10,23 @@ import {
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-
-// Icon mapping for replacement
-const CameraIcon = (props) => <Ionicons name="camera-outline" {...props} />;
-const RotateCcw = (props) => <Ionicons name="camera-reverse-outline" {...props} />;
-const ImageIcon = (props) => <Ionicons name="image-outline" {...props} />;
-const X = (props) => <Ionicons name="close-outline" {...props} />;
-const Zap = (props) => <Ionicons name="flash-outline" {...props} />;
+import { BlurView } from 'expo-blur';
+import { useTheme } from '@/contexts/ThemeContext';
+import * as Haptics from 'expo-haptics';
 import { 
   CameraViewComponent, 
   CameraTypeEnum, 
   FlashModeEnum, 
   useCameraPermissionsHook, 
-  HapticsModule,
   isCameraAvailable 
 } from '@/utils/camera';
+
+// Placeholder for custom SVG icons
+const CameraIcon = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const RotateCcw = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const ImageIcon = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const X = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const Zap = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,17 +36,17 @@ interface CameraCaptureProps {
 }
 
 export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps) {
+  const { colors, typography, spacing } = useTheme();
   const [facing, setFacing] = useState<string>(CameraTypeEnum?.back || 'back');
   const [permission, requestPermission] = useCameraPermissionsHook();
   const [isCapturing, setIsCapturing] = useState(false);
-  const [flashMode, setFlashMode] = useState<string>(FlashModeEnum?.off || 'off');
   const cameraRef = useRef<any>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   if (!permission) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading camera...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loadingText, { color: colors.text }]}>Loading camera...</Text>
       </View>
     );
   }
@@ -54,19 +55,19 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
     return (
       <View style={styles.permissionContainer}>
         <LinearGradient
-          colors={['#8A2BE2', '#6A1B9A']}
+          colors={[colors.primary, colors.accent]}
           style={styles.permissionGradient}
         >
           <CameraIcon size={64} color="#FFF" />
-          <Text style={styles.permissionTitle}>Camera Access Needed</Text>
-          <Text style={styles.permissionText}>
+          <Text style={[styles.permissionTitle, { color: '#FFF', ...typography.h2 }]}>Camera Access Needed</Text>
+          <Text style={[styles.permissionText, { color: '#FFF', ...typography.body }]}>
             To help you learn, we need access to your camera to capture problems and concepts.
           </Text>
           <TouchableOpacity
             style={styles.permissionButton}
             onPress={requestPermission}
           >
-            <Text style={styles.permissionButtonText}>Grant Permission</Text>
+            <Text style={[styles.permissionButtonText, { color: colors.primary, ...typography.body }]}>Grant Permission</Text>
           </TouchableOpacity>
         </LinearGradient>
       </View>
@@ -75,51 +76,25 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
 
   const toggleCameraFacing = () => {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
-    
-    if (Platform.OS !== 'web' && HapticsModule?.selectionAsync) {
-      try {
-        HapticsModule.selectionAsync();
-      } catch (error) {
-        console.warn('Haptics not available:', error);
-      }
-    }
+    Haptics.selectionAsync();
   };
 
   const takePicture = async () => {
     if (cameraRef.current && !isCapturing) {
       try {
         setIsCapturing(true);
-        
-        // Animate capture button
         Animated.sequence([
-          Animated.timing(scaleAnim, {
-            toValue: 0.9,
-            duration: 100,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleAnim, {
-            toValue: 1,
-            duration: 100,
-            useNativeDriver: true,
-          }),
+          Animated.timing(scaleAnim, { toValue: 0.9, duration: 100, useNativeDriver: true }),
+          Animated.timing(scaleAnim, { toValue: 1, duration: 100, useNativeDriver: true }),
         ]).start();
-        
-        if (Platform.OS !== 'web' && HapticsModule?.impactAsync) {
-          try {
-            HapticsModule.impactAsync();
-          } catch (error) {
-            console.warn('Haptics not available:', error);
-          }
-        }
-        
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
         if (Platform.OS === 'web' || !isCameraAvailable()) {
-          // For web platform, simulate capture
           setTimeout(() => {
             setIsCapturing(false);
             onCapture({ uri: 'https://images.pexels.com/photos/6238297/pexels-photo-6238297.jpeg' });
           }, 1000);
         } else {
-          // For native platforms
           if (cameraRef.current?.takePictureAsync) {
             const photo = await cameraRef.current.takePictureAsync();
             onCapture(photo);
@@ -154,84 +129,48 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
     ref: cameraRef
   };
 
-  if (isCameraAvailable()) {
-    if (FlashModeEnum && flashMode) {
-      cameraProps.flash = flashMode;
-    }
-  }
-
   return (
     <View style={styles.container}>
       <CameraViewComponent {...cameraProps}>
-        {/* Header */}
-        <LinearGradient
-          colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0)']}
-          style={styles.topOverlay}
-        >
+        <BlurView intensity={80} tint="dark" style={styles.topOverlay}>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <View style={styles.closeButtonInner}>
-              <X size={24} color="#FFF" />
-            </View>
+            <X size={24} color="#FFF" />
           </TouchableOpacity>
-          <Text style={styles.instructionText}>
-            Point your camera at any problem or concept
+          <Text style={[styles.instructionText, { color: '#FFF', ...typography.body }]}>
+            Point your camera at any problem
           </Text>
-        </LinearGradient>
+        </BlurView>
 
-        {/* Focus Frame */}
         <View style={styles.centerOverlay}>
-          <View style={styles.focusFrame}>
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
-          </View>
+          <View style={styles.focusFrame} />
         </View>
 
-        {/* Controls */}
-        <LinearGradient
-          colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.8)']}
-          style={styles.bottomOverlay}
-        >
+        <BlurView intensity={80} tint="dark" style={styles.bottomOverlay}>
           <View style={styles.controlsContainer}>
-            <TouchableOpacity
-              style={styles.controlButton}
-              onPress={openGallery}
-            >
-              <View style={styles.controlButtonInner}>
-                <ImageIcon size={24} color="#FFF" />
-              </View>
+            <TouchableOpacity style={styles.controlButton} onPress={openGallery}>
+              <ImageIcon size={24} color="#FFF" />
             </TouchableOpacity>
 
             <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
               <TouchableOpacity
-                style={[styles.captureButton, isCapturing && styles.captureButtonActive]}
+                style={styles.captureButton}
                 onPress={takePicture}
                 disabled={isCapturing}
               >
                 <LinearGradient
-                  colors={isCapturing ? ['#EF4444', '#DC2626'] : ['#8A2BE2', '#6A1B9A']}
+                  colors={isCapturing ? ['#FF6B6B', '#FF4757'] : [colors.accent, '#22c58b']}
                   style={styles.captureButtonInner}
                 >
-                  {isCapturing ? (
-                    <Zap size={32} color="#FFF" />
-                  ) : (
-                    <CameraIcon size={32} color="#FFF" />
-                  )}
+                  {isCapturing ? <Zap size={32} color="#FFF" /> : <CameraIcon size={32} color="#FFF" />}
                 </LinearGradient>
               </TouchableOpacity>
             </Animated.View>
 
-            <TouchableOpacity
-              style={styles.controlButton}
-              onPress={toggleCameraFacing}
-            >
-              <View style={styles.controlButtonInner}>
-                <RotateCcw size={24} color="#FFF" />
-              </View>
+            <TouchableOpacity style={styles.controlButton} onPress={toggleCameraFacing}>
+              <RotateCcw size={24} color="#FFF" />
             </TouchableOpacity>
           </View>
-        </LinearGradient>
+        </BlurView>
       </CameraViewComponent>
     </View>
   );
@@ -246,11 +185,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#121212',
   },
   loadingText: {
     fontSize: 18,
-    color: '#FFFFFF',
   },
   permissionContainer: {
     flex: 1,
@@ -262,15 +199,10 @@ const styles = StyleSheet.create({
     padding: 40,
   },
   permissionTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#FFF',
     marginTop: 24,
     marginBottom: 16,
   },
   permissionText: {
-    fontSize: 16,
-    color: '#E5E7EB',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
@@ -282,7 +214,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   permissionButtonText: {
-    color: '#8A2BE2',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -296,116 +227,56 @@ const styles = StyleSheet.create({
     right: 0,
     paddingTop: 60,
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   closeButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    zIndex: 1,
+    padding: 10,
   },
-  closeButtonInner: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  instructionText: {
+    fontWeight: '600',
+  },
+  centerOverlay: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  instructionText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginTop: 60,
-  },
-  centerOverlay: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -150 }, { translateY: -100 }],
-  },
   focusFrame: {
-    width: 300,
-    height: 200,
-    position: 'relative',
-  },
-  corner: {
-    position: 'absolute',
-    width: 20,
-    height: 20,
-    borderColor: '#8A2BE2',
-    borderWidth: 3,
-  },
-  topLeft: {
-    top: 0,
-    left: 0,
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
-  },
-  topRight: {
-    top: 0,
-    right: 0,
-    borderLeftWidth: 0,
-    borderBottomWidth: 0,
-  },
-  bottomLeft: {
-    bottom: 0,
-    left: 0,
-    borderRightWidth: 0,
-    borderTopWidth: 0,
-  },
-  bottomRight: {
-    bottom: 0,
-    right: 0,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
+    width: width * 0.8,
+    height: height * 0.3,
+    borderWidth: 2,
+    borderColor: '#FFF',
+    borderRadius: 24,
+    backgroundColor: 'transparent',
   },
   bottomOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    paddingTop: 40,
+    paddingTop: 30,
     paddingBottom: 40,
-    alignItems: 'center',
   },
   controlsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    width: '100%',
-    paddingHorizontal: 40,
   },
   controlButton: {
-    width: 60,
-    height: 60,
-  },
-  controlButtonInner: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    padding: 15,
   },
   captureButton: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     overflow: 'hidden',
     borderWidth: 4,
     borderColor: '#FFF',
   },
-  captureButtonActive: {
-    borderColor: '#EF4444',
-  },
   captureButtonInner: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

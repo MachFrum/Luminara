@@ -1,13 +1,13 @@
-import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Animated, Easing } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface LoadingSpinnerProps {
   size?: number;
-  color?: string;
 }
 
-export default function LoadingSpinner({ size = 40, color = '#8A2BE2' }: LoadingSpinnerProps) {
+export default function LoadingSpinner({ size = 40 }: LoadingSpinnerProps) {
+  const { colors } = useTheme();
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -15,6 +15,7 @@ export default function LoadingSpinner({ size = 40, color = '#8A2BE2' }: Loading
       Animated.timing(rotateAnim, {
         toValue: 1,
         duration: 1000,
+        easing: Easing.linear,
         useNativeDriver: true,
       })
     ).start();
@@ -34,22 +35,11 @@ export default function LoadingSpinner({ size = 40, color = '#8A2BE2' }: Loading
             width: size,
             height: size,
             borderRadius: size / 2,
+            borderColor: colors.accent,
             transform: [{ rotate }],
           },
         ]}
-      >
-        <LinearGradient
-          colors={[color, 'transparent']}
-          style={[
-            styles.gradient,
-            {
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-            },
-          ]}
-        />
-      </Animated.View>
+      />
     </View>
   );
 }
@@ -60,10 +50,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   spinner: {
-    borderWidth: 3,
-    borderColor: 'transparent',
-  },
-  gradient: {
-    position: 'absolute',
+    borderWidth: 4,
+    borderTopColor: 'transparent',
+    borderRightColor: 'transparent',
   },
 });

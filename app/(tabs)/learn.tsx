@@ -12,21 +12,29 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { Feather } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 
-// Icon mapping for replacement
-const RefreshCw = (props) => <Ionicons name="refresh-outline" {...props} />;
-const Search = (props) => <Ionicons name="search-outline" {...props} />;
-const Filter = (props) => <Ionicons name="filter-outline" {...props} />;
-const Type = (props) => <Ionicons name="text-outline" {...props} />;
-const Mic = (props) => <Ionicons name="mic-outline" {...props} />;
-const Camera = (props) => <Ionicons name="camera-outline" {...props} />;
-const X = (props) => <Ionicons name="close-outline" {...props} />;
-const Send = (props) => <Ionicons name="send-outline" {...props} />;
-const Square = (props) => <Ionicons name="square-outline" {...props} />;
-const Play = (props) => <Ionicons name="play-outline" {...props} />;
-const Pause = (props) => <Ionicons name="pause-outline" {...props} />;
-const ArrowLeft = (props) => <Ionicons name="arrow-back-outline" {...props} />;
+// Feather icon components with proper TypeScript types
+interface IconProps {
+  color: string;
+  size: number;
+}
+
+const RefreshCw: React.FC<IconProps> = ({ color, size }) => <Feather name="refresh-cw" size={size} color={color} />;
+const Search: React.FC<IconProps> = ({ color, size }) => <Feather name="search" size={size} color={color} />;
+const Filter: React.FC<IconProps> = ({ color, size }) => <Feather name="filter" size={size} color={color} />;
+const Type: React.FC<IconProps> = ({ color, size }) => <Feather name="type" size={size} color={color} />;
+const Mic: React.FC<IconProps> = ({ color, size }) => <Feather name="mic" size={size} color={color} />;
+const Camera: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
+const X: React.FC<IconProps> = ({ color, size }) => <Feather name="x" size={size} color={color} />;
+const Send: React.FC<IconProps> = ({ color, size }) => <Feather name="send" size={size} color={color} />;
+const Square: React.FC<IconProps> = ({ color, size }) => <Feather name="square" size={size} color={color} />;
+const Play: React.FC<IconProps> = ({ color, size }) => <Feather name="play" size={size} color={color} />;
+const Pause: React.FC<IconProps> = ({ color, size }) => <Feather name="pause" size={size} color={color} />;
+const ArrowLeft: React.FC<IconProps> = ({ color, size }) => <Feather name="arrow-left" size={size} color={color} />;
+
 import ProblemPreview from '@/components/ProblemPreview';
 import InputMethodCard from '@/components/InputMethodCard';
 import PulsingActionButton from '@/components/PulsingActionButton';
@@ -38,7 +46,7 @@ import { ProblemEntry, InputMethod } from '@/types/learning';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function LearnScreen() {
-  const { colors } = useTheme();
+  const { colors, typography, spacing } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const [showInputModal, setShowInputModal] = useState(false);
   const [selectedInputMethod, setSelectedInputMethod] = useState<string | null>(null);
@@ -60,7 +68,7 @@ export default function LearnScreen() {
       title: 'Type Problem',
       description: 'Enter your question or problem as text',
       icon: 'type',
-      color: colors.primary,
+      color: colors.accent,
       type: 'text',
     },
     {
@@ -68,7 +76,7 @@ export default function LearnScreen() {
       title: 'Voice Input',
       description: 'Record your question using voice',
       icon: 'mic',
-      color: colors.primaryDark,
+      color: colors.accent,
       type: 'voice',
     },
     {
@@ -88,12 +96,14 @@ export default function LearnScreen() {
   );
 
   const handleRefresh = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   };
 
   const openInputModal = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setShowInputModal(true);
     Animated.spring(modalAnim, {
       toValue: 1,
@@ -104,6 +114,7 @@ export default function LearnScreen() {
   };
 
   const closeInputModal = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Animated.timing(modalAnim, {
       toValue: 0,
       duration: 300,
@@ -118,12 +129,13 @@ export default function LearnScreen() {
   };
 
   const handleInputMethodSelect = (methodId: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedInputMethod(methodId);
   };
 
   const handleTextSubmit = () => {
     if (!textInput.trim()) return;
-    
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     submitTextProblem();
   };
 
@@ -138,7 +150,6 @@ export default function LearnScreen() {
       });
       
       if (problemId) {
-        // Keep modal open to show progress
         setTextInput('');
       }
     } catch (error) {
@@ -148,12 +159,12 @@ export default function LearnScreen() {
   };
 
   const toggleRecording = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (isRecording) {
       setIsRecording(false);
       submitVoiceProblem();
     } else {
       setIsRecording(true);
-      // Start recording animation
       Animated.loop(
         Animated.sequence([
           Animated.timing(recordingAnim, {
@@ -191,6 +202,7 @@ export default function LearnScreen() {
   };
 
   const handleCameraCapture = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setShowCamera(true);
   };
 
@@ -219,6 +231,7 @@ export default function LearnScreen() {
   };
 
   const handleCameraClose = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowCamera(false);
   };
 
@@ -228,10 +241,12 @@ export default function LearnScreen() {
       if (result.status === 'completed') {
         setIsProcessing(false);
         closeInputModal();
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         Alert.alert('Success', 'Your problem has been solved! Check your learning history.');
         refetch(); // Refresh the problems list
       } else if (result.status === 'error') {
         setIsProcessing(false);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         Alert.alert('Error', result.errorMessage || 'Failed to process your problem.');
       }
     }
@@ -241,6 +256,7 @@ export default function LearnScreen() {
   React.useEffect(() => {
     if (submissionError) {
       setIsProcessing(false);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert('Error', submissionError);
     }
   }, [submissionError]);
@@ -249,7 +265,7 @@ export default function LearnScreen() {
     if (!selectedInputMethod) {
       return (
         <View style={styles.inputMethodsContainer}>
-          <Text style={[styles.modalTitle, { color: colors.text }]}>How would you like to input your problem?</Text>
+          <Text style={[styles.modalTitle, { color: colors.primary, ...typography.h2 }]}>How would you like to input your problem?</Text>
           {inputMethods.map((method, index) => (
             <InputMethodCard
               key={method.id}
@@ -266,21 +282,21 @@ export default function LearnScreen() {
       case 'text':
         return (
           <View style={styles.textInputContainer}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>Type Your Problem</Text>
+            <Text style={[styles.modalTitle, { color: colors.primary, ...typography.h2 }]}>Type Your Problem</Text>
             
             {result && result.status === 'processing' && (
-              <View style={styles.processingContainer}>
-                <LoadingSpinner size={20} color={colors.primary} />
-                <Text style={[styles.processingText, { color: colors.textSecondary }]}>
+              <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.processingContainer}>
+                <LoadingSpinner size={20} />
+                <Text style={[styles.processingText, { color: colors.textSecondary, ...typography.body }]}>
                   AI is analyzing your problem...
                 </Text>
-              </View>
+              </BlurView>
             )}
             
             <TextInput
-              style={[styles.textInput, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border }]}
+              style={[styles.textInput, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.textSecondary, ...typography.body }]}
               placeholder="Enter your question or problem here..."
-              placeholderTextColor={colors.textTertiary}
+              placeholderTextColor={colors.textSecondary}
               multiline
               value={textInput}
               onChangeText={setTextInput}
@@ -292,15 +308,15 @@ export default function LearnScreen() {
               disabled={!textInput.trim() || isProcessing}
             >
               <LinearGradient
-                colors={textInput.trim() && !isProcessing ? [colors.primary, colors.primaryDark] : [colors.textTertiary, colors.textSecondary]}
+                colors={textInput.trim() && !isProcessing ? [colors.accent, colors.primary] : [colors.textSecondary, colors.textSecondary]}
                 style={styles.submitGradient}
               >
                 {isProcessing ? (
-                  <LoadingSpinner size={20} color="#FFFFFF" />
+                  <LoadingSpinner size={20} />
                 ) : (
-                  <Send size={20} color="#FFFFFF" />
+                  <Send size={20} color={colors.primary} />
                 )}
-                <Text style={styles.submitText}>
+                <Text style={[styles.submitText, { color: colors.primary, ...typography.body }]}>
                   {isProcessing ? 'Processing...' : 'Submit'}
                 </Text>
               </LinearGradient>
@@ -311,15 +327,15 @@ export default function LearnScreen() {
       case 'voice':
         return (
           <View style={styles.voiceInputContainer}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>Voice Recording</Text>
+            <Text style={[styles.modalTitle, { color: colors.primary, ...typography.h2 }]}>Voice Recording</Text>
             
             {result && result.status === 'processing' && (
-              <View style={styles.processingContainer}>
-                <LoadingSpinner size={20} color={colors.primary} />
-                <Text style={[styles.processingText, { color: colors.textSecondary }]}>
+              <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.processingContainer}>
+                <LoadingSpinner size={20} />
+                <Text style={[styles.processingText, { color: colors.textSecondary, ...typography.body }]}>
                   AI is processing your voice recording...
                 </Text>
-              </View>
+              </BlurView>
             )}
             
             <View style={styles.voiceControls}>
@@ -332,20 +348,20 @@ export default function LearnScreen() {
                   style={[
                     styles.recordButtonInner,
                     { transform: [{ scale: recordingAnim }] },
-                    isRecording && { backgroundColor: colors.error },
-                    !isRecording && { backgroundColor: colors.primary },
+                    isRecording && { backgroundColor: colors.textSecondary },
+                    !isRecording && { backgroundColor: colors.accent },
                   ]}
                 >
                   {isProcessing ? (
-                    <LoadingSpinner size={32} color="#FFFFFF" />
+                    <LoadingSpinner size={32} />
                   ) : isRecording ? (
-                    <Square size={32} color="#FFFFFF" />
+                    <Square size={32} color={colors.primary} />
                   ) : (
-                    <Mic size={32} color="#FFFFFF" />
+                    <Mic size={32} color={colors.primary} />
                   )}
                 </Animated.View>
               </TouchableOpacity>
-              <Text style={[styles.recordingStatus, { color: colors.textSecondary }]}>
+              <Text style={[styles.recordingStatus, { color: colors.textSecondary, ...typography.body }]}>
                 {isProcessing ? 'Processing your recording...' :
                  isRecording ? 'Recording... Tap to stop' : 'Tap to start recording'}
               </Text>
@@ -356,15 +372,15 @@ export default function LearnScreen() {
       case 'camera':
         return (
           <View style={styles.cameraInputContainer}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>Camera Capture</Text>
+            <Text style={[styles.modalTitle, { color: colors.primary, ...typography.h2 }]}>Camera Capture</Text>
             
             {result && result.status === 'processing' && (
-              <View style={styles.processingContainer}>
-                <LoadingSpinner size={20} color={colors.primary} />
-                <Text style={[styles.processingText, { color: colors.textSecondary }]}>
+              <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.processingContainer}>
+                <LoadingSpinner size={20} />
+                <Text style={[styles.processingText, { color: colors.textSecondary, ...typography.body }]}>
                   AI is analyzing your image...
                 </Text>
-              </View>
+              </BlurView>
             )}
             
             <View style={styles.cameraControls}>
@@ -373,13 +389,13 @@ export default function LearnScreen() {
                 onPress={handleCameraCapture}
               >
                 <LinearGradient
-                  colors={[colors.primary, colors.primaryDark]}
+                  colors={[colors.accent, colors.primary]}
                   style={styles.cameraGradient}
                 >
-                  <Camera size={32} color="#FFFFFF" />
+                  <Camera size={32} color={colors.primary} />
                 </LinearGradient>
               </TouchableOpacity>
-              <Text style={[styles.cameraStatus, { color: colors.textSecondary }]}>
+              <Text style={[styles.cameraStatus, { color: colors.textSecondary, ...typography.body }]}>
                 Tap to open camera
               </Text>
             </View>
@@ -403,26 +419,26 @@ export default function LearnScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.header}>
+      <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.header}>
         <View style={styles.headerContent}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Learning History</Text>
-          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+          <Text style={[styles.headerTitle, { color: colors.primary, ...typography.h1 }]}>Learning History</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary, ...typography.body }]}>
             {problems.length} problems solved
           </Text>
           
           {/* Search Bar */}
-          <View style={[styles.searchContainer, { backgroundColor: colors.overlayLight }]}>
+          <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.searchContainer}>
             <Search size={20} color={colors.textSecondary} />
             <TextInput
-              style={[styles.searchInput, { color: colors.text }]}
+              style={[styles.searchInput, { color: colors.text, ...typography.body }]}
               placeholder="Search problems, topics, or tags..."
-              placeholderTextColor={colors.textTertiary}
+              placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
-          </View>
+          </BlurView>
         </View>
-      </LinearGradient>
+      </BlurView>
 
       {/* Content */}
       <View style={styles.content}>
@@ -432,29 +448,26 @@ export default function LearnScreen() {
           onPress={handleRefresh}
           disabled={refreshing || isLoadingHistory}
         >
-          <LinearGradient
-            colors={[colors.surface, colors.surfaceSecondary]}
-            style={styles.refreshGradient}
-          >
+          <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.refreshGradient}>
             {refreshing || isLoadingHistory ? (
-              <LoadingSpinner size={20} color={colors.primary} />
+              <LoadingSpinner size={20} />
             ) : (
-              <RefreshCw size={20} color={colors.primary} />
+              <RefreshCw size={20} color={colors.accent} />
             )}
-            <Text style={[styles.refreshText, { color: colors.primary }]}>
+            <Text style={[styles.refreshText, { color: colors.accent, ...typography.body }]}>
               {refreshing || isLoadingHistory ? 'Loading...' : 'Refresh'}
             </Text>
-          </LinearGradient>
+          </BlurView>
         </TouchableOpacity>
 
         {/* Problems List */}
         <ScrollView style={styles.problemsList} showsVerticalScrollIndicator={false}>
           {(historyError || submissionError) && (
-            <View style={styles.errorContainer}>
-              <Text style={[styles.errorText, { color: colors.error }]}>
+            <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.errorContainer}>
+              <Text style={[styles.errorText, { color: colors.textSecondary, ...typography.body }]}>
                 {historyError || submissionError}
               </Text>
-            </View>
+            </BlurView>
           )}
           
           {filteredProblems.length > 0 ? (
@@ -463,8 +476,8 @@ export default function LearnScreen() {
             ))
           ) : (
             <View style={styles.emptyState}>
-              <Text style={[styles.emptyTitle, { color: colors.text }]}>No problems found</Text>
-              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+              <Text style={[styles.emptyTitle, { color: colors.primary, ...typography.h3 }]}>No problems found</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textSecondary, ...typography.body }]}>
                 {searchQuery ? 'Try adjusting your search terms' : 'Start solving problems to see them here'}
               </Text>
             </View>
@@ -484,11 +497,10 @@ export default function LearnScreen() {
         animationType="none"
         onRequestClose={closeInputModal}
       >
-        <View style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}>
+        <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.modalOverlay}>
           <Animated.View
             style={[
               styles.modalContent,
-              { backgroundColor: colors.surface },
               {
                 transform: [
                   {
@@ -503,14 +515,14 @@ export default function LearnScreen() {
             ]}
           >
             <TouchableOpacity style={styles.closeButton} onPress={closeInputModal}>
-              <X size={24} color={colors.text} />
+              <X size={24} color={colors.textSecondary} />
             </TouchableOpacity>
             
             <ScrollView showsVerticalScrollIndicator={false}>
               {renderInputContent()}
             </ScrollView>
           </Animated.View>
-        </View>
+        </BlurView>
       </Modal>
     </View>
   );
@@ -524,19 +536,17 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    overflow: 'hidden',
   },
   headerContent: {
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#FFF',
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: '#E5E7EB',
     marginBottom: 20,
   },
   searchContainer: {
@@ -546,11 +556,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     width: '100%',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    overflow: 'hidden',
   },
   searchInput: {
     flex: 1,
     marginLeft: 12,
-    fontSize: 16,
   },
   content: {
     flex: 1,
@@ -558,7 +570,7 @@ const styles = StyleSheet.create({
   },
   refreshButton: {
     marginBottom: 20,
-    borderRadius: 12,
+    borderRadius: 20,
     overflow: 'hidden',
   },
   refreshGradient: {
@@ -569,7 +581,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   refreshText: {
-    fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
   },
@@ -583,12 +594,9 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
     marginBottom: 8,
   },
   emptySubtitle: {
-    fontSize: 16,
     textAlign: 'center',
   },
   fab: {
@@ -601,12 +609,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    overflow: 'hidden',
   },
   modalContent: {
     borderRadius: 20,
     padding: 24,
     width: '100%',
     maxHeight: '80%',
+    backgroundColor: 'rgba(255,255,255,0.1)', // Fallback for blur
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   closeButton: {
     position: 'absolute',
@@ -616,8 +629,6 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -631,7 +642,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     padding: 16,
-    fontSize: 16,
     minHeight: 120,
     textAlignVertical: 'top',
     marginBottom: 20,
@@ -651,8 +661,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   submitText: {
-    color: '#FFFFFF',
-    fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
   },
@@ -674,7 +682,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   recordingStatus: {
-    fontSize: 16,
     textAlign: 'center',
   },
   cameraInputContainer: {
@@ -696,7 +703,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cameraStatus: {
-    fontSize: 16,
     textAlign: 'center',
   },
   processingContainer: {
@@ -706,22 +712,22 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     borderRadius: 8,
-    backgroundColor: 'rgba(138, 43, 226, 0.1)',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   processingText: {
     marginLeft: 8,
-    fontSize: 14,
   },
   errorContainer: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#EF4444',
+    overflow: 'hidden',
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   errorText: {
-    fontSize: 14,
     fontWeight: '500',
   },
 });

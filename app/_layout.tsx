@@ -13,7 +13,12 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
         <AuthProvider>
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack screenOptions={{
+            headerShown: false,
+            animation: 'fade', // Apply a fade animation for screen transitions
+            // You can explore more complex transitions using cardStyleInterpolator
+            // For example: cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+          }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="auth/login" options={{ headerShown: false }} />
             <Stack.Screen name="auth/register" options={{ headerShown: false }} />

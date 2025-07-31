@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
@@ -33,8 +33,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ size, color }) => (
-            <Ionicons name="home" size={size} color={color} />
+          tabBarIcon: ({ size, color }: { size: number; color: string }) => (
+            <Feather name="home" size={size} color={color} />
           ),
         }}
       />
@@ -42,8 +42,8 @@ export default function TabLayout() {
         name="learn"
         options={{
           title: 'Learn',
-          tabBarIcon: ({ size, color }) => (
-            <Ionicons name="book" size={size} color={color} />
+          tabBarIcon: ({ size, color }: { size: number; color: string }) => (
+            <Feather name="book-open" size={size} color={color} />
           ),
         }}
       />
@@ -51,8 +51,8 @@ export default function TabLayout() {
         name="progress"
         options={{
           title: 'Progress',
-          tabBarIcon: ({ size, color }) => (
-            <Ionicons name="bar-chart" size={size} color={color} />
+          tabBarIcon: ({ size, color }: { size: number; color: string }) => (
+            <Feather name="bar-chart-3" size={size} color={color} />
           ),
         }}
       />
@@ -60,8 +60,8 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ size, color }) => (
-            <Ionicons name="person" size={size} color={color} />
+          tabBarIcon: ({ size, color }: { size: number; color: string }) => (
+            <Feather name="user" size={size} color={color} />
           ),
         }}
       />

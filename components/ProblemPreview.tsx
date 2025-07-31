@@ -6,38 +6,35 @@ import {
   TouchableOpacity,
   Image,
   Animated,
-  Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-
-// Icon mapping for replacement
-const Clock = (props) => <Ionicons name="time-outline" {...props} />;
-const Tag = (props) => <Ionicons name="pricetag-outline" {...props} />;
-const ChevronDown = (props) => <Ionicons name="chevron-down-outline" {...props} />;
-const ChevronUp = (props) => <Ionicons name="chevron-up-outline" {...props} />;
-const Mic = (props) => <Ionicons name="mic-outline" {...props} />;
-const Camera = (props) => <Ionicons name="camera-outline" {...props} />;
-const Type = (props) => <Ionicons name="text-outline" {...props} />;
-import { ProblemEntry } from '@/types/learning';
+import { BlurView } from 'expo-blur';
 import { useTheme } from '@/contexts/ThemeContext';
+import * as Haptics from 'expo-haptics';
+
+// Placeholder for custom SVG icons
+const Clock = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const Tag = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const ChevronDown = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const Mic = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const Camera = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const Type = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+
+import { ProblemEntry } from '@/types/learning';
 
 interface ProblemPreviewProps {
   problem: ProblemEntry;
   onPress?: () => void;
 }
 
-const { width } = Dimensions.get('window');
-
 export default function ProblemPreview({ problem, onPress }: ProblemPreviewProps) {
-  const { colors } = useTheme();
+  const { colors, typography, spacing } = useTheme();
   const [expanded, setExpanded] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   const toggleExpanded = () => {
     const toValue = expanded ? 0 : 1;
-    
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Animated.parallel([
       Animated.timing(animatedHeight, {
         toValue,
@@ -50,13 +47,12 @@ export default function ProblemPreview({ problem, onPress }: ProblemPreviewProps
         useNativeDriver: true,
       }),
     ]).start();
-    
     setExpanded(!expanded);
   };
 
-  const expandedHeight = animatedHeight.interpolate({
+  const expandedHeightValue = animatedHeight.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 200],
+    outputRange: [0, 250], // Adjust as needed
   });
 
   const rotateInterpolate = rotateAnim.interpolate({
@@ -72,78 +68,46 @@ export default function ProblemPreview({ problem, onPress }: ProblemPreviewProps
     }
   };
 
-  const getDifficultyColor = () => {
-    switch (problem.difficulty) {
-      case 'easy': return colors.success;
-      case 'medium': return colors.warning;
-      case 'hard': return colors.error;
-      default: return colors.textSecondary;
-    }
-  };
-
   const TypeIcon = getTypeIcon();
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.9}>
-      <LinearGradient
-        colors={[colors.surface, colors.surfaceSecondary]}
-        style={styles.gradient}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
+      <BlurView
+        intensity={80}
+        tint={colors.background === '#121212' ? 'dark' : 'light'}
+        style={styles.container}
       >
-        {/* Preview Header */}
         <View style={styles.previewHeader}>
           <View style={styles.leftContent}>
             {problem.imageUrl && (
-              <Image source={{ uri: problem.imageUrl }} style={[styles.thumbnail, { backgroundColor: colors.border }]} />
+              <Image source={{ uri: problem.imageUrl }} style={styles.thumbnail} />
             )}
             <View style={styles.textContent}>
-              <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
-                {problem.title}
-              </Text>
-              <Text style={[styles.topic, { color: colors.primary }]} numberOfLines={1}>
-                {problem.topic}
-              </Text>
-              <View style={styles.metadata}>
-                <View style={styles.typeIndicator}>
-                  <TypeIcon size={12} color={colors.primary} />
-                  <Text style={[styles.typeText, { color: colors.primary }]}>{problem.type}</Text>
-                </View>
-                <View style={styles.timeIndicator}>
-                  <Clock size={12} color={colors.textSecondary} />
-                  <Text style={[styles.timeText, { color: colors.textSecondary }]}>{problem.timeSpent}m</Text>
-                </View>
-                <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor() + '20' }]}>
-                  <Text style={[styles.difficultyText, { color: getDifficultyColor() }]}>
-                    {problem.difficulty}
-                  </Text>
-                </View>
-              </View>
+              <Text style={[styles.title, { color: colors.text, ...typography.h3 }]}>{problem.title}</Text>
+              <Text style={[styles.topic, { color: colors.accent, ...typography.body }]}>{problem.topic}</Text>
             </View>
           </View>
-          
           <TouchableOpacity style={styles.expandButton} onPress={toggleExpanded}>
             <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
-              <ChevronDown size={20} color={colors.primary} />
+              <ChevronDown size={20} color={colors.textSecondary} />
             </Animated.View>
           </TouchableOpacity>
         </View>
 
-        {/* Expanded Content */}
-        <Animated.View style={[styles.expandedContent, { height: expandedHeight }]}>
-          <View style={[styles.expandedInner, { borderTopColor: colors.border }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Problem Description</Text>
-            <Text style={[styles.description, { color: colors.textSecondary }]}>{problem.description}</Text>
-            
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>AI Solution</Text>
-            <Text style={[styles.solution, { color: colors.textSecondary }]}>{problem.solution}</Text>
-            
+        <Animated.View style={[styles.expandedContent, { height: expandedHeightValue }]}>
+          <View style={styles.expandedInner}>
+            <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Description</Text>
+            <Text style={[styles.description, { color: colors.textSecondary, ...typography.body }]}>{problem.description}</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Solution</Text>
+            <Text style={[styles.solution, { color: colors.textSecondary, ...typography.body }]}>{problem.solution}</Text>
             {problem.tags.length > 0 && (
               <>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Tags</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Tags</Text>
                 <View style={styles.tagsContainer}>
                   {problem.tags.map((tag, index) => (
-                    <View key={index} style={[styles.tag, { backgroundColor: colors.primary + '20' }]}>
+                    <View key={index} style={[styles.tag, { backgroundColor: colors.accent }]}>
                       <Tag size={10} color={colors.primary} />
-                      <Text style={[styles.tagText, { color: colors.primary }]}>{tag}</Text>
+                      <Text style={[styles.tagText, { color: colors.primary, ...typography.caption }]}>{tag}</Text>
                     </View>
                   ))}
                 </View>
@@ -151,7 +115,7 @@ export default function ProblemPreview({ problem, onPress }: ProblemPreviewProps
             )}
           </View>
         </Animated.View>
-      </LinearGradient>
+      </BlurView>
     </TouchableOpacity>
   );
 }
@@ -159,16 +123,14 @@ export default function ProblemPreview({ problem, onPress }: ProblemPreviewProps
 const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
-    borderRadius: 16,
+    borderRadius: 24,
     overflow: 'hidden',
-  },
-  gradient: {
-    padding: 16,
   },
   previewHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    padding: 16,
   },
   leftContent: {
     flexDirection: 'row',
@@ -185,46 +147,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
     marginBottom: 4,
   },
-  topic: {
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  metadata: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  typeIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  typeText: {
-    fontSize: 12,
-    textTransform: 'capitalize',
-  },
-  timeIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  timeText: {
-    fontSize: 12,
-  },
-  difficultyBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  difficultyText: {
-    fontSize: 10,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
+  topic: {},
   expandButton: {
     padding: 8,
   },
@@ -232,21 +157,18 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   expandedInner: {
-    paddingTop: 16,
+    padding: 16,
     borderTopWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
     marginTop: 12,
+    marginBottom: 8,
   },
   description: {
-    fontSize: 14,
     lineHeight: 20,
   },
   solution: {
-    fontSize: 14,
     lineHeight: 20,
   },
   tagsContainer: {
@@ -257,12 +179,10 @@ const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
     gap: 4,
   },
-  tagText: {
-    fontSize: 12,
-  },
+  tagText: {},
 });

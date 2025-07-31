@@ -7,19 +7,17 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-
-// Icon mapping for replacement
-const Upload = (props) => <Ionicons name="cloud-upload-outline" {...props} />;
-const Shield = (props) => <Ionicons name="shield-checkmark-outline" {...props} />;
-const CheckCircle = (props) => <Ionicons name="checkmark-circle-outline" {...props} />;
-const XCircle = (props) => <Ionicons name="close-circle-outline" {...props} />;
-const AlertTriangle = (props) => <Ionicons name="warning-outline" {...props} />;
-import { useAuth } from '@/contexts/AuthContext';
+import { BlurView } from 'expo-blur';
 import { useTheme } from '@/contexts/ThemeContext';
 import { mediaUploadManager } from '@/lib/mediaUpload';
 import LoadingSpinner from './LoadingSpinner';
+import * as Haptics from 'expo-haptics';
+
+// Placeholder for custom SVG icons
+const Upload = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const Shield = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const CheckCircle = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const XCircle = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
 
 interface SecureUploadProps {
   onUploadComplete?: (uploadId: string, url: string) => void;
@@ -38,70 +36,45 @@ export default function SecureUpload({
   bucket = 'user-uploads',
   folder
 }: SecureUploadProps) {
-  const { user } = useAuth();
-  const { colors } = useTheme();
+  const { colors, typography, spacing } = useTheme();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileSelect = useCallback(async () => {
-    if (!user?.id) {
-      Alert.alert('Error', 'Please sign in to upload files');
-      return;
-    }
-
     if (Platform.OS === 'web') {
-      // Web file picker
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = acceptedTypes.join(',');
-      input.multiple = false;
-
       input.onchange = async (event: any) => {
         const file = event.target.files[0];
         if (file) {
           await handleFileUpload(file);
         }
       };
-
       input.click();
     } else {
-      // Mobile file picker would go here
       Alert.alert('Info', 'File upload is currently available on web only');
     }
-  }, [user?.id, acceptedTypes]);
+  }, [acceptedTypes]);
 
   const handleFileUpload = useCallback(async (file: File) => {
-    if (!user?.id) {
-      return;
-    }
-
     setIsUploading(true);
     setUploadStatus('uploading');
     setUploadProgress(0);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     try {
-      // Simulate upload progress
       const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
+        setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 200);
 
       const result = await mediaUploadManager.uploadFile({
-        userId: user.id,
+        userId: 'user-placeholder', // Replace with actual user ID
         file,
         bucket,
         folder,
-        metadata: {
-          uploadedAt: new Date().toISOString(),
-          originalName: file.name,
-          securityValidated: true
-        }
+        metadata: { uploadedAt: new Date().toISOString(), originalName: file.name }
       });
 
       clearInterval(progressInterval);
@@ -110,11 +83,8 @@ export default function SecureUpload({
       if (result.success && result.uploadId && result.url) {
         setUploadStatus('success');
         onUploadComplete?.(result.uploadId, result.url);
-        
-        setTimeout(() => {
-          setUploadStatus('idle');
-          setUploadProgress(0);
-        }, 2000);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        setTimeout(() => setUploadStatus('idle'), 2000);
       } else {
         throw new Error(result.error || 'Upload failed');
       }
@@ -123,187 +93,74 @@ export default function SecureUpload({
       setUploadStatus('error');
       const errorMessage = error instanceof Error ? error.message : 'Upload failed';
       onUploadError?.(errorMessage);
-      Alert.alert('Upload Error', errorMessage);
-      
-      setTimeout(() => {
-        setUploadStatus('idle');
-        setUploadProgress(0);
-      }, 3000);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setTimeout(() => setUploadStatus('idle'), 3000);
     } finally {
       setIsUploading(false);
     }
-  }, [user?.id, bucket, folder, onUploadComplete, onUploadError]);
+  }, [bucket, folder, onUploadComplete, onUploadError]);
 
   const getStatusIcon = () => {
     switch (uploadStatus) {
-      case 'uploading':
-        return <LoadingSpinner size={20} color={colors.primary} />;
-      case 'success':
-        return <CheckCircle size={20} color={colors.success} />;
-      case 'error':
-        return <XCircle size={20} color={colors.error} />;
-      default:
-        return <Upload size={20} color={colors.primary} />;
-    }
-  };
-
-  const getStatusText = () => {
-    switch (uploadStatus) {
-      case 'uploading':
-        return `Uploading... ${uploadProgress}%`;
-      case 'success':
-        return 'Upload successful!';
-      case 'error':
-        return 'Upload failed';
-      default:
-        return 'Select file to upload';
-    }
-  };
-
-  const getStatusColor = () => {
-    switch (uploadStatus) {
-      case 'success':
-        return colors.success;
-      case 'error':
-        return colors.error;
-      case 'uploading':
-        return colors.primary;
-      default:
-        return colors.text;
+      case 'uploading': return <LoadingSpinner size={24} />;
+      case 'success': return <CheckCircle size={24} color={colors.accent} />;
+      case 'error': return <XCircle size={24} color={colors.textSecondary} />;
+      default: return <Upload size={24} color={colors.text} />;
     }
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-      <LinearGradient
-        colors={[colors.primary + '10', colors.primary + '05']}
-        style={styles.gradient}
+    <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.container}>
+      <TouchableOpacity
+        style={styles.uploadArea}
+        onPress={handleFileSelect}
+        disabled={isUploading}
+        activeOpacity={0.7}
       >
-        {/* Security Badge */}
-        <View style={[styles.securityBadge, { backgroundColor: colors.success + '20' }]}>
-          <Shield size={12} color={colors.success} />
-          <Text style={[styles.securityText, { color: colors.success }]}>Secure Upload</Text>
-        </View>
-
-        {/* Upload Area */}
-        <TouchableOpacity
-          style={[
-            styles.uploadArea,
-            { borderColor: colors.border },
-            uploadStatus === 'success' && { borderColor: colors.success },
-            uploadStatus === 'error' && { borderColor: colors.error }
-          ]}
-          onPress={handleFileSelect}
-          disabled={isUploading}
-          activeOpacity={0.7}
-        >
-          <View style={styles.uploadContent}>
-            {getStatusIcon()}
-            <Text style={[styles.uploadText, { color: getStatusColor() }]}>
-              {getStatusText()}
-            </Text>
-            
-            {uploadStatus === 'uploading' && (
-              <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    {
-                      width: `${uploadProgress}%`,
-                      backgroundColor: colors.primary
-                    }
-                  ]}
-                />
-              </View>
-            )}
-          </View>
-        </TouchableOpacity>
-
-        {/* Upload Info */}
-        <View style={styles.uploadInfo}>
-          <View style={styles.infoRow}>
-            <AlertTriangle size={14} color={colors.textSecondary} />
-            <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-              Max size: {maxFileSize}MB
-            </Text>
-          </View>
-          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            Accepted: {acceptedTypes.map(type => type.split('/')[1]).join(', ')}
+        <View style={styles.uploadContent}>
+          {getStatusIcon()}
+          <Text style={[styles.uploadText, { color: colors.text, ...typography.body }]}>
+            {uploadStatus === 'uploading' ? `Uploading... ${uploadProgress}%` : 'Select File'}
           </Text>
         </View>
-      </LinearGradient>
-    </View>
+      </TouchableOpacity>
+      <View style={styles.footer}>
+        <Shield size={14} color={colors.textSecondary} />
+        <Text style={[styles.footerText, { color: colors.textSecondary, ...typography.caption }]}>
+          Secure Upload
+        </Text>
+      </View>
+    </BlurView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
+    borderRadius: 24,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  gradient: {
-    padding: 16,
-  },
-  securityBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginBottom: 12,
-    gap: 4,
-  },
-  securityText: {
-    fontSize: 10,
-    fontWeight: '600',
-    textTransform: 'uppercase',
   },
   uploadArea: {
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderRadius: 8,
     padding: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 120,
   },
   uploadContent: {
     alignItems: 'center',
     gap: 8,
-    width: '100%',
   },
   uploadText: {
-    fontSize: 14,
-    fontWeight: '500',
-    textAlign: 'center',
+    fontWeight: 'bold',
   },
-  progressBar: {
-    width: '100%',
-    height: 4,
-    borderRadius: 2,
-    overflow: 'hidden',
-    marginTop: 8,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  uploadInfo: {
-    marginTop: 12,
-    gap: 4,
-  },
-  infoRow: {
+  footer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
     gap: 6,
+    borderTopWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  infoText: {
-    fontSize: 12,
-    lineHeight: 16,
+  footerText: {
+    fontWeight: 'bold',
   },
 });

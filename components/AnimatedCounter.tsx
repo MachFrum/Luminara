@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, Animated } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface AnimatedCounterProps {
   value: number;
@@ -10,24 +11,25 @@ interface AnimatedCounterProps {
 }
 
 export default function AnimatedCounter({ 
-  value, 
-  duration = 1000, 
-  style, 
-  suffix = '', 
-  prefix = '' 
+  value,
+  duration = 800,
+  style,
+  suffix = '',
+  prefix = ''
 }: AnimatedCounterProps) {
+  const { typography } = useTheme();
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const displayValue = useRef(0);
+  const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
     const listener = animatedValue.addListener(({ value: animValue }) => {
-      displayValue.current = Math.floor(animValue);
+      setDisplayValue(Math.floor(animValue));
     });
 
     Animated.timing(animatedValue, {
       toValue: value,
       duration,
-      useNativeDriver: false,
+      useNativeDriver: true, // Use native driver for performance
     }).start();
 
     return () => {
@@ -36,22 +38,14 @@ export default function AnimatedCounter({
   }, [value, duration]);
 
   return (
-    <Animated.Text style={[styles.counter, style]}>
-      {prefix}
-      <Animated.Text>
-        {animatedValue.interpolate({
-          inputRange: [0, value],
-          outputRange: ['0', value.toString()],
-          extrapolate: 'clamp',
-        })}
-      </Animated.Text>
-      {suffix}
-    </Animated.Text>
+    <Text style={[styles.counter, typography.h1, style]}>
+      {prefix}{displayValue}{suffix}
+    </Text>
   );
 }
 
 const styles = StyleSheet.create({
   counter: {
-    fontWeight: '700',
+    fontWeight: 'bold',
   },
 });

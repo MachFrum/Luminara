@@ -6,15 +6,15 @@ import {
   TouchableOpacity,
   Animated,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-
-// Icon mapping for replacement
-const Type = (props) => <Ionicons name="text-outline" {...props} />;
-const Mic = (props) => <Ionicons name="mic-outline" {...props} />;
-const Camera = (props) => <Ionicons name="camera-outline" {...props} />;
+import { BlurView } from 'expo-blur';
 import { InputMethod } from '@/types/learning';
 import { useTheme } from '@/contexts/ThemeContext';
+import * as Haptics from 'expo-haptics';
+
+// Placeholder for custom SVG icons
+const Type = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const Mic = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const Camera = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
 
 interface InputMethodCardProps {
   method: InputMethod;
@@ -23,29 +23,18 @@ interface InputMethodCardProps {
 }
 
 export default function InputMethodCard({ method, onPress, index }: InputMethodCardProps) {
-  const { colors } = useTheme();
+  const { colors, typography, spacing } = useTheme();
   const scaleAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
 
   useEffect(() => {
-    const delay = index * 150;
-    
-    Animated.sequence([
-      Animated.delay(delay),
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 100,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-      ]),
-    ]).start();
+    const delay = index * 100;
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      tension: 100,
+      friction: 8,
+      delay,
+      useNativeDriver: true,
+    }).start();
   }, [index]);
 
   const getIcon = () => {
@@ -59,29 +48,27 @@ export default function InputMethodCard({ method, onPress, index }: InputMethodC
 
   const IconComponent = getIcon();
 
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  };
+
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            transform: [
-              { scale: scaleAnim },
-              { translateY: slideAnim },
-            ],
-          },
-        ]}
-      >
-        <LinearGradient
-          colors={[method.color, method.color + '80']}
-          style={styles.gradient}
+    <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <BlurView
+          intensity={80}
+          tint={colors.background === '#121212' ? 'dark' : 'light'}
+          style={styles.container}
         >
-          <View style={[styles.iconContainer, { backgroundColor: colors.overlayLight }]}>
-            <IconComponent size={32} color="#FFFFFF" />
+          <View style={[styles.iconContainer, { backgroundColor: colors.accent }]}>
+            <IconComponent size={32} color={colors.primary} />
           </View>
-          <Text style={[styles.title, { color: colors.surface }]}>{method.title}</Text>
-          <Text style={[styles.description, { color: colors.surface }]}>{method.description}</Text>
-        </LinearGradient>
+          <Text style={[styles.title, { color: colors.text, ...typography.h3 }]}>{method.title}</Text>
+          <Text style={[styles.description, { color: colors.textSecondary, ...typography.body }]}>
+            {method.description}
+          </Text>
+        </BlurView>
       </Animated.View>
     </TouchableOpacity>
   );
@@ -89,15 +76,11 @@ export default function InputMethodCard({ method, onPress, index }: InputMethodC
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  gradient: {
+    borderRadius: 24,
     padding: 24,
     alignItems: 'center',
-    minHeight: 160,
-    justifyContent: 'center',
+    marginBottom: 16,
+    overflow: 'hidden',
   },
   iconContainer: {
     width: 60,
@@ -108,15 +91,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
     marginBottom: 8,
     textAlign: 'center',
   },
   description: {
-    fontSize: 14,
     textAlign: 'center',
-    opacity: 0.9,
     lineHeight: 20,
   },
 });

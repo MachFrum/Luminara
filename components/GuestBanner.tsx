@@ -1,110 +1,78 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-
-// Icon mapping for replacement
-const UserPlus = (props) => <Ionicons name="person-add-outline" {...props} />;
-const X = (props) => <Ionicons name="close-outline" {...props} />;
+import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+
+// Placeholder for custom SVG icons
+const UserPlus = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
+const X = ({ color, size }) => <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />;
 
 interface GuestBannerProps {
   onDismiss?: () => void;
 }
 
 export default function GuestBanner({ onDismiss }: GuestBannerProps) {
-  const { colors } = useTheme();
-  
+  const { colors, typography, spacing } = useTheme();
+
   const handleCreateAccount = () => {
     router.push('/auth/register');
   };
 
   return (
-    <View style={[styles.container, { shadowColor: colors.shadow }]}>
-      <LinearGradient
-        colors={[colors.warning + '30', colors.warning + '20']}
-        style={styles.gradient}
-      >
-        <View style={styles.content}>
-          <View style={[styles.iconContainer, { backgroundColor: colors.warning + '20' }]}>
-            <UserPlus size={20} color={colors.warning} />
-          </View>
-          
-          <View style={styles.textContainer}>
-            <Text style={[styles.title, { color: colors.warning }]}>You're browsing as a guest</Text>
-            <Text style={[styles.subtitle, { color: colors.warning }]}>
-              Create an account to save your progress and access all features
-            </Text>
-          </View>
-          
-          <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: colors.warning }]}
-            onPress={handleCreateAccount}
-          >
-            <Text style={[styles.actionButtonText, { color: colors.surface }]}>Sign Up</Text>
-          </TouchableOpacity>
-          
-          {onDismiss && (
-            <TouchableOpacity style={styles.dismissButton} onPress={onDismiss}>
-              <X size={16} color={colors.warning} />
-            </TouchableOpacity>
-          )}
+    <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.textContainer}>
+          <Text style={[styles.title, { color: colors.text, ...typography.h3 }]}>You're a Guest</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary, ...typography.body }]}>
+            Sign up to save your progress.
+          </Text>
         </View>
-      </LinearGradient>
-    </View>
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: colors.accent }]}
+          onPress={handleCreateAccount}
+        >
+          <Text style={[styles.actionButtonText, { color: colors.primary, ...typography.body }]}>Sign Up</Text>
+        </TouchableOpacity>
+        {onDismiss && (
+          <TouchableOpacity style={styles.dismissButton} onPress={onDismiss}>
+            <X size={16} color={colors.textSecondary} />
+          </TouchableOpacity>
+        )}
+      </View>
+    </BlurView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     margin: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  gradient: {
-    padding: 16,
   },
   content: {
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
   textContainer: {
     flex: 1,
-    marginRight: 12,
   },
   title: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 2,
+    marginBottom: 4,
   },
-  subtitle: {
-    fontSize: 12,
-    lineHeight: 16,
-  },
+  subtitle: {},
   actionButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 20,
-    marginRight: 8,
+    marginLeft: 12,
   },
   actionButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   dismissButton: {
-    padding: 4,
+    padding: 8,
+    marginLeft: 8,
   },
 });

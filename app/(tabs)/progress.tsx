@@ -11,22 +11,27 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
-// Icon mapping for replacement
-const TrendingUp = (props) => <Ionicons name="trending-up-outline" {...props} />;
-const Calendar = (props) => <Ionicons name="calendar-outline" {...props} />;
-const Award = (props) => <Ionicons name="award-outline" {...props} />;
-const Target = (props) => <Ionicons name="aperture-outline" {...props} />;
-const Book = (props) => <Ionicons name="book-outline" {...props} />;
-const Clock = (props) => <Ionicons name="time-outline" {...props} />;
-const Star = (props) => <Ionicons name="star-outline" {...props} />;
-const Flame = (props) => <Ionicons name="flame-outline" {...props} />;
-const Trophy = (props) => <Ionicons name="trophy-outline" {...props} />;
-const ChevronRight = (props) => <Ionicons name="chevron-forward-outline" {...props} />;
-const BarChart3 = (props) => <Ionicons name="bar-chart-outline" {...props} />;
-const Users = (props) => <Ionicons name="people-outline" {...props} />;
-const Zap = (props) => <Ionicons name="flash-outline" {...props} />;
+// Feather icon components with proper TypeScript types
+interface IconProps {
+  color: string;
+  size: number;
+}
+
+const TrendingUp: React.FC<IconProps> = ({ color, size }) => <Feather name="trending-up" size={size} color={color} />;
+const Calendar: React.FC<IconProps> = ({ color, size }) => <Feather name="calendar" size={size} color={color} />;
+const Award: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const Target: React.FC<IconProps> = ({ color, size }) => <Feather name="target" size={size} color={color} />;
+const Book: React.FC<IconProps> = ({ color, size }) => <Feather name="book" size={size} color={color} />;
+const Clock: React.FC<IconProps> = ({ color, size }) => <Feather name="clock" size={size} color={color} />;
+const Star: React.FC<IconProps> = ({ color, size }) => <Feather name="star" size={size} color={color} />;
+const Flame: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
+const Trophy: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const ChevronRight: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
+const BarChart3: React.FC<IconProps> = ({ color, size }) => <Feather name="bar-chart-3" size={size} color={color} />;
+const Users: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
+const Zap: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
 
 import AnimatedCounter from '@/components/AnimatedCounter';
 import ProgressRing from '@/components/ProgressRing';

@@ -1,14 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
 import { Achievement } from '@/types/progress';
-import { Ionicons } from '@expo/vector-icons';
-
-// Icon mapping for replacement
-const Star = (props) => <Ionicons name="star-outline" {...props} />;
-const Trophy = (props) => <Ionicons name="trophy-outline" {...props} />;
-const Target = (props) => <Ionicons name="aperture-outline" {...props} />;
-const Flame = (props) => <Ionicons name="flame-outline" {...props} />;
 import { useTheme } from '@/contexts/ThemeContext';
+import { LinearGradient } from 'expo-linear-gradient';
+
+// Placeholder for custom SVG icon
+const CustomIcon = ({ color, size }) => (
+  <View style={{ width: size, height: size, backgroundColor: color, borderRadius: size / 2 }} />
+);
 
 interface AchievementBadgeProps {
   achievement: Achievement;
@@ -16,148 +15,53 @@ interface AchievementBadgeProps {
   onPress?: () => void;
 }
 
-const getIcon = (iconName: string) => {
-  switch (iconName) {
-    case 'star': return Star;
-    case 'trophy': return Trophy;
-    case 'target': return Target;
-    case 'flame': return Flame;
-    default: return Star;
-  }
-};
-
-const getRarityStyle = (rarity: Achievement['rarity']) => {
+const getRarityColors = (rarity: Achievement['rarity']) => {
   switch (rarity) {
     case 'legendary':
-      return { borderColor: '#FFD700', shadowColor: '#FFD700' };
+      return ['#FFD700', '#FFA500'];
     case 'epic':
-      return { borderColor: '#9B59B6', shadowColor: '#9B59B6' };
+      return ['#9B59B6', '#8E44AD'];
     case 'rare':
-      return { borderColor: '#3498DB', shadowColor: '#3498DB' };
+      return ['#3498DB', '#2980B9'];
     default:
-      return { borderColor: '#95A5A6', shadowColor: '#95A5A6' };
+      return ['#95A5A6', '#7F8C8D'];
   }
 };
 
 export default function AchievementBadge({ achievement, index, onPress }: AchievementBadgeProps) {
-  const { colors } = useTheme();
+  const { colors, typography, spacing } = useTheme();
   const scaleAnim = useRef(new Animated.Value(0)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const glowAnim = useRef(new Animated.Value(0)).current;
-
-  const IconComponent = getIcon(achievement.icon);
-  const rarityStyle = getRarityStyle(achievement.rarity);
 
   useEffect(() => {
     const delay = index * 150;
-    
-    Animated.sequence([
-      Animated.delay(delay),
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 100,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-        Animated.timing(rotateAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-      ]),
-    ]).start();
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      tension: 100,
+      friction: 8,
+      delay,
+      useNativeDriver: true,
+    }).start();
+  }, [index]);
 
-    // Continuous glow animation for legendary items
-    if (achievement.rarity === 'legendary') {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(glowAnim, {
-            toValue: 1,
-            duration: 2000,
-            useNativeDriver: false,
-          }),
-          Animated.timing(glowAnim, {
-            toValue: 0,
-            duration: 2000,
-            useNativeDriver: false,
-          }),
-        ])
-      ).start();
-    }
-  }, [index, achievement.rarity]);
-
-  const scale = scaleAnim;
-  const rotate = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  const glowOpacity = glowAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.3, 0.8],
-  });
+  const rarityColors = getRarityColors(achievement.rarity);
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-      <Animated.View
-        style={[
-          styles.container,
-          { backgroundColor: colors.surface, shadowColor: colors.shadow },
-          rarityStyle,
-          {
-            transform: [{ scale }],
-          },
-        ]}
-      >
-        {achievement.rarity === 'legendary' && (
-          <Animated.View
-            style={[
-              styles.glow,
-              {
-                opacity: glowOpacity,
-                shadowColor: rarityStyle.shadowColor,
-              },
-            ]}
-          />
-        )}
-        
-        <Animated.View
-          style={[
-            styles.iconContainer,
-            { backgroundColor: achievement.color + '20' },
-            { transform: [{ rotate }] },
-          ]}
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <LinearGradient
+          colors={rarityColors}
+          style={styles.container}
         >
-          <IconComponent size={24} color={achievement.color} />
-        </Animated.View>
-        
-        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
-          {achievement.title}
-        </Text>
-        
-        <Text style={[styles.description, { color: colors.textSecondary }]} numberOfLines={2}>
-          {achievement.description}
-        </Text>
-        
-        {achievement.progress !== undefined && achievement.maxProgress && (
-          <View style={styles.progressContainer}>
-            <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: `${(achievement.progress / achievement.maxProgress) * 100}%`,
-                    backgroundColor: achievement.color,
-                  },
-                ]}
-              />
-            </View>
-            <Text style={[styles.progressText, { color: colors.textSecondary }]}>
-              {achievement.progress}/{achievement.maxProgress}
-            </Text>
+          <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+            <CustomIcon color={achievement.color} size={24} />
           </View>
-        )}
+          <Text style={[styles.title, { color: colors.primary, ...typography.h3 }]}>
+            {achievement.title}
+          </Text>
+          <Text style={[styles.description, { color: colors.text, ...typography.caption }]}>
+            {achievement.description}
+          </Text>
+        </LinearGradient>
       </Animated.View>
     </TouchableOpacity>
   );
@@ -165,27 +69,14 @@ export default function AchievementBadge({ achievement, index, onPress }: Achiev
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     alignItems: 'center',
-    borderWidth: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
-    position: 'relative',
-  },
-  glow: {
-    position: 'absolute',
-    top: -4,
-    left: -4,
-    right: -4,
-    bottom: -4,
-    borderRadius: 16,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 12,
-    elevation: 12,
   },
   iconContainer: {
     width: 48,
@@ -196,31 +87,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 14,
-    fontWeight: '600',
     marginBottom: 4,
     textAlign: 'center',
   },
   description: {
-    fontSize: 12,
     textAlign: 'center',
     lineHeight: 16,
-  },
-  progressContainer: {
-    width: '100%',
-    marginTop: 12,
-  },
-  progressBar: {
-    height: 4,
-    borderRadius: 2,
-    marginBottom: 4,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  progressText: {
-    fontSize: 10,
-    textAlign: 'center',
   },
 });
