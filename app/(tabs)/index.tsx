@@ -605,7 +605,6 @@ const styles = StyleSheet.create({
   },
   seeAllText: {
     fontWeight: '600',
-    color: colors.text,
   },
   quickActionsGrid: {
     flexDirection: 'row',
@@ -688,7 +687,6 @@ const styles = StyleSheet.create({
   },
   difficultyText: {
     fontWeight: 'bold',
-    color: '#FFFFFF',
     textTransform: 'uppercase',
   },
   achievementCard: {
@@ -783,7 +781,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 12,
     marginRight: 10,
-    color: colors.text,
   },
   addTodoButton: {
     width: 50,
@@ -798,6 +795,5 @@ const styles = StyleSheet.create({
   },
   completed: {
     textDecorationLine: 'line-through',
-    color: colors.textSecondary,
   },
 });

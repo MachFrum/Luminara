@@ -612,7 +612,6 @@ const styles = StyleSheet.create({
   progressPercentage: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.text,
   },
   subjectInfo: {
     marginLeft: 16,
