@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   dismissButton: {
     padding: 8,

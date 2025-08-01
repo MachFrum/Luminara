@@ -6,29 +6,59 @@ export type Theme = 'light' | 'dark';
 
 interface ThemeColors {
   primary: string;
+  primaryLight: string;
+  primaryDark: string;
   background: string;
   surface: string;
+  surfaceSecondary: string;
   accent: string;
   text: string;
   textSecondary: string;
+  textTertiary: string;
+  border: string;
+  shadow: string;
+  error: string;
+  warning: string;
+  success: string;
+  overlayLight: string;
 }
 
 const lightTheme: ThemeColors = {
   primary: '#0A0A0A',
+  primaryLight: '#374151',
+  primaryDark: '#000000',
   background: '#F5F5F7',
   surface: '#FFFFFF',
+  surfaceSecondary: '#F9FAFB',
   accent: '#34D399',
   text: '#0A0A0A',
   textSecondary: '#6B7280',
+  textTertiary: '#9CA3AF',
+  border: '#E5E7EB',
+  shadow: '#000000',
+  error: '#EF4444',
+  warning: '#F59E0B',
+  success: '#10B981',
+  overlayLight: 'rgba(255, 255, 255, 0.1)',
 };
 
 const darkTheme: ThemeColors = {
   primary: '#FFFFFF',
+  primaryLight: '#F3F4F6',
+  primaryDark: '#E5E7EB',
   background: '#121212',
   surface: '#1E1E1E',
+  surfaceSecondary: '#2D2D2D',
   accent: '#34D399',
   text: '#E5E5E5',
   textSecondary: '#A1A1AA',
+  textTertiary: '#71717A',
+  border: '#374151',
+  shadow: '#000000',
+  error: '#F87171',
+  warning: '#FBBF24',
+  success: '#34D399',
+  overlayLight: 'rgba(255, 255, 255, 0.1)',
 };
 
 interface Typography {
