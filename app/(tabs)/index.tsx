@@ -217,7 +217,7 @@ export default function HomeScreen() {
       title: 'Streak Master',
       description: '7 day learning streak',
       icon: Flame,
-      color: colors.accent,
+      color: colors.softBlush,
       progress: 7,
       maxProgress: 7,
     },
@@ -243,7 +243,7 @@ export default function HomeScreen() {
     switch (difficulty) {
       case 'easy': return colors.accent;
       case 'medium': return colors.textSecondary;
-      case 'hard': return colors.primary;
+      case 'hard': return colors.mutedGold;
       default: return colors.textSecondary;
     }
   };
@@ -291,7 +291,7 @@ export default function HomeScreen() {
           {/* Stats Overview */}
           <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <BookOpen size={20} color={colors.accent} />
+              <BookOpen size={20} color={colors.mutedGold} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>127</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Problems</Text>
             </View>
@@ -307,7 +307,7 @@ export default function HomeScreen() {
             <View style={[styles.statDivider, { backgroundColor: colors.textSecondary }]} />
             
             <View style={styles.statItem}>
-              <Flame size={20} color={colors.accent} />
+              <Flame size={20} color={colors.red} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>7</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Day Streak</Text>
             </View>

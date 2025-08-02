@@ -14,12 +14,18 @@ interface ThemeColors {
 }
 
 const lightTheme: ThemeColors = {
-  primary: '#0A0A0A',
-  background: '#F5F5F7',
-  surface: '#FFFFFF',
-  accent: '#34D399',
-  text: '#0A0A0A',
-  textSecondary: '#6B7280',
+  primary: '#0A0A0A',         // Very dark gray (almost black)
+  background: '#F5F5F7',      // Light warm gray
+  surface: '#FFFFFF',         // Pure white
+  accent: '#34D399',         // Vibrant green
+  text: '#0A0A0A',           // Very dark gray (same as primary)
+  textSecondary: '#6B7280',  // Medium cool gray
+  mutedGold: '#D4A017',      // Soft, elegant gold
+  deepNavy: '#1E3A8A',       // Rich navy blue
+  softBlush: '#FCE7E9',      // Delicate pink
+  charcoal: '#374151',       // Dark cool gray
+  ivory: '#FAF9F6',          // Creamy off-white
+  red: '#910723',
 };
 
 const darkTheme: ThemeColors = {
