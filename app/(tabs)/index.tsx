@@ -198,7 +198,7 @@ export default function HomeScreen() {
       subject: 'Physics',
       timeAgo: '2 days ago',
       difficulty: 'hard',
-      imageUrl: 'https://images.pexels.com/photos/8500/apple-desk-laptop-working.jpg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      imageUrl: 'https://images.pexels.com/photo/delicious-blueberry-lemon-cake-bars-on-blue-plate-32050434.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
     },
   ];
 
