@@ -16,7 +16,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import CountryPicker, { Country } from 'react-native-country-picker-modal';
+import CountryCodesPicker from 'react-native-country-codes-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, {
   useSharedValue,
@@ -83,7 +83,7 @@ export default function EditProfileModal({
     avatarUri: undefined,
   });
 
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<any>(null);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [newLanguage, setNewLanguage] = useState('');
 
@@ -168,7 +168,7 @@ export default function EditProfileModal({
     }
   };
 
-  const handleCountrySelect = (country: Country) => {
+  const handleCountrySelect = (country: any) => {
     setSelectedCountry(country);
     setFormData(prev => ({
       ...prev,
@@ -493,7 +493,7 @@ export default function EditProfileModal({
         </KeyboardAvoidingView>
 
         {/* Country Picker Modal */}
-        <CountryPicker
+        <CountryCodesPicker
           visible={showCountryPicker}
           onSelect={handleCountrySelect}
           onClose={() => setShowCountryPicker(false)}
