@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
@@ -31,14 +32,37 @@ const Crown: React.FC<IconProps> = ({ color, size }) => <Feather name="award" si
 const ChevronRight: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
 const Smartphone: React.FC<IconProps> = ({ color, size }) => <Feather name="smartphone" size={size} color={color} />;
 
+// Settings item types
+interface BaseSettingsItem {
+  icon: React.FC<IconProps>;
+  label: string;
+}
+
+interface ActionSettingsItem extends BaseSettingsItem {
+  onPress: () => void;
+  premium?: boolean;
+  danger?: boolean;
+  dev?: boolean;
+}
+
+interface ToggleSettingsItem extends BaseSettingsItem {
+  toggle: true;
+  value: boolean;
+  onToggle: () => void;
+}
+
+type SettingsItem = ActionSettingsItem | ToggleSettingsItem;
+
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import GuestBanner from '@/components/GuestBanner';
+import EditProfileModal from '@/components/EditProfileModal';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { colors, theme, toggleTheme } = useTheme();
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -52,14 +76,15 @@ export default function ProfileScreen() {
   };
 
   const handleDevMach = () => {
-    router.push('/dev-mach');
+    // TODO: Implement dev mach functionality
+    Alert.alert('Dev Mach', 'Development machine functionality coming soon!');
   };
   
-  const settingsGroups = [
+  const settingsGroups: { title: string; items: SettingsItem[] }[] = [
     {
       title: "Account",
       items: [
-        { icon: User, label: "Edit Profile", onPress: () => {} },
+        { icon: User, label: "Edit Profile", onPress: () => setShowEditProfile(true) },
         { icon: Camera, label: "Change Avatar", onPress: () => {} },
         { icon: Crown, label: "Upgrade to Premium", onPress: () => {}, premium: true },
       ]
@@ -67,8 +92,8 @@ export default function ProfileScreen() {
     {
       title: "Preferences",
       items: [
-        { icon: Bell, label: "Notifications", toggle: true, value: true },
-        { icon: Volume2, label: "Sound Effects", toggle: true, value: true },
+        { icon: Bell, label: "Notifications", toggle: true, value: true, onToggle: () => {} },
+        { icon: Volume2, label: "Sound Effects", toggle: true, value: true, onToggle: () => {} },
         { icon: Moon, label: "Dark Mode", toggle: true, value: theme === 'dark', onToggle: toggleTheme },
       ]
     },
@@ -153,36 +178,40 @@ export default function ProfileScreen() {
                     itemIndex === group.items.length - 1 && styles.lastItem,
                     { borderBottomColor: colors.border }
                   ]}
-                  onPress={item.onPress}
-                  disabled={item.toggle && !item.onToggle}
+                  onPress={'onPress' in item ? item.onPress : undefined}
+                  disabled={'toggle' in item}
                 >
                   <View style={styles.settingsItemLeft}>
                     <View style={[
                       styles.settingsIcon,
                       { backgroundColor: colors.surfaceSecondary },
-                      item.danger && { backgroundColor: colors.error + '20' },
-                      item.premium && { backgroundColor: colors.warning + '20' }
+                      'danger' in item && item.danger && { backgroundColor: colors.error + '20' },
+                      'premium' in item && item.premium && { backgroundColor: colors.warning + '20' }
                     ]}>
                       <item.icon 
                         size={20} 
-                        color={item.danger ? colors.error : item.premium ? colors.warning : colors.textSecondary} 
+                        color={
+                          'danger' in item && item.danger ? colors.error : 
+                          'premium' in item && item.premium ? colors.warning : 
+                          colors.textSecondary
+                        } 
                       />
                     </View>
                     <Text style={[
                       styles.settingsLabel,
                       { color: colors.text },
-                      item.danger && { color: colors.error },
-                      item.premium && { color: colors.warning },
-                      item.dev && { color: colors.primary }
+                      'danger' in item && item.danger && { color: colors.error },
+                      'premium' in item && item.premium && { color: colors.warning },
+                      'dev' in item && item.dev && { color: colors.primary }
                     ]}>
                       {item.label}
                     </Text>
                   </View>
                   
-                  {item.toggle ? (
+                  {'toggle' in item ? (
                     <Switch
-                      value={item.value || false}
-                      onValueChange={item.onToggle || (() => {})}
+                      value={item.value}
+                      onValueChange={item.onToggle}
                       trackColor={{ false: colors.border, true: colors.primary }}
                       thumbColor={item.value ? '#FFF' : '#FFF'}
                     />
@@ -202,6 +231,29 @@ export default function ProfileScreen() {
           </Text>
         </View>
       </View>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        visible={showEditProfile}
+        onClose={() => setShowEditProfile(false)}
+        onSave={(data) => {
+          console.log('Profile data saved:', data);
+          // TODO: Handle the saved profile data
+          setShowEditProfile(false);
+        }}
+        initialData={{
+          firstName: user?.firstName || '',
+          secondName: user?.lastName || '',
+          thirdName: '',
+          username: user?.email?.split('@')[0] || '',
+          age: '',
+          country: '',
+          languages: [],
+          location: '',
+          school: '',
+          educationLevel: '',
+        }}
+      />
     </ScrollView>
   );
 }

@@ -11,6 +11,14 @@ interface ThemeColors {
   accent: string;
   text: string;
   textSecondary: string;
+  textTertiary: string;
+  border: string;
+  overlayLight: string;
+  surfaceSecondary: string;
+  success: string;
+  warning: string;
+  error: string;
+  shadow: string;
 }
 
 const lightTheme: ThemeColors = {
@@ -20,12 +28,14 @@ const lightTheme: ThemeColors = {
   accent: '#34D399',         // Vibrant green
   text: '#0A0A0A',           // Very dark gray (same as primary)
   textSecondary: '#6B7280',  // Medium cool gray
-  mutedGold: '#D4A017',      // Soft, elegant gold
-  deepNavy: '#1E3A8A',       // Rich navy blue
-  softBlush: '#FCE7E9',      // Delicate pink
-  charcoal: '#374151',       // Dark cool gray
-  ivory: '#FAF9F6',          // Creamy off-white
-  red: '#910723',
+  textTertiary: '#9CA3AF',   // Light gray for tertiary text
+  border: '#E5E7EB',         // Light border color
+  overlayLight: 'rgba(255, 255, 255, 0.8)', // Semi-transparent overlay
+  surfaceSecondary: '#F9FAFB', // Secondary surface color
+  success: '#10B981',        // Success green
+  warning: '#F59E0B',        // Warning orange
+  error: '#EF4444',          // Error red
+  shadow: '#000000',         // Shadow color
 };
 
 const darkTheme: ThemeColors = {
@@ -35,6 +45,14 @@ const darkTheme: ThemeColors = {
   accent: '#34D399',
   text: '#E5E5E5',
   textSecondary: '#A1A1AA',
+  textTertiary: '#71717A',
+  border: '#2A2A2A',
+  overlayLight: 'rgba(0, 0, 0, 0.8)',
+  surfaceSecondary: '#2A2A2A',
+  success: '#10B981',
+  warning: '#F59E0B',
+  error: '#EF4444',
+  shadow: '#000000',
 };
 
 interface Typography {
