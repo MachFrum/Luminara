@@ -16,15 +16,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import CountryCodesPicker from 'react-native-country-codes-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  runOnJS,
-} from 'react-native-reanimated';
+import { Animated } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Icon components
 const X: React.FC<{ color: string; size: number }> = ({ color, size }) => (
@@ -69,6 +63,7 @@ export default function EditProfileModal({
   onSave, 
   initialData 
 }: EditProfileModalProps) {
+  const { colors, typography, spacing } = useTheme();
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     secondName: '',
@@ -84,34 +79,56 @@ export default function EditProfileModal({
   });
 
   const [selectedCountry, setSelectedCountry] = useState<any>(null);
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [newLanguage, setNewLanguage] = useState('');
 
   // Animation values
-  const translateY = useSharedValue(1000);
-  const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.8);
+  const translateY = useRef(new Animated.Value(1000)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0.8)).current;
 
   // Load cached data when modal opens
   useEffect(() => {
     if (visible) {
       loadCachedData();
       // Start animations
-      opacity.value = withTiming(1, { duration: 300 });
-      translateY.value = withSpring(0, {
-        damping: 20,
-        stiffness: 100,
-        mass: 0.8,
-      });
-      scale.value = withSpring(1, {
-        damping: 15,
-        stiffness: 100,
-      });
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.spring(translateY, {
+          toValue: 0,
+          tension: 100,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          tension: 100,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
       // Reset animations
-      opacity.value = withTiming(0, { duration: 200 });
-      translateY.value = withTiming(1000, { duration: 200 });
-      scale.value = withTiming(0.8, { duration: 200 });
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: 1000,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scale, {
+          toValue: 0.8,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   }, [visible]);
 
@@ -174,7 +191,6 @@ export default function EditProfileModal({
       ...prev,
       country: country.name,
     }));
-    setShowCountryPicker(false);
   };
 
   const addLanguage = () => {
@@ -278,17 +294,6 @@ export default function EditProfileModal({
     Alert.alert('Reset', 'Form cleared successfully');
   };
 
-  const animatedModalStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-  }));
-
-  const animatedOverlayStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
-
   return (
     <Modal
       visible={visible}
@@ -296,34 +301,36 @@ export default function EditProfileModal({
       animationType="none"
       onRequestClose={onClose}
     >
-      <Animated.View style={[styles.overlay, animatedOverlayStyle]}>
+      <Animated.View style={[styles.overlay, { opacity }]}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardAvoidingView}
         >
-          <Animated.View style={[styles.modalContainer, animatedModalStyle]}>
+          <Animated.View style={[styles.modalContainer, {
+            transform: [{ translateY }, { scale }]
+          }]}>
             {/* Header */}
-            <View style={styles.header}>
-              <Text style={styles.headerTitle}>Edit Profile</Text>
+            <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+              <Text style={[styles.headerTitle, { color: colors.text, ...typography.h2 }]}>Edit Profile</Text>
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <X color="#000" size={24} />
+                <X color={colors.textSecondary} size={24} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
               {/* Section 1: Profile Header - Avatar Upload */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Profile Photo</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Profile Photo</Text>
                 <View style={styles.avatarSection}>
                   <TouchableOpacity style={styles.avatarContainer} onPress={handleImagePick}>
                     {formData.avatarUri ? (
                       <Image source={{ uri: formData.avatarUri }} style={styles.avatarImage} />
                     ) : (
-                      <View style={styles.avatarPlaceholder}>
-                        <Camera color="#666" size={32} />
+                      <View style={[styles.avatarPlaceholder, { backgroundColor: colors.surface }]}>
+                        <Camera color={colors.textSecondary} size={32} />
                       </View>
                     )}
-                    <View style={styles.cameraIcon}>
+                    <View style={[styles.cameraIcon, { backgroundColor: colors.accent }]}>
                       <Camera color="#FFF" size={16} />
                     </View>
                   </TouchableOpacity>
@@ -332,69 +339,74 @@ export default function EditProfileModal({
 
               {/* Section 2: Names */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Personal Information</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Personal Information</Text>
                 <View style={styles.row}>
                   <View style={styles.halfWidth}>
-                    <Text style={styles.label}>First Name *</Text>
+                    <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>First Name *</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                       value={formData.firstName}
                       onChangeText={(text) => setFormData(prev => ({ ...prev, firstName: text }))}
                       placeholder="Enter first name"
+                      placeholderTextColor={colors.textSecondary}
                     />
                   </View>
                   <View style={styles.halfWidth}>
-                    <Text style={styles.label}>Second Name *</Text>
+                    <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>Second Name *</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                       value={formData.secondName}
                       onChangeText={(text) => setFormData(prev => ({ ...prev, secondName: text }))}
                       placeholder="Enter second name"
+                      placeholderTextColor={colors.textSecondary}
                     />
                   </View>
                 </View>
                 <View style={styles.fullWidth}>
-                  <Text style={styles.label}>Third Name (Optional)</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>Third Name (Optional)</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                     value={formData.thirdName}
                     onChangeText={(text) => setFormData(prev => ({ ...prev, thirdName: text }))}
                     placeholder="Enter third name"
+                    placeholderTextColor={colors.textSecondary}
                   />
                 </View>
               </View>
 
               {/* Section 3: Identity */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Identity</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Identity</Text>
                 <View style={styles.fullWidth}>
-                  <Text style={styles.label}>Username *</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>Username *</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                     value={formData.username}
                     onChangeText={(text) => setFormData(prev => ({ ...prev, username: text }))}
                     placeholder="Enter username"
+                    placeholderTextColor={colors.textSecondary}
                   />
-                  <Text style={styles.helperText}>Letters and numbers only</Text>
+                  <Text style={[styles.helperText, { color: colors.textTertiary, ...typography.caption }]}>Letters and numbers only</Text>
                 </View>
                 <View style={styles.row}>
                   <View style={styles.halfWidth}>
-                    <Text style={styles.label}>Age</Text>
+                    <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>Age</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                       value={formData.age}
                       onChangeText={(text) => setFormData(prev => ({ ...prev, age: text }))}
                       placeholder="Enter age"
+                      placeholderTextColor={colors.textSecondary}
                       keyboardType="numeric"
                     />
                   </View>
                   <View style={styles.halfWidth}>
-                    <Text style={styles.label}>Country *</Text>
+                    <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>Country *</Text>
                     <TouchableOpacity
-                      style={styles.input}
-                      onPress={() => setShowCountryPicker(true)}
+                      style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, justifyContent: 'center' }]}
+                      onPress={() => Alert.alert('Country Selection', 'Country picker will be implemented')}
                     >
-                      <Text style={[styles.inputText, !formData.country && styles.placeholderText]}>
+                      <Text style={[styles.inputText, { color: formData.country ? colors.text : colors.textSecondary }]}>
                         {formData.country || 'Select country'}
                       </Text>
                     </TouchableOpacity>
@@ -404,11 +416,11 @@ export default function EditProfileModal({
 
               {/* Section 4: Languages */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Languages</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Languages</Text>
                 <View style={styles.fullWidth}>
-                  <Text style={styles.label}>Primary Language *</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>Primary Language *</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                     value={formData.languages[0] || ''}
                     onChangeText={(text) => {
                       const newLanguages = [...formData.languages];
@@ -416,27 +428,29 @@ export default function EditProfileModal({
                       setFormData(prev => ({ ...prev, languages: newLanguages }));
                     }}
                     placeholder="Enter primary language"
+                    placeholderTextColor={colors.textSecondary}
                   />
                 </View>
                 <View style={styles.addLanguageSection}>
-                  <Text style={styles.label}>Add Language (Optional)</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>Add Language (Optional)</Text>
                   <View style={styles.addLanguageRow}>
                     <TextInput
-                      style={[styles.input, styles.flex1]}
+                      style={[styles.input, styles.flex1, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                       value={newLanguage}
                       onChangeText={setNewLanguage}
                       placeholder="Enter additional language"
+                      placeholderTextColor={colors.textSecondary}
                     />
-                    <TouchableOpacity style={styles.addButton} onPress={addLanguage}>
+                    <TouchableOpacity style={[styles.addButton, { backgroundColor: colors.accent }]} onPress={addLanguage}>
                       <Plus color="#FFF" size={20} />
                     </TouchableOpacity>
                   </View>
                 </View>
                 {formData.languages.slice(1).map((language, index) => (
-                  <View key={index} style={styles.languageItem}>
-                    <Text style={styles.languageText}>{language}</Text>
+                  <View key={index} style={[styles.languageItem, { backgroundColor: colors.surfaceSecondary }]}>
+                    <Text style={[styles.languageText, { color: colors.text, ...typography.body }]}>{language}</Text>
                     <TouchableOpacity
-                      style={styles.removeButton}
+                      style={[styles.removeButton, { backgroundColor: colors.error }]}
                       onPress={() => removeLanguage(language)}
                     >
                       <Minus color="#FFF" size={16} />
@@ -447,33 +461,36 @@ export default function EditProfileModal({
 
               {/* Section 5: Location & Education */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Location & Education</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Location & Education</Text>
                 <View style={styles.fullWidth}>
-                  <Text style={styles.label}>State/Province/County</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>State/Province/County</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                     value={formData.location}
                     onChangeText={(text) => setFormData(prev => ({ ...prev, location: text }))}
                     placeholder="Enter location"
+                    placeholderTextColor={colors.textSecondary}
                   />
                 </View>
                 <View style={styles.row}>
                   <View style={styles.halfWidth}>
-                    <Text style={styles.label}>School</Text>
+                    <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>School</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                       value={formData.school}
                       onChangeText={(text) => setFormData(prev => ({ ...prev, school: text }))}
                       placeholder="Enter school name"
+                      placeholderTextColor={colors.textSecondary}
                     />
                   </View>
                   <View style={styles.halfWidth}>
-                    <Text style={styles.label}>Education Level</Text>
+                    <Text style={[styles.label, { color: colors.textSecondary, ...typography.body }]}>Education Level</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                       value={formData.educationLevel}
                       onChangeText={(text) => setFormData(prev => ({ ...prev, educationLevel: text }))}
                       placeholder="Enter education level"
+                      placeholderTextColor={colors.textSecondary}
                     />
                   </View>
                 </View>
@@ -481,28 +498,16 @@ export default function EditProfileModal({
 
               {/* Action Buttons */}
               <View style={styles.actionButtons}>
-                <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-                  <Text style={styles.resetButtonText}>Reset</Text>
+                <TouchableOpacity style={[styles.resetButton, { borderColor: colors.border }]} onPress={handleReset}>
+                  <Text style={[styles.resetButtonText, { color: colors.textSecondary, ...typography.body }]}>Reset</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                  <Text style={styles.saveButtonText}>Save Profile</Text>
+                <TouchableOpacity style={[styles.saveButton, { backgroundColor: colors.accent }]} onPress={handleSave}>
+                  <Text style={[styles.saveButtonText, { color: colors.surface, ...typography.body }]}>Save Profile</Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
           </Animated.View>
         </KeyboardAvoidingView>
-
-        {/* Country Picker Modal */}
-        <CountryCodesPicker
-          visible={showCountryPicker}
-          onSelect={handleCountrySelect}
-          onClose={() => setShowCountryPicker(false)}
-          withFilter
-          withFlag
-          withEmoji
-          withCallingCode
-          withCurrency
-        />
       </Animated.View>
     </Modal>
   );
@@ -532,12 +537,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#000',
   },
   closeButton: {
     padding: 8,
@@ -552,7 +555,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000',
     marginBottom: 16,
   },
   avatarSection: {
@@ -563,11 +565,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   avatarImage: {
     width: 94,
@@ -578,7 +579,6 @@ const styles = StyleSheet.create({
     width: 94,
     height: 94,
     borderRadius: 47,
-    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -586,7 +586,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#34D399',
     borderRadius: 12,
     width: 24,
     height: 24,
@@ -608,29 +607,21 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#374151',
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#D1D5DB',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
-    backgroundColor: '#FFF',
     minHeight: 48,
   },
   inputText: {
     fontSize: 16,
-    color: '#000',
-  },
-  placeholderText: {
-    color: '#9CA3AF',
   },
   helperText: {
     fontSize: 12,
-    color: '#6B7280',
     marginTop: 4,
     fontStyle: 'italic',
   },
@@ -646,7 +637,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addButton: {
-    backgroundColor: '#34D399',
     borderRadius: 8,
     width: 48,
     height: 48,
@@ -657,7 +647,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
@@ -665,10 +654,8 @@ const styles = StyleSheet.create({
   },
   languageText: {
     fontSize: 16,
-    color: '#374151',
   },
   removeButton: {
-    backgroundColor: '#EF4444',
     borderRadius: 6,
     width: 24,
     height: 24,
@@ -684,7 +671,6 @@ const styles = StyleSheet.create({
   resetButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: 'center',
@@ -692,11 +678,9 @@ const styles = StyleSheet.create({
   resetButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#374151',
   },
   saveButton: {
     flex: 2,
-    backgroundColor: '#34D399',
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: 'center',
@@ -704,6 +688,5 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFF',
   },
-}); 
+});
