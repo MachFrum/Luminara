@@ -25,13 +25,18 @@ const lightTheme: ThemeColors = {
   primary: '#0A0A0A',         // Very dark gray (almost black)
   background: '#F5F5F7',      // Light warm gray
   surface: '#FFFFFF',         // Pure white
-  accent: '#34D399',         // Vibrant green
+  accent: '#2EB516',         // Vibrant green
   text: '#0A0A0A',           // Very dark gray (same as primary)
   textSecondary: '#6B7280',  // Medium cool gray
   textTertiary: '#9CA3AF',   // Light gray for tertiary text
   border: '#E5E7EB',         // Light border color
   overlayLight: 'rgba(255, 255, 255, 0.8)', // Semi-transparent overlay
   surfaceSecondary: '#F9FAFB', // Secondary surface color
+  mutedGold: '#D4A017',      // Soft, elegant gold
+  deepNavy: '#1E3A8A',       // Rich navy blue
+  softBlush: '#FCE7E9',      // Delicate pink
+  charcoal: '#374151',       // Dark cool gray
+  ivory: '#FAF9F6',          // Creamy off-white
   success: '#10B981',        // Success green
   warning: '#F59E0B',        // Warning orange
   error: '#EF4444',          // Error red
@@ -42,13 +47,18 @@ const darkTheme: ThemeColors = {
   primary: '#FFFFFF',
   background: '#121212',
   surface: '#1E1E1E',
-  accent: '#34D399',
+  accent: '#2EB516',
   text: '#E5E5E5',
   textSecondary: '#A1A1AA',
   textTertiary: '#71717A',
   border: '#2A2A2A',
   overlayLight: 'rgba(0, 0, 0, 0.8)',
   surfaceSecondary: '#2A2A2A',
+  mutedGold: '#E6B84D',      // Brighter, warmer gold for visibility on dark backgrounds
+  deepNavy: '#3B82F6',       // Lighter, vibrant navy for better contrast
+  softBlush: '#F4A7B0',      // Slightly more saturated pink for dark mode visibility
+  charcoal: '#6B7280',       // Medium cool gray (reused from light theme for consistency)
+  ivory: '#E5E5E3',          // Slightly darker off-white for subtle accents
   success: '#10B981',
   warning: '#F59E0B',
   error: '#EF4444',

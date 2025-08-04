@@ -1,33 +1,47 @@
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#1F2937',
+          backgroundColor: 'transparent',
           borderTopWidth: 0,
-          height: 85,
-          paddingBottom: 25,
-          paddingTop: 8,
+          paddingBottom: 28,
+          paddingTop: 12,
+          paddingHorizontal: 8,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-          elevation: 8,
+          shadowOffset: { width: 0, height: -8 },
+          shadowOpacity: 0.25,
+          shadowRadius: 12,
+          elevation: 20,
+          position: 'absolute',
+          borderTopColor: 'rgba(255, 255, 255, 0.05)',
+          borderTopWidth: 1,
+          height: 70 + insets.bottom,  // Add padding dynamically
+          paddingBottom: insets.bottom,
         },
-        tabBarActiveTintColor: '#8B5CF6',
-        tabBarInactiveTintColor: '#6B7280',
+        tabBarActiveTintColor: '#E6B84D', // mutedGold
+        tabBarInactiveTintColor: '#B3B3B3', // inactive gray
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
-          marginTop: 4,
+          marginTop: 6,
+          letterSpacing: 0.3,
         },
         tabBarIconStyle: {
-          marginBottom: 2,
+          marginBottom: 0,
         },
+        // Add smooth transition animations
+        tabBarItemStyle: {
+          paddingVertical: 4,
+        },
+        tabBarHideOnKeyboard: true,
       }}>
       <Tabs.Screen
         name="index"
@@ -52,7 +66,7 @@ export default function TabLayout() {
         options={{
           title: 'Progress',
           tabBarIcon: ({ size, color }: { size: number; color: string }) => (
-            <Feather name="bar-chart-3" size={size} color={color} />
+            <Feather name="trending-up" size={size} color={color} />
           ),
         }}
       />

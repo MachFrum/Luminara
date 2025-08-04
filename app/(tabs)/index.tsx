@@ -13,13 +13,14 @@ import {
   FlatList,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import GuestBanner from '@/components/GuestBanner';
 import { supabase } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
+import { BlurView } from 'expo-blur';
+
 
 const { width } = Dimensions.get('window');
 
@@ -146,7 +147,7 @@ export default function HomeScreen() {
       title: 'Start Learning',
       description: 'Ask a question or solve a problem',
       icon: Brain,
-      color: colors.accent,
+      color: colors.mutedGold,
       route: '/learn',
     },
     {
@@ -154,15 +155,15 @@ export default function HomeScreen() {
       title: 'View Progress',
       description: 'Track your learning journey',
       icon: TrendingUp,
-      color: colors.accent,
+      color: colors.error,
       route: '/progress',
     },
     {
       id: '3',
-      title: 'Study Groups',
-      description: 'Join collaborative sessions',
-      icon: Users,
-      color: colors.accent,
+      title: 'Challenges',
+      description: 'Tackle challenging questions.',
+      icon: Plus,
+      color: colors.deepNavy,
       route: '/groups',
     },
     {
@@ -208,7 +209,7 @@ export default function HomeScreen() {
       title: 'Problem Solver',
       description: 'Solve 50 problems',
       icon: Target,
-      color: colors.accent,
+      color: colors.error,
       progress: 35,
       maxProgress: 50,
     },
@@ -248,7 +249,7 @@ export default function HomeScreen() {
     }
   };
 
-  const getGreeting = () => {
+ const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
     if (hour < 18) return 'Good afternoon';
@@ -307,7 +308,7 @@ export default function HomeScreen() {
             <View style={[styles.statDivider, { backgroundColor: colors.textSecondary }]} />
             
             <View style={styles.statItem}>
-              <Flame size={20} color={colors.red} />
+              <Flame size={20} color={colors.error} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>7</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Day Streak</Text>
             </View>
@@ -330,13 +331,13 @@ export default function HomeScreen() {
           ]}
         >
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>My Todos</Text>
+            <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>My Topics</Text>
           </View>
           <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.todoCard}>
             <View style={styles.todoInputContainer}>
               <TextInput
                 style={[styles.todoInput, { borderColor: colors.textSecondary, color: colors.text, ...typography.body }]}
-                placeholder="Add a new todo..."
+                placeholder="Add a new topic to learn..."
                 placeholderTextColor={colors.textSecondary}
                 value={newTodoTitle}
                 onChangeText={setNewTodoTitle}
@@ -362,7 +363,7 @@ export default function HomeScreen() {
                 ))
               ) : (
                 <Text style={{ color: colors.textSecondary, textAlign: 'center', paddingVertical: spacing.md, ...typography.body }}>
-                  No todos yet. Add one!
+                  No topics yet. Add one!
                 </Text>
               )}
             </View>
@@ -426,7 +427,11 @@ export default function HomeScreen() {
               activeOpacity={0.8}
               onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
             >
-              <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.activityBlur}>
+              <BlurView
+                style={styles.activityBlur}
+                intensity={80}
+                tint={colors.background === '#121212' ? 'dark' : 'light'}
+              >
                 <Image source={{ uri: activity.imageUrl }} style={styles.activityImage} />
                 <View style={styles.activityContent}>
                   <Text style={[styles.activityTitle, { color: colors.primary, ...typography.body }]}>{activity.title}</Text>
@@ -468,7 +473,12 @@ export default function HomeScreen() {
               key={achievement.id}
               style={styles.achievementCard}
             >
-              <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.achievementBlur}>
+              <BlurView
+                style={styles.achievementBlur}
+                blurType="light"
+                blurAmount={18}
+                reducedTransparencyFallbackColor="#ffffff90"
+              >
                 <View style={[styles.achievementIcon, { backgroundColor: colors.surface }]}>
                   <achievement.icon size={24} color={colors.accent} />
                 </View>
@@ -511,11 +521,11 @@ export default function HomeScreen() {
         >
           <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.quoteCard}>
             <LinearGradient
-              colors={[colors.accent, '#22c58b']}
+              colors={[colors.deepNavy, colors.charcoal, colors.mutedGold]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
               style={styles.quoteGradient}
             >
-              <Star size={32} color={colors.primary} />
+              <Star size={32} color={colors.ivory} />
               <Text style={[styles.quoteText, { color: colors.primary, ...typography.body }]}>
                 "The beautiful thing about learning is that no one can take it away from you."
               </Text>
@@ -614,18 +624,28 @@ const styles = StyleSheet.create({
   quickActionCard: {
     width: (width - 60) / 2,
     borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    backgroundColor: 'transparent',
+    shadowColor: '#7dab9c',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 8,
   },
+
+  // Inner container to clip content
+  quickActionInner: {
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+
   quickActionBlur: {
     padding: 20,
     alignItems: 'center',
     minHeight: 160,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)', // subtle fallback
   },
+
   quickActionIcon: {
     width: 50,
     height: 50,
@@ -633,30 +653,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
+
   quickActionTitle: {
     fontWeight: 'bold',
     marginBottom: 4,
     textAlign: 'center',
+    color: '#fff',
   },
+
   quickActionDescription: {
     textAlign: 'center',
     lineHeight: 16,
+    color: '#f0f0f0',
   },
+
+// Start here
+  
   activityCard: {
     marginBottom: 12,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowColor: '#7dab9c',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 8,
   },
   activityBlur: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
   activityImage: {
     width: 60,
@@ -693,16 +722,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowColor: '#7dab9c',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 8,
   },
   achievementBlur: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
   achievementIcon: {
     width: 50,
@@ -740,6 +770,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     minWidth: 40,
   },
+
+//finish here  
+  
   quoteCard: {
     borderRadius: 20,
     overflow: 'hidden',

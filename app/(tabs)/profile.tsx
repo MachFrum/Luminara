@@ -74,18 +74,12 @@ export default function ProfileScreen() {
       ]
     );
   };
-
-  const handleDevMach = () => {
-    // TODO: Implement dev mach functionality
-    Alert.alert('Dev Mach', 'Development machine functionality coming soon!');
-  };
   
   const settingsGroups: { title: string; items: SettingsItem[] }[] = [
     {
       title: "Account",
       items: [
         { icon: User, label: "Edit Profile", onPress: () => setShowEditProfile(true) },
-        { icon: Camera, label: "Change Avatar", onPress: () => {} },
         { icon: Crown, label: "Upgrade to Premium", onPress: () => {}, premium: true },
       ]
     },
@@ -100,9 +94,7 @@ export default function ProfileScreen() {
     {
       title: "Family",
       items: [
-        { icon: Users, label: "Parent Dashboard", onPress: () => {} },
-        { icon: Shield, label: "Screen Time Controls", onPress: () => {} },
-        { icon: Monitor, label: "Teacher Portal", onPress: () => {} },
+        // (empty or remove this group entirely if you want)
       ]
     },
     {
@@ -110,7 +102,6 @@ export default function ProfileScreen() {
       items: [
         { icon: HelpCircle, label: "Help Center", onPress: () => {} },
         { icon: Settings, label: "App Settings", onPress: () => {} },
-        { icon: Smartphone, label: "Dev Mach", onPress: handleDevMach, dev: true },
         { icon: LogOut, label: "Sign Out", onPress: handleLogout, danger: true },
       ]
     }
@@ -119,7 +110,7 @@ export default function ProfileScreen() {
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
       <LinearGradient
-        colors={[colors.primary, colors.accent]}
+        colors={[colors.primary, colors.accent, colors.deepNavy]}
         style={styles.header}
       >
         <View style={styles.profileSection}>
@@ -135,22 +126,22 @@ export default function ProfileScreen() {
             {user?.firstName} {user?.lastName}
           </Text>
           {!user?.isGuest && (
-            <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
+            <Text style={[styles.userEmail, { color: colors.text }]}>{user?.email}</Text>
           )}
           {user?.isGuest && (
             <Text style={[styles.guestLabel, { color: colors.warning }]}>Guest User</Text>
           )}
-          <View style={[styles.levelContainer, { backgroundColor: colors.overlayLight }]}>
-            <Text style={[styles.levelText, { color: colors.text }]}>Level 12 • Learning Explorer</Text>
+          <View style={[styles.levelContainer, { backgroundColor: 'transparent' }]}>
+            <Text style={[styles.levelText, { color: colors.transparent }]}>Level 12 • Learning Explorer</Text>
           </View>
         </View>
 
-        <View style={[styles.statsRow, { backgroundColor: colors.overlayLight }]}>
+        <View style={[styles.statsRow, { backgroundColor: 'transparent' }]}>
           <View style={styles.statItem}>
-            <Text style={[styles.statNumber, { color: colors.text }]}>127</Text>
+            <Text style={[styles.statNumber, { color: colors.text }]}>52</Text>
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Problems Solved</Text>
           </View>
-          <View style={[styles.statDivider, { backgroundColor: colors.overlayLight }]} />
+          <View style={[styles.statDivider, { backgroundColor: 'rgba(255,255,255,0.15)' }]} />
           <View style={styles.statItem}>
             <Text style={[styles.statNumber, { color: colors.text }]}>42</Text>
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Hours Learned</Text>
