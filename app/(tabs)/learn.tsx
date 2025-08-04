@@ -26,7 +26,6 @@ const RefreshCw: React.FC<IconProps> = ({ color, size }) => <Feather name="refre
 const Search: React.FC<IconProps> = ({ color, size }) => <Feather name="search" size={size} color={color} />;
 const Filter: React.FC<IconProps> = ({ color, size }) => <Feather name="filter" size={size} color={color} />;
 const Type: React.FC<IconProps> = ({ color, size }) => <Feather name="type" size={size} color={color} />;
-const Mic: React.FC<IconProps> = ({ color, size }) => <Feather name="mic" size={size} color={color} />;
 const Camera: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
 const X: React.FC<IconProps> = ({ color, size }) => <Feather name="x" size={size} color={color} />;
 const Send: React.FC<IconProps> = ({ color, size }) => <Feather name="send" size={size} color={color} />;
@@ -51,17 +50,16 @@ export default function LearnScreen() {
   const [showInputModal, setShowInputModal] = useState(false);
   const [selectedInputMethod, setSelectedInputMethod] = useState<string | null>(null);
   const [textInput, setTextInput] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showCamera, setShowCamera] = useState(false);
-  
+  const [selectedProblem, setSelectedProblem] = useState<ProblemEntry | null>(null);
+  const modalAnim = useRef(new Animated.Value(0)).current;
+  const problemModalAnim = useRef(new Animated.Value(0)).current;
+
   const { submitProblem, isSubmitting: isSubmittingProblem, result, error: submissionError, clearResult } = useProblemSubmission();
   const { problems, isLoading: isLoadingHistory, error: historyError, refetch } = useProblemHistory();
   
-  const modalAnim = useRef(new Animated.Value(0)).current;
-  const recordingAnim = useRef(new Animated.Value(1)).current;
-
   const inputMethods: InputMethod[] = [
     {
       id: 'text',
@@ -70,14 +68,6 @@ export default function LearnScreen() {
       icon: 'type',
       color: colors.accent,
       type: 'text',
-    },
-    {
-      id: 'voice',
-      title: 'Voice Input',
-      description: 'Record your question using voice',
-      icon: 'mic',
-      color: colors.accent,
-      type: 'voice',
     },
     {
       id: 'camera',
@@ -123,7 +113,6 @@ export default function LearnScreen() {
       setShowInputModal(false);
       setSelectedInputMethod(null);
       setTextInput('');
-      setIsRecording(false);
       setIsProcessing(false);
     });
   };
@@ -155,49 +144,6 @@ export default function LearnScreen() {
     } catch (error) {
       setIsProcessing(false);
       Alert.alert('Error', 'Failed to submit problem. Please try again.');
-    }
-  };
-
-  const toggleRecording = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (isRecording) {
-      setIsRecording(false);
-      submitVoiceProblem();
-    } else {
-      setIsRecording(true);
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(recordingAnim, {
-            toValue: 1.2,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(recordingAnim, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    }
-  };
-
-  const submitVoiceProblem = async () => {
-    setIsProcessing(true);
-    
-    try {
-      const problemId = await submitProblem({
-        title: 'Voice Problem',
-        inputType: 'voice',
-        voiceUrl: 'mock_voice_url', // In real implementation, this would be the recorded audio URL
-      });
-      
-      if (problemId) {
-        // Keep modal open to show progress
-      }
-    } catch (error) {
-      setIsProcessing(false);
-      Alert.alert('Error', 'Failed to process voice recording. Please try again.');
     }
   };
 
@@ -233,6 +179,26 @@ export default function LearnScreen() {
   const handleCameraClose = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowCamera(false);
+  };
+
+  const openProblemModal = (problem: ProblemEntry) => {
+    setSelectedProblem(problem);
+    Animated.spring(problemModalAnim, {
+      toValue: 1,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeProblemModal = () => {
+    Animated.timing(problemModalAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setSelectedProblem(null);
+    });
   };
 
   // Handle submission result
@@ -321,51 +287,6 @@ export default function LearnScreen() {
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
-          </View>
-        );
-
-      case 'voice':
-        return (
-          <View style={styles.voiceInputContainer}>
-            <Text style={[styles.modalTitle, { color: colors.primary, ...typography.h2 }]}>Voice Recording</Text>
-            
-            {result && result.status === 'processing' && (
-              <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.processingContainer}>
-                <LoadingSpinner size={20} />
-                <Text style={[styles.processingText, { color: colors.textSecondary, ...typography.body }]}>
-                  AI is processing your voice recording...
-                </Text>
-              </BlurView>
-            )}
-            
-            <View style={styles.voiceControls}>
-              <TouchableOpacity
-                style={styles.recordButton}
-                onPress={toggleRecording}
-                disabled={isProcessing}
-              >
-                <Animated.View
-                  style={[
-                    styles.recordButtonInner,
-                    { transform: [{ scale: recordingAnim }] },
-                    isRecording && { backgroundColor: colors.textSecondary },
-                    !isRecording && { backgroundColor: colors.accent },
-                  ]}
-                >
-                  {isProcessing ? (
-                    <LoadingSpinner size={32} />
-                  ) : isRecording ? (
-                    <Square size={32} color={colors.primary} />
-                  ) : (
-                    <Mic size={32} color={colors.primary} />
-                  )}
-                </Animated.View>
-              </TouchableOpacity>
-              <Text style={[styles.recordingStatus, { color: colors.textSecondary, ...typography.body }]}>
-                {isProcessing ? 'Processing your recording...' :
-                 isRecording ? 'Recording... Tap to stop' : 'Tap to start recording'}
-              </Text>
-            </View>
           </View>
         );
 
@@ -472,7 +393,11 @@ export default function LearnScreen() {
           
           {filteredProblems.length > 0 ? (
             filteredProblems.map((problem) => (
-              <ProblemPreview key={problem.id} problem={problem} />
+              <ProblemPreview
+                key={problem.id}
+                problem={problem}
+                onPress={() => openProblemModal(problem)}
+              />
             ))
           ) : (
             <View style={styles.emptyState}>
@@ -524,6 +449,52 @@ export default function LearnScreen() {
           </Animated.View>
         </BlurView>
       </Modal>
+
+      {/* Problem Details Modal */}
+      {selectedProblem && (
+        <Modal
+          visible={!!selectedProblem}
+          transparent
+          animationType="none"
+          onRequestClose={closeProblemModal}
+        >
+          <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.modalOverlay}>
+            <Animated.View
+              style={[
+                styles.modalContent,
+                {
+                  transform: [
+                    {
+                      scale: problemModalAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                      }),
+                    },
+                  ],
+                  opacity: problemModalAnim,
+                },
+              ]}
+            >
+              <TouchableOpacity style={styles.closeButton} onPress={closeProblemModal}>
+                <X size={24} color={colors.textSecondary} />
+              </TouchableOpacity>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={styles.problemDetailsContainer}>
+                  <Text style={[styles.problemTitle, { color: colors.primary, ...typography.h2 }]}>
+                    {selectedProblem.title}
+                  </Text>
+                  <Text style={[styles.problemSubtitle, { color: colors.textSecondary, ...typography.body }]}>
+                    {selectedProblem.topic} • {selectedProblem.tags?.join(', ')}
+                  </Text>
+                  <Text style={{ color: colors.text, ...typography.body, marginTop: 16 }}>
+                    {selectedProblem.solution || 'No solution available.'}
+                  </Text>
+                </View>
+              </ScrollView>
+            </Animated.View>
+          </BlurView>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -601,7 +572,7 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 110, // 80 (nav bar) + 30 (spacing)
     right: 30,
   },
   modalOverlay: {
@@ -664,26 +635,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
-  voiceInputContainer: {
-    paddingTop: 20,
-    alignItems: 'center',
-  },
-  voiceControls: {
-    alignItems: 'center',
-  },
-  recordButton: {
-    marginBottom: 20,
-  },
-  recordButtonInner: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  recordingStatus: {
-    textAlign: 'center',
-  },
   cameraInputContainer: {
     paddingTop: 20,
     alignItems: 'center',
@@ -729,5 +680,30 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontWeight: '500',
+  },
+  problemDetailsContainer: {
+    paddingTop: 20,
+    paddingBottom: 40,
+  },
+  problemTitle: {
+    marginBottom: 8,
+  },
+  problemSubtitle: {
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  problemActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  problemButton: {
+    flex: 1,
+    borderRadius: 12,
+    marginHorizontal: 8,
+    overflow: 'hidden',
+  },
+  problemButtonText: {
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

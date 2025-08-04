@@ -27,48 +27,7 @@ interface ProblemPreviewProps {
 }
 
 export default function ProblemPreview({ problem, onPress }: ProblemPreviewProps) {
-  const { colors, typography, spacing } = useTheme();
-  const [expanded, setExpanded] = useState(false);
-  const animatedHeight = useRef(new Animated.Value(0)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-
-  const toggleExpanded = () => {
-    const toValue = expanded ? 0 : 1;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Animated.parallel([
-      Animated.timing(animatedHeight, {
-        toValue,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(rotateAnim, {
-        toValue,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    setExpanded(!expanded);
-  };
-
-  const expandedHeightValue = animatedHeight.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 250], // Adjust as needed
-  });
-
-  const rotateInterpolate = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
-
-  const getTypeIcon = () => {
-    switch (problem.type) {
-      case 'voice': return Mic;
-      case 'image': return Camera;
-      default: return Type;
-    }
-  };
-
-  const TypeIcon = getTypeIcon();
+  const { colors, typography } = useTheme();
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
@@ -87,34 +46,7 @@ export default function ProblemPreview({ problem, onPress }: ProblemPreviewProps
               <Text style={[styles.topic, { color: colors.accent, ...typography.body }]}>{problem.topic}</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.expandButton} onPress={toggleExpanded}>
-            <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
-              <ChevronDown size={20} color={colors.textSecondary} />
-            </Animated.View>
-          </TouchableOpacity>
         </View>
-
-        <Animated.View style={[styles.expandedContent, { height: expandedHeightValue }]}>
-          <View style={styles.expandedInner}>
-            <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Description</Text>
-            <Text style={[styles.description, { color: colors.textSecondary, ...typography.body }]}>{problem.description}</Text>
-            <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Solution</Text>
-            <Text style={[styles.solution, { color: colors.textSecondary, ...typography.body }]}>{problem.solution}</Text>
-            {problem.tags.length > 0 && (
-              <>
-                <Text style={[styles.sectionTitle, { color: colors.text, ...typography.h3 }]}>Tags</Text>
-                <View style={styles.tagsContainer}>
-                  {problem.tags.map((tag, index) => (
-                    <View key={index} style={[styles.tag, { backgroundColor: colors.accent }]}>
-                      <Tag size={10} color={colors.primary} />
-                      <Text style={[styles.tagText, { color: colors.primary, ...typography.caption }]}>{tag}</Text>
-                    </View>
-                  ))}
-                </View>
-              </>
-            )}
-          </View>
-        </Animated.View>
       </BlurView>
     </TouchableOpacity>
   );
@@ -150,39 +82,4 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   topic: {},
-  expandButton: {
-    padding: 8,
-  },
-  expandedContent: {
-    overflow: 'hidden',
-  },
-  expandedInner: {
-    padding: 16,
-    borderTopWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  sectionTitle: {
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  description: {
-    lineHeight: 20,
-  },
-  solution: {
-    lineHeight: 20,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  tag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    gap: 4,
-  },
-  tagText: {},
 });
