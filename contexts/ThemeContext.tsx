@@ -55,7 +55,7 @@ const darkTheme: ThemeColors = {
   overlayLight: 'rgba(0, 0, 0, 0.8)',
   surfaceSecondary: '#2A2A2A',
   mutedGold: '#E6B84D',      // Brighter, warmer gold for visibility on dark backgrounds
-  deepNavy: '#3B82F6',       // Lighter, vibrant navy for better contrast
+  deepNavy: '#1E3A8A',       // Lighter, vibrant navy for better contrast
   softBlush: '#F4A7B0',      // Slightly more saturated pink for dark mode visibility
   charcoal: '#6B7280',       // Medium cool gray (reused from light theme for consistency)
   ivory: '#E5E5E3',          // Slightly darker off-white for subtle accents

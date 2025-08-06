@@ -13,7 +13,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 
-// Feather icon components with proper TypeScript types
 interface IconProps {
   color: string;
   size: number;
@@ -52,61 +51,57 @@ export default function ProgressScreen() {
   // Mock data - in a real app, this would come from an API
   const progressData: ProgressScreenData = {
     stats: {
-      problemsSolved: 127,
-      hoursLearned: 42,
-      dayStreak: 7,
-      totalPoints: 2840,
+      challengesSolved: 38,
+      topicsLearned: 23,
+      goalsDone: 11,
+      totalPoints: 462,
       level: 12,
       rank: 'Learning Explorer',
     },
     activities: [
-      { date: '2024-01-15', problems: 5, minutes: 45, completed: true },
-      { date: '2024-01-16', problems: 3, minutes: 30, completed: true },
-      { date: '2024-01-17', problems: 7, minutes: 60, completed: true },
-      { date: '2024-01-18', problems: 4, minutes: 35, completed: true },
-      { date: '2024-01-19', problems: 6, minutes: 50, completed: true },
-      { date: '2024-01-20', problems: 2, minutes: 20, completed: true },
-      { date: '2024-01-21', problems: 8, minutes: 70, completed: true },
+      { date: '2025-01-15', problems: 5, minutes: 45, completed: true },
+      { date: '2025-01-16', problems: 3, minutes: 30, completed: true },
+      { date: '2025-01-17', problems: 7, minutes: 60, completed: true },
+      { date: '2025-01-18', problems: 4, minutes: 35, completed: true },
+      { date: '2025-01-19', problems: 6, minutes: 50, completed: true },
+      { date: '2025-01-20', problems: 2, minutes: 20, completed: true },
+      { date: '2025-01-21', problems: 8, minutes: 70, completed: true },
     ],
     subjects: [
       {
         id: '1',
-        name: 'Mathematics',
+        name: 'Quadratic Equations',
         progress: 85,
         color: colors.primary,
         problems: 47,
-        totalProblems: 60,
-        icon: 'calculator',
+        totalProblems: 60, // number of questions
         lastActivity: '2 hours ago',
       },
       {
         id: '2',
-        name: 'Science',
+        name: 'Photosynthesis',
         progress: 70,
-        color: colors.primaryDark,
+        color: colors.primary,
         problems: 32,
         totalProblems: 45,
-        icon: 'atom',
         lastActivity: '1 day ago',
       },
       {
         id: '3',
-        name: 'History',
+        name: 'AWS Lambda',
         progress: 60,
         color: colors.accent,
         problems: 28,
         totalProblems: 50,
-        icon: 'scroll',
         lastActivity: '3 hours ago',
       },
       {
         id: '4',
-        name: 'English',
+        name: 'Digital Marketing',
         progress: 75,
-        color: colors.primaryLight,
+        color: colors.primary,
         problems: 35,
         totalProblems: 40,
-        icon: 'book',
         lastActivity: '5 hours ago',
       },
     ],
@@ -115,9 +110,8 @@ export default function ProgressScreen() {
         id: '1',
         title: 'Problem Solver',
         description: 'Solved 50 problems',
-        icon: 'target',
         color: colors.primary,
-        unlockedAt: '2024-01-20',
+        unlockedAt: '2025-01-20',
         rarity: 'epic',
         progress: 50,
         maxProgress: 50,
@@ -126,27 +120,24 @@ export default function ProgressScreen() {
         id: '2',
         title: 'Streak Master',
         description: '7 days in a row',
-        icon: 'flame',
         color: colors.error,
-        unlockedAt: '2024-01-21',
+        unlockedAt: '2025-01-21',
         rarity: 'legendary',
       },
       {
         id: '3',
         title: 'Quick Learner',
         description: 'Completed 5 topics',
-        icon: 'star',
         color: colors.warning,
-        unlockedAt: '2024-01-19',
+        unlockedAt: '2025-01-19',
         rarity: 'rare',
       },
       {
         id: '4',
         title: 'Dedicated Student',
         description: '20 hours learned',
-        icon: 'trophy',
         color: colors.success,
-        unlockedAt: '2024-01-18',
+        unlockedAt: '2025-01-18',
         rarity: 'common',
         progress: 42,
         maxProgress: 50,
@@ -173,7 +164,7 @@ export default function ProgressScreen() {
         deadline: '2024-01-28',
         type: 'weekly',
         icon: 'clock',
-        color: colors.primaryDark,
+        color: colors.primary,
       },
     ],
   };
@@ -225,7 +216,7 @@ export default function ProgressScreen() {
           style={[styles.statValue, { color }]}
           duration={1200}
         />
-        <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{label}</Text>
+        <Text style={[styles.statLabel, { color: colors.primary }]}>{label}</Text>
       </LinearGradient>
     </TouchableOpacity>
   );
@@ -268,7 +259,7 @@ export default function ProgressScreen() {
       }
     >
       {/* Header */}
-      <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.header}>
+      <LinearGradient colors={[colors.surface, colors.charcoal]} style={styles.header}>
         <Animated.View
           style={[
             styles.headerContent,
@@ -280,14 +271,14 @@ export default function ProgressScreen() {
         >
           <View style={styles.headerTop}>
             <View>
-              <Text style={[styles.headerTitle, { color: colors.text }]}>Your Progress</Text>
-              <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+              <Text style={[styles.headerTitle, { color: colors.Primary }]}>Your Progress</Text>
+              <Text style={[styles.headerSubtitle, { color: colors.primary }]}>
                 Level {progressData.stats.level} • {progressData.stats.rank}
               </Text>
             </View>
-            <View style={[styles.pointsBadge, { backgroundColor: colors.overlayLight }]}>
+            <View style={[styles.pointsBadge, { backgroundColor: colors.primary }]}>
               <Zap size={16} color="#FFD700" />
-              <Text style={[styles.pointsText, { color: colors.text }]}>{progressData.stats.totalPoints}</Text>
+              <Text style={[styles.pointsText, { color: colors.mutedGold}]}>{progressData.stats.totalPoints}</Text>
             </View>
           </View>
 
@@ -295,21 +286,20 @@ export default function ProgressScreen() {
           <View style={styles.statsGrid}>
             <StatCard
               icon={Target}
-              label="Problems"
-              value={progressData.stats.problemsSolved}
-              color={colors.primary}
+              label="Challenges"
+              value={progressData.stats.challengesSolved}
+              color={colors.deepNavy}
             />
             <StatCard
-              icon={Clock}
-              label="Hours"
-              value={progressData.stats.hoursLearned}
-              color={colors.primaryDark}
+              icon={Trophy}
+              label="Topics"
+              value={progressData.stats.topicsLearned}
+              color={colors.mutedGold}
             />
             <StatCard
               icon={Flame}
-              label="Streak"
-              value={progressData.stats.dayStreak}
-              suffix=" days"
+              label="Goals"
+              value={progressData.stats.goalsDone}
               color={colors.error}
             />
           </View>
@@ -377,7 +367,7 @@ export default function ProgressScreen() {
             },
           ]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Subject Progress</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Topic Progress</Text>
           {progressData.subjects.map((subject) => (
             <SubjectCard key={subject.id} subject={subject} />
           ))}
@@ -470,12 +460,12 @@ export default function ProgressScreen() {
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Learning Insights</Text>
           <View style={styles.insightCard}>
             <LinearGradient
-              colors={[colors.surface, colors.surfaceSecondary]}
+              colors={[colors.surface, colors.charcoal]}
               style={styles.insightGradient}
             >
               <TrendingUp size={24} color={colors.primary} />
               <Text style={[styles.insightTitle, { color: colors.text }]}>You're on Fire! 🔥</Text>
-              <Text style={[styles.insightText, { color: colors.textSecondary }]}>
+              <Text style={[styles.insightText, { color: colors.primary }]}>
                 Your problem-solving speed has improved by 40% this week.
                 Keep challenging yourself with harder problems!
               </Text>
@@ -593,8 +583,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   subjectCard: {
-    borderRadius: 12,
+    borderRadius: 40,
     padding: 16,
+    marginTop: 3,
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -638,8 +629,9 @@ const styles = StyleSheet.create({
     width: (width - 60) / 2,
   },
   goalCard: {
-    borderRadius: 12,
+    borderRadius: 40,
     padding: 16,
+    marginTop: 3,
     marginBottom: 12,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -694,7 +686,7 @@ const styles = StyleSheet.create({
     minWidth: 40,
   },
   insightCard: {
-    borderRadius: 12,
+    borderRadius: 15,
     overflow: 'hidden',
   },
   insightGradient: {
