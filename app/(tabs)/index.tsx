@@ -705,23 +705,23 @@ const styles = StyleSheet.create({
 
 activityCard: {
   marginBottom: 14,
-  borderRadius: 72,
+  borderRadius: 55, // Match todoCard
   overflow: 'hidden',
-  shadowColor: '#4d4402',
-  shadowOffset: { width: 0, height: 8 },
-  shadowOpacity: 0.16,
-  shadowRadius: 20,
-  elevation: 8,
-  borderWidth: 1,
+  backgroundColor: '#264a2b', // Match todoCard
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 6 },
+  shadowOpacity: 0.12,
+  shadowRadius: 16,
+  elevation: 6,
+  borderWidth: 1.5,
   borderColor: '#d9c4b0',
-  backgroundColor: '#fff', // Added background for non-blur
 },
 activityBlur: {
-  // Remove blur: just use a regular View style
   flexDirection: 'row',
   alignItems: 'center',
-  padding: 17,
-  backgroundColor: 'rgba(255,255,255,0.15)',
+  padding: 15,
+  backgroundColor: 'rgba(255,255,255,0.08)', // Match todoInput
+  borderRadius: 55,
 },
 activityImage: {
   width: 64,
@@ -772,23 +772,23 @@ difficultyText: {
 },
 achievementCard: {
   marginBottom: 14,
-  borderRadius: 72,
+  borderRadius: 50, // Match quickActionCard
   overflow: 'hidden',
-  backgroundColor: '#2b2627',
+  backgroundColor: '#10393d', // Match quickActionCard
   shadowColor: '#4a90e2',
-  shadowOffset: { width: 0, height: 8 },
-  shadowOpacity: 0.16,
+  shadowOffset: { width: 0, height: 12 },
+  shadowOpacity: 0.18,
   shadowRadius: 20,
-  elevation: 8,
-  borderWidth: 2,
+  elevation: 10,
+  borderWidth: 1.5,
   borderColor: '#d9c4b0',
 },
 achievementBlur: {
-  // Remove blur: just use a regular View style
   flexDirection: 'row',
   alignItems: 'center',
-  padding: 17,
-  backgroundColor: 'rgba(255,255,255,0.15)',
+  padding: 22,
+  backgroundColor: 'rgba(255,255,255,0.12)', // Match quickActionBlur
+  borderRadius: 26,
 },
 achievementIcon: {
   width: 56,
