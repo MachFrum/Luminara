@@ -28,7 +28,7 @@ const lightTheme: ThemeColors = {
   accent: '#2EB516',         // Vibrant green
   text: '#0A0A0A',           // Very dark gray (same as primary)
   textSecondary: '#6B7280',  // Medium cool gray
-  textTertiary: '#9CA3AF',   // Light gray for tertiary text
+  textTertiary: '#9ea5b0ff',   // Light gray for tertiary text
   border: '#E5E7EB',         // Light border color
   overlayLight: 'rgba(255, 255, 255, 0.8)', // Semi-transparent overlay
   surfaceSecondary: '#F9FAFB', // Secondary surface color
@@ -50,7 +50,7 @@ const darkTheme: ThemeColors = {
   accent: '#2EB516',
   text: '#E5E5E5',
   textSecondary: '#A1A1AA',
-  textTertiary: '#71717A',
+  textTertiary: '#babab5',
   border: '#2A2A2A',
   overlayLight: 'rgba(0, 0, 0, 0.8)',
   surfaceSecondary: '#2A2A2A',

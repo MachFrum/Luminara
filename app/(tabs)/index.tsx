@@ -331,7 +331,7 @@ export default function HomeScreen() {
           ]}
         >
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>My Topics</Text>
+            <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>My Learning</Text>
           </View>
           <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.todoCard}>
             <View style={styles.todoInputContainer}>
@@ -380,7 +380,7 @@ export default function HomeScreen() {
             },
           ]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>Quick Actions</Text>
+          <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>Quick Actions </Text>
           <View style={styles.quickActionsGrid}>
             {quickActions.map((action, index) => (
               <TouchableOpacity
@@ -477,14 +477,14 @@ export default function HomeScreen() {
                 style={styles.achievementBlur}
                 blurType="light"
                 blurAmount={18}
-                reducedTransparencyFallbackColor="#ffffff90"
+                reducedTransparencyFallbackColor="#595952"
               >
                 <View style={[styles.achievementIcon, { backgroundColor: colors.surface }]}>
                   <achievement.icon size={24} color={colors.accent} />
                 </View>
                 <View style={styles.achievementContent}>
                   <Text style={[styles.achievementTitle, { color: colors.primary, ...typography.body }]}>{achievement.title}</Text>
-                  <Text style={[styles.achievementDescription, { color: colors.textSecondary, ...typography.caption }]}>
+                  <Text style={[styles.achievementDescription, { color: colors.textTertiary, ...typography.caption }]}>
                     {achievement.description}
                   </Text>
                   <View style={styles.progressContainer}>
@@ -537,17 +537,16 @@ export default function HomeScreen() {
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   header: {
-    paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    paddingTop: 65,
+    paddingBottom: 35,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
     overflow: 'hidden',
   },
   headerContent: {
@@ -555,202 +554,264 @@ const styles = StyleSheet.create({
   },
   welcomeSection: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 28,
   },
   greeting: {
-    marginBottom: 8,
+    marginBottom: 10,
   },
   welcomeTitle: {
     textAlign: 'center',
   },
   statsContainer: {
     flexDirection: 'row',
-    borderRadius: 20,
-    padding: 15,
+    borderRadius: 24,
+    padding: 20,
     alignItems: 'center',
     justifyContent: 'space-around',
     width: '100%',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
+    backgroundColor: '#4a432a',
     overflow: 'hidden',
+    shadowColor: '#997350',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
   },
   statItem: {
     alignItems: 'center',
     flex: 1,
   },
   statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   statNumber: {
-    marginBottom: 4,
+    marginBottom: 5,
   },
   statLabel: {
     textAlign: 'center',
+    opacity: 0.9,
   },
   statDivider: {
-    width: 1,
-    height: 40,
-    marginHorizontal: 16,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: 1.5,
+    height: 45,
+    marginHorizontal: 18,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 1,
   },
   content: {
-    padding: 20,
+    padding: 24,
   },
   section: {
-    marginBottom: 30,
+    marginBottom: 32,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
   },
   sectionTitle: {
-    fontWeight: 'bold',
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   seeAllText: {
     fontWeight: '600',
+    opacity: 0.85,
   },
   quickActionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 16,
+    gap: 17.5,
   },
   quickActionCard: {
-    width: (width - 60) / 2,
-    borderRadius: 20,
-    backgroundColor: 'transparent',
-    shadowColor: '#7dab9c',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 8,
+    width: (width - 66) / 2,
+    marginTop: 15,
+    aspectRatio: 1,
+    borderRadius: 50,
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
+    backgroundColor: '#10393d',
+    shadowColor: '#4a90e2',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    elevation: 10,
+    overflow: 'hidden',
   },
 
   // Inner container to clip content
   quickActionInner: {
-    borderRadius: 20,
+    borderRadius: 26,
     overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
   },
 
   quickActionBlur: {
-    padding: 20,
+    flex: 1,
+    padding: 22,
     alignItems: 'center',
-    minHeight: 160,
+    minHeight: 0,
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)', // subtle fallback
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 26,
+    overflow: 'hidden',
   },
 
   quickActionIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 54,
+    height: 54,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    marginBottom: 14,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   quickActionTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
+    fontWeight: '700',
+    marginBottom: 6,
     textAlign: 'center',
     color: '#fff',
+    letterSpacing: 0.3,
   },
 
   quickActionDescription: {
     textAlign: 'center',
-    lineHeight: 16,
-    color: '#f0f0f0',
+    lineHeight: 18,
+    color: '#f5f5f5',
+    opacity: 0.95,
   },
 
-// Start here
-  
+// Start here - Activity Cards
+
   activityCard: {
-    marginBottom: 12,
-    borderRadius: 20,
+    marginBottom: 14,
+    borderRadius: 72,
     overflow: 'hidden',
-    shadowColor: '#7dab9c',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
+    shadowColor: '#4d4402',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 20,
     elevation: 8,
+    borderWidth: 1,
+    borderColor: '#d9c4b0',
   },
   activityBlur: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    padding: 17,
+    backgroundColor: 'rgba(255,255,255,0.15)',
   },
   activityImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 16,
+    width: 64,
+    height: 64,
+    borderRadius: 18,
+    marginRight: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   activityContent: {
     flex: 1,
   },
   activityTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
+    fontWeight: '700',
+    marginBottom: 6,
+    letterSpacing: 0.2,
   },
   activitySubject: {
-    marginBottom: 8,
+    marginBottom: 10,
+    opacity: 0.9,
   },
   activityMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  activityTime: {},
+  activityTime: {
+    opacity: 0.8,
+  },
   difficultyBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   difficultyText: {
-    fontWeight: 'bold',
+    fontWeight: '700',
     textTransform: 'uppercase',
+    fontSize: 11,
+    letterSpacing: 0.8,
   },
   achievementCard: {
-    marginBottom: 12,
-    borderRadius: 20,
+    marginBottom: 14,
+    borderRadius: 72,
     overflow: 'hidden',
-    shadowColor: '#7dab9c',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
+    backgroundColor: '#2b2627',
+    shadowColor: '#4a90e2',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 20,
     elevation: 8,
+    borderWidth: 2,
+    borderColor: '#d9c4b0',
   },
   achievementBlur: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    padding: 17,
+    backgroundColor: 'rgba(255,255,255,0.15)',
   },
   achievementIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   achievementContent: {
     flex: 1,
   },
   achievementTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
+    fontWeight: '700',
+    marginBottom: 6,
+    letterSpacing: 0.3,
   },
   achievementDescription: {
-    marginBottom: 8,
+    marginBottom: 12,
+    opacity: 0.9,
+    lineHeight: 18,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -758,75 +819,107 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     flex: 1,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 12,
+    height: 10,
+    borderRadius: 6,
+    marginRight: 14,
+    backgroundColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   progressFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   progressText: {
-    fontWeight: 'bold',
-    minWidth: 40,
+    fontWeight: '700',
+    minWidth: 45,
+    letterSpacing: 0.5,
   },
 
 //finish here  
   
   quoteCard: {
-    borderRadius: 20,
+    borderRadius: 25,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
   },
   quoteGradient: {
-    padding: 24,
+    padding: 28,
     alignItems: 'center',
   },
   quoteText: {
     fontStyle: 'italic',
     textAlign: 'center',
-    lineHeight: 24,
-    marginVertical: 16,
+    lineHeight: 26,
+    marginVertical: 18,
+    letterSpacing: 0.2,
   },
   quoteAuthor: {
-    fontWeight: 'bold',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    opacity: 0.95,
   },
   todoCard: {
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 25,
+    padding: 20,
+    marginBottom: 15,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
+    backgroundColor: '#264a2b',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
   },
   todoInputContainer: {
     flexDirection: 'row',
-    marginBottom: 15,
+    marginBottom: 18,
   },
   todoInput: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    marginRight: 10,
+    borderWidth: 1.5,
+    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    marginRight: 12,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   addTodoButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
+    width: 54,
+    height: 54,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   todoListItem: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
+    paddingVertical: 14,
+    borderBottomWidth: 1.5,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   completed: {
     textDecorationLine: 'line-through',
+    opacity: 0.6,
   },
 });
