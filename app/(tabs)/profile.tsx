@@ -26,12 +26,10 @@ const HelpCircle: React.FC<IconProps> = ({ color, size }) => <Feather name="help
 const LogOut: React.FC<IconProps> = ({ color, size }) => <Feather name="log-out" size={size} color={color} />;
 const Camera: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
 const Moon: React.FC<IconProps> = ({ color, size }) => <Feather name="moon" size={size} color={color} />;
-const Volume2: React.FC<IconProps> = ({ color, size }) => <Feather name="volume-2" size={size} color={color} />;
 const Monitor: React.FC<IconProps> = ({ color, size }) => <Feather name="monitor" size={size} color={color} />;
 const Users: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
 const Crown: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
 const ChevronRight: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
-const Smartphone: React.FC<IconProps> = ({ color, size }) => <Feather name="smartphone" size={size} color={color} />;
 
 // Settings item types
 interface BaseSettingsItem {
@@ -60,6 +58,9 @@ import { useTheme } from '@/contexts/ThemeContext';
 import GuestBanner from '@/components/GuestBanner';
 import EditProfileModal from '@/components/EditProfileModal';
 
+// Utility to clear async storage (cache)
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { colors, theme, toggleTheme } = useTheme();
@@ -82,7 +83,7 @@ export default function ProfileScreen() {
     }
   };
 
-  // Handle logout and redirect to sign-in
+  // Handle logout and redirect to login, clear cache
   const handleLogout = () => {
     Alert.alert(
       "Sign Out",
@@ -91,13 +92,15 @@ export default function ProfileScreen() {
         { text: "Cancel", style: "cancel" },
         { text: "Sign Out", style: "destructive", onPress: async () => {
             await logout();
-            router.replace('/sign-in');
+            await AsyncStorage.clear();
+            router.replace('/auth/login');
           }
         }
       ]
     );
   };
 
+  // Settings groups with titles
   const settingsGroups: { title: string; items: SettingsItem[] }[] = [
     {
       title: "Account",
@@ -127,29 +130,29 @@ export default function ProfileScreen() {
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
       <LinearGradient
         colors={[colors.surface, colors.charcoal, colors.deepNavy]}
-        style={styles.header}
+        style={styles.header,{ borderRadius: 30 }}
       >
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            <View style={[styles.avatar, { backgroundColor: colors.overlayLight, borderColor: colors.surface }]}>
-              <Text style={[styles.avatarText, { color: colors.text }]}>
+            <View style={[styles.avatar, { backgroundColor: colors.overlayLight, borderColor: colors.primary }]}>
+              <Text style={[styles.avatarText, {color: colors.primary }]}>
                 {user?.firstName?.[0]}{user?.lastName?.[0]}
               </Text>
             </View>
             <View style={[styles.statusIndicator, { backgroundColor: colors.success, borderColor: colors.surface }]} />
           </View>
-          <Text style={[styles.userName, { color: colors.text }]}>
+          <Text style={[styles.userName, { color: colors.primary }]}>
             {user?.firstName} {user?.lastName}
           </Text>
-          {!user?.isGuest && (
-            <Text style={[styles.userEmail, { color: colors.text }]}>{user?.email}</Text>
-          )}
-          {user?.isGuest && (
+            {!user?.isGuest && (
+            <Text style={[styles.userEmail, { color: colors.primary }]}>{user?.email}</Text>
+            )}
+            {user?.isGuest && (
             <Text style={[styles.guestLabel, { color: colors.warning }]}>Guest User</Text>
-          )}
-          <View style={[styles.levelContainer, { backgroundColor: 'transparent' }]}>
+            )}
+            <View style={[styles.levelContainer, { backgroundColor: 'transparent' }]}>
             <Text style={[styles.levelText, { color: colors.transparent }]}>Level 12 • Learning Explorer</Text>
-          </View>
+            </View>
         </View>
 
         <View style={[styles.statsRow, { backgroundColor: 'transparent' }]}>
@@ -172,62 +175,68 @@ export default function ProfileScreen() {
 
       <View style={styles.content}>
         {user?.isGuest && <GuestBanner />}
-        
-        {settingsGroups.map((group, groupIndex) => (
-          <View key={groupIndex} style={styles.settingsGroup}>
-            <Text style={[styles.groupTitle, { color: colors.text }]}>{group.title}</Text>
-            <View style={[styles.groupContainer, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
-              {group.items.map((item, itemIndex) => (
-                <TouchableOpacity
-                  key={itemIndex}
-                  style={[
-                    styles.settingsItem,
-                    itemIndex === group.items.length - 1 && styles.lastItem,
-                    { borderBottomColor: colors.border }
-                  ]}
-                  onPress={'onPress' in item ? item.onPress : undefined}
-                  disabled={'toggle' in item}
-                >
-                  <View style={styles.settingsItemLeft}>
-                    <View style={[
-                      styles.settingsIcon,
-                      { backgroundColor: colors.surfaceSecondary },
-                      'danger' in item && item.danger && { backgroundColor: colors.error + '20' },
-                      'premium' in item && item.premium && { backgroundColor: colors.warning + '20' }
-                    ]}>
-                      <item.icon 
-                        size={20} 
-                        color={
-                          'danger' in item && item.danger ? colors.error : 
-                          'premium' in item && item.premium ? colors.warning : 
-                          colors.textSecondary
-                        } 
-                      />
-                    </View>
-                    <Text style={[
-                      styles.settingsLabel,
-                      { color: colors.text },
-                      'danger' in item && item.danger && { color: colors.error },
-                      'premium' in item && item.premium && { color: colors.warning },
-                      'dev' in item && item.dev && { color: colors.primary }
-                    ]}>
-                      {item.label}
-                    </Text>
-                  </View>
-                  
-                  {'toggle' in item ? (
-                    <Switch
-                      value={item.value}
-                      onValueChange={item.onToggle}
-                      trackColor={{ false: colors.border, true: colors.primary }}
-                      thumbColor={item.value ? '#FFF' : '#FFF'}
+
+        {/* Render settings items grouped by section title */}
+        {settingsGroups.map((group, groupIdx) => (
+          <View key={group.title} style={{ marginBottom: 32 }}>
+            <Text style={[styles.groupTitle, { color: colors.textSecondary }]}>{group.title}</Text>
+            {group.items.map((item, idx) => (
+              <TouchableOpacity
+                key={item.label}
+                style={[
+                  styles.settingsItem,
+                  {
+                    backgroundColor: colors.background === '#121212'
+                      ? '#000000'
+                      : '#fff',
+                    shadowColor: colors.background === '#121212'
+                      ? '#fff'
+                      : '#000',
+                  },
+                  idx === group.items.length - 1 && styles.lastItem,
+                ]}
+                onPress={'onPress' in item ? item.onPress : undefined}
+                disabled={'toggle' in item}
+                activeOpacity={0.85}
+              >
+                <View style={styles.settingsItemLeft}>
+                  <View style={[
+                    styles.settingsIcon,
+                    { backgroundColor: colors.surfaceSecondary },
+                    'danger' in item && item.danger && { backgroundColor: colors.error + '20' },
+                    'premium' in item && item.premium && { backgroundColor: colors.warning + '20' }
+                  ]}>
+                    <item.icon 
+                      size={20} 
+                      color={
+                        'danger' in item && item.danger ? colors.error : 
+                        'premium' in item && item.premium ? colors.warning : 
+                        colors.textSecondary
+                      } 
                     />
-                  ) : (
-                    <ChevronRight size={16} color={colors.textTertiary} />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
+                  </View>
+                  <Text style={[
+                    styles.settingsLabel,
+                    { color: colors.text },
+                    'danger' in item && item.danger && { color: colors.error },
+                    'premium' in item && item.premium && { color: colors.warning },
+                    'dev' in item && item.dev && { color: colors.primary }
+                  ]}>
+                    {item.label}
+                  </Text>
+                </View>
+                {'toggle' in item ? (
+                  <Switch
+                    value={item.value}
+                    onValueChange={item.onToggle}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor={item.value ? '#FFF' : '#FFF'}
+                  />
+                ) : (
+                  <ChevronRight size={16} color={colors.textTertiary} />
+                )}
+              </TouchableOpacity>
+            ))}
           </View>
         ))}
 
@@ -281,6 +290,7 @@ const styles = StyleSheet.create({
   avatarContainer: {
     position: 'relative',
     marginBottom: 16,
+    marginTop: 20,
   },
   avatar: {
     width: 80,
@@ -289,6 +299,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
+    marginTop: 20,
   },
   avatarText: {
     fontSize: 24,
@@ -353,22 +364,12 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
   },
-  settingsGroup: {
-    marginBottom: 24,
-  },
   groupTitle: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 12,
     marginLeft: 4,
-  },
-  groupContainer: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    opacity: 0.85,
   },
   settingsItem: {
     flexDirection: 'row',
@@ -376,7 +377,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
+    marginBottom: 16,
+    borderRadius: 40,
+    // Add border color and width for the squirrcle buttons
+    borderWidth: 1,
+    borderColor: '#d9c4b0', // Or use colors.border if you want to match your theme
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 12,
+    elevation: 4,
   },
   lastItem: {
     borderBottomWidth: 0,

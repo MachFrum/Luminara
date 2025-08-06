@@ -458,16 +458,20 @@ export default function LearnScreen() {
           animationType="none"
           onRequestClose={closeProblemModal}
         >
-          <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.modalOverlay}>
+          <View style={styles.problemModalFullOverlay}>
             <Animated.View
               style={[
-                styles.modalContent,
+                styles.problemModalFullContent,
                 {
+                  backgroundColor:
+                    colors.background === '#121212'
+                      ? 'rgba(18,18,18,0.92)'
+                      : 'rgba(255,255,255,0.96)',
                   transform: [
                     {
                       scale: problemModalAnim.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [0.8, 1],
+                        outputRange: [0.98, 1],
                       }),
                     },
                   ],
@@ -475,24 +479,34 @@ export default function LearnScreen() {
                 },
               ]}
             >
-              <TouchableOpacity style={styles.closeButton} onPress={closeProblemModal}>
-                <X size={24} color={colors.textSecondary} />
-              </TouchableOpacity>
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ flexGrow: 1 }}
+              >
                 <View style={styles.problemDetailsContainer}>
                   <Text style={[styles.problemTitle, { color: colors.primary, ...typography.h2 }]}>
                     {selectedProblem.title}
                   </Text>
-                  <Text style={[styles.problemSubtitle, { color: colors.textSecondary, ...typography.body }]}>
+                  <Text style={[styles.problemSubtitle, { color: colors.primary, ...typography.body }]}>
                     {selectedProblem.topic} • {selectedProblem.tags?.join(', ')}
                   </Text>
-                  <Text style={{ color: colors.text, ...typography.body, marginTop: 16 }}>
+                  <Text style={{ color: colors.primary, ...typography.body, marginTop: 16 }}>
                     {selectedProblem.solution || 'No solution available.'}
                   </Text>
                 </View>
               </ScrollView>
+              <TouchableOpacity
+                style={[styles.doneButton, { backgroundColor: colors.charcoal }]}
+                onPress={async () => {
+                  // Simulate API call
+                  await new Promise(res => setTimeout(res, 1200));
+                  closeProblemModal();
+                }}
+              >
+                <Text style={[styles.doneButtonText, { color: '#fff' }]}>Done</Text>
+              </TouchableOpacity>
             </Animated.View>
-          </BlurView>
+          </View>
         </Modal>
       )}
     </View>
@@ -579,18 +593,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    backgroundColor: 'rgba(35,37,46,0.85)', // Less transparent
+    padding: 30,
     overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#23252e',
+    borderRadius: 30,
   },
   modalContent: {
-    borderRadius: 20,
-    padding: 24,
+    borderRadius: 30,
+    padding: 20,
     width: '100%',
-    maxHeight: '80%',
-    backgroundColor: 'rgba(255,255,255,0.1)', // Fallback for blur
+    maxHeight: '90%',
+    backgroundColor: 'rgba(35,37,46,0.92)', // Less transparent
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1.5,
+    borderColor: '#23252e',
   },
   closeButton: {
     position: 'absolute',
@@ -666,6 +684,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(35,37,46,0.85)', // Less transparent
   },
   processingText: {
     marginLeft: 8,
@@ -677,6 +696,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     overflow: 'hidden',
     borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(35,37,46,0.85)', // Less transparent
   },
   errorText: {
     fontWeight: '500',
@@ -705,5 +725,36 @@ const styles = StyleSheet.create({
   problemButtonText: {
     fontWeight: '600',
     textAlign: 'center',
+  },
+  problemModalFullOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(18,18,18,0.85)', // Less transparent
+    padding: 0,
+  },
+  problemModalFullContent: {
+    flex: 1,
+    width: '95%',
+    height: '80%',
+    borderRadius: 20,
+    padding: 10,
+    backgroundColor: 'rgba(18,18,18,0.85)', // Less transparent
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
+    justifyContent: 'space-between',
+  },
+  doneButton: {
+    alignSelf: 'center',
+    marginTop: 16,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    marginBottom: 12,
+  },
+  doneButtonText: {
+    fontWeight: '700',
+    fontSize: 16,
+    letterSpacing: 1,
   },
 });

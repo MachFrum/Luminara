@@ -222,7 +222,14 @@ export default function ProgressScreen() {
   );
 
   const SubjectCard = ({ subject }: any) => (
-    <TouchableOpacity style={[styles.subjectCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]} activeOpacity={0.8}>
+    <TouchableOpacity style={[styles.subjectCard,{
+                    backgroundColor: colors.background === '#121212'
+                      ? '#000000'
+                      : '#fff',
+                    shadowColor: colors.background === '#121212'
+                      ? '#fff'
+                      : '#000',
+                  },{shadowColor: colors.shadow }]} activeOpacity={0.8}>
       <View style={styles.subjectLeft}>
         <ProgressRing
           size={60}
@@ -259,7 +266,7 @@ export default function ProgressScreen() {
       }
     >
       {/* Header */}
-      <LinearGradient colors={[colors.surface, colors.charcoal]} style={styles.header}>
+      <LinearGradient colors={[colors.surface, colors.charcoal]} style={[styles.header, { borderRadius: 30 }]}>
         <Animated.View
           style={[
             styles.headerContent,
@@ -414,7 +421,14 @@ export default function ProgressScreen() {
         >
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Current Goals</Text>
           {progressData.goals.map((goal) => (
-            <TouchableOpacity key={goal.id} style={[styles.goalCard, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+            <TouchableOpacity key={goal.id} style={[styles.goalCard,{
+                    backgroundColor: colors.background === '#121212'
+                      ? '#000000'
+                      : '#fff',
+                    shadowColor: colors.background === '#121212'
+                      ? '#fff'
+                      : '#000',
+                  },{ shadowColor: colors.shadow }]}>
               <View style={styles.goalHeader}>
                 <View style={[styles.goalIcon, { backgroundColor: goal.color + '20' }]}>
                   <Target size={20} color={goal.color} />
@@ -584,6 +598,8 @@ const styles = StyleSheet.create({
   },
   subjectCard: {
     borderRadius: 40,
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
     padding: 16,
     marginTop: 3,
     marginBottom: 12,
@@ -630,11 +646,13 @@ const styles = StyleSheet.create({
   },
   goalCard: {
     borderRadius: 40,
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
     padding: 16,
     marginTop: 3,
     marginBottom: 12,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.16,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -687,6 +705,8 @@ const styles = StyleSheet.create({
   },
   insightCard: {
     borderRadius: 15,
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
     overflow: 'hidden',
   },
   insightGradient: {
