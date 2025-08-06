@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import * as Notifications from 'expo-notifications'; 
 
 // Feather icon components with proper TypeScript types
 interface IconProps {
@@ -63,18 +64,40 @@ export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { colors, theme, toggleTheme } = useTheme();
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
+  // Handle notification permission and toggle
+  const handleToggleNotifications = async () => {
+    if (!notificationsEnabled) {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status === 'granted') {
+        setNotificationsEnabled(true);
+        Alert.alert('Notifications enabled!');
+      } else {
+        setNotificationsEnabled(false);
+        Alert.alert('Permission denied', 'Enable notifications in your device settings.');
+      }
+    } else {
+      setNotificationsEnabled(false);
+    }
+  };
+
+  // Handle logout and redirect to sign-in
   const handleLogout = () => {
     Alert.alert(
       "Sign Out",
       "Are you sure you want to sign out?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Sign Out", style: "destructive", onPress: logout }
+        { text: "Sign Out", style: "destructive", onPress: async () => {
+            await logout();
+            router.replace('/sign-in');
+          }
+        }
       ]
     );
   };
-  
+
   const settingsGroups: { title: string; items: SettingsItem[] }[] = [
     {
       title: "Account",
@@ -86,8 +109,7 @@ export default function ProfileScreen() {
     {
       title: "Preferences",
       items: [
-        { icon: Bell, label: "Notifications", toggle: true, value: true, onToggle: () => {} },
-        { icon: Volume2, label: "Sound Effects", toggle: true, value: true, onToggle: () => {} },
+        { icon: Bell, label: "Notifications", toggle: true, value: notificationsEnabled, onToggle: handleToggleNotifications },
         { icon: Moon, label: "Dark Mode", toggle: true, value: theme === 'dark', onToggle: toggleTheme },
       ]
     },
