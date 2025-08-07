@@ -20,11 +20,7 @@ import { supabase } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-<<<<<<< HEAD
 import { useRouter } from 'expo-router';
-
-=======
->>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
 
 const { width } = Dimensions.get('window');
 
@@ -76,22 +72,12 @@ interface Achievement {
   maxProgress: number;
 }
 
-type Todo = {
-  id: number;
-  title: string;
-  is_complete: boolean;
-};
-
 export default function HomeScreen() {
   const { user } = useAuth();
   const { colors, typography, spacing } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [localTodos, setLocalTodos] = useState<Todo[]>([]);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   // Initialize animations
@@ -109,80 +95,6 @@ export default function HomeScreen() {
       }),
     ]).start();
   }, []);
-
-  // Load local todos on mount
-  useEffect(() => {
-    loadLocalTodos();
-  }, []);
-
-  // Fetch from API when user changes
-  useEffect(() => {
-    if (user) {
-      fetchTodos();
-    }
-  }, [user]);
-
-  // Save local todos to AsyncStorage
-  useEffect(() => {
-    AsyncStorage.setItem('localTodos', JSON.stringify(localTodos));
-  }, [localTodos]);
-
-  const loadLocalTodos = async () => {
-    const cached = await AsyncStorage.getItem('localTodos');
-    if (cached) {
-      setLocalTodos(JSON.parse(cached));
-    }
-  };
-
-  // Fetch from API and update both todos and local cache
-  const fetchTodos = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('todos')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching todos:', error);
-    } else if (data) {
-      setTodos(data as Todo[]);
-      setLocalTodos(data as Todo[]); // Keep local cache in sync with server
-    }
-    setLoading(false);
-  };
-
-  // Add todo locally and send to API
-  const addTodo = async () => {
-    if (!newTodoTitle.trim() || !user) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    // Add locally first
-    const localTodo: Todo = {
-      id: Date.now(),
-      title: newTodoTitle,
-      is_complete: false,
-    };
-    setLocalTodos([localTodo, ...localTodos]);
-    setNewTodoTitle('');
-
-    // Send to API
-    const { data, error } = await supabase
-      .from('todos')
-      .insert([{ title: localTodo.title, user_id: user.id }])
-      .select();
-
-    if (error) {
-      console.error('Error adding todo:', error);
-    } else if (data) {
-      // Replace the local todo with the one from the server (with real id)
-      setLocalTodos((prev) =>
-        prev.map((t) =>
-          t.id === localTodo.id ? (data[0] as Todo) : t
-        )
-      );
-      setTodos([data[0] as Todo, ...todos]);
-    }
-  };
 
   const quickActions: QuickAction[] = [
     {
@@ -279,7 +191,6 @@ export default function HomeScreen() {
   const onRefresh = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setRefreshing(true);
-    await fetchTodos();
     setRefreshing(false);
   };
 
@@ -367,57 +278,6 @@ export default function HomeScreen() {
       <View style={styles.content}>
         {/* Guest Banner */}
         {user?.isGuest && <GuestBanner />}
-
-        {/* Todos List */}
-        <Animated.View
-          style={[
-            styles.section,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>My Learning</Text>
-          </View>
-          <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.todoCard}>
-            <View style={styles.todoInputContainer}>
-              <TextInput
-                style={[styles.todoInput, { borderColor: colors.textSecondary, color: colors.text, ...typography.body }]}
-                placeholder="Add a new topic..."
-                placeholderTextColor={colors.textSecondary}
-                value={newTodoTitle}
-                onChangeText={setNewTodoTitle}
-              />
-              <TouchableOpacity
-                style={[styles.addTodoButton, { backgroundColor: colors.accent }]}
-                onPress={addTodo}
-              >
-                <Plus size={24} color={colors.primary} />
-              </TouchableOpacity>
-            </View>
-            <View>
-              {/* Show only the latest 2 topics/todos from local cache */}
-              {localTodos.length > 0 ? (
-                localTodos.slice(0, 2).map((item) => (
-                  <View
-                    key={item.id.toString()}
-                    style={[styles.todoListItem, { borderBottomColor: colors.textSecondary }]}
-                  >
-                    <Text style={[item.is_complete ? styles.completed : { color: colors.text, ...typography.body }]}>
-                      {item.title}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={{ color: colors.textSecondary, textAlign: 'center', paddingVertical: spacing.md, ...typography.body }}>
-                  No topics yet. Add one!
-                </Text>
-              )}
-            </View>
-          </BlurView>
-        </Animated.View>
 
         {/* Quick Actions */}
         <Animated.View
@@ -679,14 +539,11 @@ const styles = StyleSheet.create({
   quickActionCard: {
     width: (width - 66) / 2,
     aspectRatio: 1,
-<<<<<<< HEAD
-    borderRadius: 70,
+    borderRadius: 71,
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
-=======
-    borderRadius: 24,
->>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
     overflow: 'hidden',
+    marginTop: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -704,7 +561,7 @@ const styles = StyleSheet.create({
   quickActionIcon: {
     width: 54,
     height: 54,
-    borderRadius: 18,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
@@ -727,13 +584,9 @@ const styles = StyleSheet.create({
   },
   activityCard: {
     marginBottom: 14,
-<<<<<<< HEAD
     borderRadius: 60,
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
-=======
-    borderRadius: 24,
->>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
@@ -750,7 +603,7 @@ const styles = StyleSheet.create({
   activityImage: {
     width: 64,
     height: 64,
-    borderRadius: 18,
+    borderRadius: 30,
     marginRight: 18,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -796,90 +649,15 @@ const styles = StyleSheet.create({
   },
   achievementCard: {
     marginBottom: 14,
-<<<<<<< HEAD
     borderRadius: 60,
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
-=======
-    borderRadius: 24,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 16,
     elevation: 8,
-  },
-  achievementBlur: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 22,
-    borderRadius: 24,
-  },
-  achievementIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  achievementContent: {
-    flex: 1,
-  },
-  achievementTitle: {
-    fontWeight: '700',
-    marginBottom: 6,
-    letterSpacing: 0.3,
-  },
-  achievementDescription: {
-    marginBottom: 12,
-    opacity: 0.9,
-    lineHeight: 18,
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  progressBar: {
-    flex: 1,
-    height: 10,
-    borderRadius: 6,
-    marginRight: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  progressText: {
-    fontWeight: '700',
-    minWidth: 45,
-    letterSpacing: 0.5,
-  },
-  quoteCard: {
-    borderRadius: 25,
->>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
-<<<<<<< HEAD
   },
   achievementBlur: {
     flexDirection: 'row',
@@ -952,8 +730,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 16,
     elevation: 8,
-=======
->>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
   },
   quoteGradient: {
     padding: 28,
@@ -970,52 +746,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.5,
     opacity: 0.95,
-  },
-  todoCard: {
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: '#d9c4b0',
-    backgroundColor : '#4f4e4d',
-    padding: 20,
-    marginBottom: 15,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  todoInputContainer: {
-    flexDirection: 'row',
-    marginBottom: 18,
-  },
-  todoInput: {
-    flex: 1,
-    borderWidth: 1.5,
-    borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    marginRight: 12,
-  },
-  addTodoButton: {
-    width: 54,
-    height: 54,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  todoListItem: {
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
-  },
-  completed: {
-    textDecorationLine: 'line-through',
-    opacity: 0.6,
   },
 });
