@@ -20,8 +20,11 @@ import { supabase } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+<<<<<<< HEAD
 import { useRouter } from 'expo-router';
 
+=======
+>>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
 
 const { width } = Dimensions.get('window');
 
@@ -676,9 +679,13 @@ const styles = StyleSheet.create({
   quickActionCard: {
     width: (width - 66) / 2,
     aspectRatio: 1,
+<<<<<<< HEAD
     borderRadius: 70,
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
+=======
+    borderRadius: 24,
+>>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
@@ -720,9 +727,13 @@ const styles = StyleSheet.create({
   },
   activityCard: {
     marginBottom: 14,
+<<<<<<< HEAD
     borderRadius: 60,
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
+=======
+    borderRadius: 24,
+>>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
@@ -785,15 +796,90 @@ const styles = StyleSheet.create({
   },
   achievementCard: {
     marginBottom: 14,
+<<<<<<< HEAD
     borderRadius: 60,
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
+=======
+    borderRadius: 24,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 16,
     elevation: 8,
+  },
+  achievementBlur: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 22,
+    borderRadius: 24,
+  },
+  achievementIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  achievementContent: {
+    flex: 1,
+  },
+  achievementTitle: {
+    fontWeight: '700',
+    marginBottom: 6,
+    letterSpacing: 0.3,
+  },
+  achievementDescription: {
+    marginBottom: 12,
+    opacity: 0.9,
+    lineHeight: 18,
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressBar: {
+    flex: 1,
+    height: 10,
+    borderRadius: 6,
+    marginRight: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  progressText: {
+    fontWeight: '700',
+    minWidth: 45,
+    letterSpacing: 0.5,
+  },
+  quoteCard: {
+    borderRadius: 25,
+>>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+<<<<<<< HEAD
   },
   achievementBlur: {
     flexDirection: 'row',
@@ -866,6 +952,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 16,
     elevation: 8,
+=======
+>>>>>>> 358ded9cc45004bc57f020d6374b122603c2ad68
   },
   quoteGradient: {
     padding: 28,
