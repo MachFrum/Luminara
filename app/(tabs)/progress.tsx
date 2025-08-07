@@ -9,9 +9,12 @@ import {
   Animated,
   RefreshControl,
   Platform,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 
 interface IconProps {
   color: string;
@@ -36,7 +39,16 @@ import AnimatedCounter from '@/components/AnimatedCounter';
 import ProgressRing from '@/components/ProgressRing';
 import ActivityChart from '@/components/ActivityChart';
 import AchievementBadge from '@/components/AchievementBadge';
-import { ProgressScreenData } from '@/types/progress';
+
+import { useLocalSearchParams } from 'expo-router';
+
+const params = useLocalSearchParams();
+useEffect(() => {
+  if (params.showAchievements === '1') {
+    openAchievementsModal();
+  }
+}, [params]);
+
 import { useTheme } from '@/contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
@@ -45,8 +57,150 @@ export default function ProgressScreen() {
   const { colors } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month'>('week');
+  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
+  const modalAnim = useRef(new Animated.Value(0)).current;
+
+  // --- DRY: Single source of truth for all achievements ---
+  const achievements = [
+    {
+      id: '1',
+      title: 'Problem Solver',
+      description: 'Solved 50 problems',
+      color: colors.ivory,
+      unlockedAt: '2025-01-20',
+      rarity: 'epic',
+      progress: 50,
+      maxProgress: 50,
+    },
+    {
+      id: '2',
+      title: 'Streak Master',
+      description: '7 days in a row',
+      color: colors.error,
+      unlockedAt: '2025-01-21',
+      rarity: 'common',
+    },
+    {
+      id: '3',
+      title: 'Quick Learner',
+      description: 'Completed 5 topics',
+      color: colors.warning,
+      unlockedAt: '2025-01-19',
+      rarity: 'common',
+    },
+    {
+      id: '4',
+      title: 'Dedicated Student',
+      description: '42 hours learned',
+      color: colors.success,
+      unlockedAt: '2025-01-18',
+      rarity: 'rare',
+      progress: 42,
+      maxProgress: 50,
+    },
+    {
+      id: '5',
+      title: 'AWS Certified',
+      description: 'Passed AWS Solutions Architect Exam',
+      color: '#FF9900',
+      unlockedAt: '2025-02-01',
+      rarity: 'legendary',
+      icon: <Feather name="cloud" size={22} color="#FF9900" />,
+    },
+    {
+      id: '6',
+      title: 'Azure Fundamentals',
+      description: 'Completed Azure Fundamentals Path',
+      color: '#007FFF',
+      unlockedAt: '2025-02-10',
+      rarity: 'epic',
+      icon: <Feather name="cloud-drizzle" size={22} color="#007FFF" />,
+    },
+    {
+      id: '7',
+      title: 'GCP Explorer',
+      description: 'Mastered Google Cloud Basics',
+      color: '#4285F4',
+      unlockedAt: '2025-02-15',
+      rarity: 'rare',
+      icon: <Feather name="cloud-rain" size={22} color="#4285F4" />,
+    },
+  ];
+
+  // Animate modal in/out
+  const openAchievementsModal = () => {
+    setShowAchievementsModal(true);
+    Animated.spring(modalAnim, {
+      toValue: 1,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  };
+  const closeAchievementsModal = () => {
+    Animated.timing(modalAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => setShowAchievementsModal(false));
+  };
+
+  // --- DRY: Achievement pill component ---
+  const PillAchievement = ({ achievement }: any) => (
+    <LinearGradient
+      colors={[
+        achievement.color + '22',
+        achievement.color + '44',
+        achievement.color + '99',
+      ]}
+      style={[
+        styles.pillAchievement,
+        { borderColor: achievement.color },
+      ]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <View style={[styles.pillIcon, { backgroundColor: achievement.color + '22' }]}>
+        {achievement.icon ? (
+          achievement.icon
+        ) : (
+          <Award size={22} color={achievement.color} />
+        )}
+      </View>
+      <View style={styles.pillContent}>
+        <Text style={[styles.pillTitle, { color: achievement.color }]}>{achievement.title}</Text>
+        <Text style={[styles.pillDesc, { color: colors.textSecondary }]}>{achievement.description}</Text>
+        {achievement.progress && achievement.maxProgress && (
+          <View style={styles.pillProgressRow}>
+            <View style={[styles.pillProgressBar, { backgroundColor: colors.border }]}>
+              <View
+                style={[
+                  styles.pillProgressFill,
+                  {
+                    width: `${(achievement.progress / achievement.maxProgress) * 100}%`,
+                    backgroundColor: achievement.color,
+                  },
+                ]}
+              />
+            </View>
+            <Text style={[styles.pillProgressText, { color: achievement.color }]}>
+              {achievement.progress}/{achievement.maxProgress}
+            </Text>
+          </View>
+        )}
+        <Text style={[styles.pillMeta, { color: colors.textTertiary }]}>
+          {achievement.unlockedAt ? `Unlocked: ${achievement.unlockedAt}` : ''}
+        </Text>
+      </View>
+      <View style={styles.pillRarity}>
+        <Text style={{ color: achievement.color, fontWeight: 'bold', fontSize: 11 }}>
+          {achievement.rarity?.toUpperCase()}
+        </Text>
+      </View>
+    </LinearGradient>
+  );
 
   // Mock data - in a real app, this would come from an API
   const progressData: ProgressScreenData = {
@@ -122,7 +276,7 @@ export default function ProgressScreen() {
         description: '7 days in a row',
         color: colors.error,
         unlockedAt: '2025-01-21',
-        rarity: 'legendary',
+        rarity: 'common',
       },
       {
         id: '3',
@@ -130,15 +284,15 @@ export default function ProgressScreen() {
         description: 'Completed 5 topics',
         color: colors.warning,
         unlockedAt: '2025-01-19',
-        rarity: 'rare',
+        rarity: 'common',
       },
       {
         id: '4',
         title: 'Dedicated Student',
-        description: '20 hours learned',
+        description: '42 hours learned',
         color: colors.success,
         unlockedAt: '2025-01-18',
-        rarity: 'common',
+        rarity: 'rare',
         progress: 42,
         maxProgress: 50,
       },
@@ -253,241 +407,277 @@ export default function ProgressScreen() {
   );
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={colors.primary}
-          colors={[colors.primary]}
-        />
-      }
-    >
-      {/* Header */}
-      <LinearGradient colors={[colors.surface, colors.charcoal]} style={[styles.header, { borderRadius: 30 }]}>
-        <Animated.View
-          style={[
-            styles.headerContent,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <View style={styles.headerTop}>
-            <View>
-              <Text style={[styles.headerTitle, { color: colors.Primary }]}>Your Progress</Text>
-              <Text style={[styles.headerSubtitle, { color: colors.primary }]}>
-                Level {progressData.stats.level} • {progressData.stats.rank}
-              </Text>
-            </View>
-            <View style={[styles.pointsBadge, { backgroundColor: colors.primary }]}>
-              <Zap size={16} color="#FFD700" />
-              <Text style={[styles.pointsText, { color: colors.mutedGold}]}>{progressData.stats.totalPoints}</Text>
-            </View>
-          </View>
-
-          {/* Stats Grid */}
-          <View style={styles.statsGrid}>
-            <StatCard
-              icon={Target}
-              label="Challenges"
-              value={progressData.stats.challengesSolved}
-              color={colors.deepNavy}
-            />
-            <StatCard
-              icon={Trophy}
-              label="Topics"
-              value={progressData.stats.topicsLearned}
-              color={colors.mutedGold}
-            />
-            <StatCard
-              icon={Flame}
-              label="Goals"
-              value={progressData.stats.goalsDone}
-              color={colors.error}
-            />
-          </View>
-        </Animated.View>
-      </LinearGradient>
-
-      <View style={styles.content}>
-        {/* Activity Section */}
-        <Animated.View
-          style={[
-            styles.section,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Activity Overview</Text>
-            <View style={[styles.periodToggle, { backgroundColor: colors.surface }]}>
-              <TouchableOpacity
-                style={[
-                  styles.periodButton,
-                  selectedPeriod === 'week' && { backgroundColor: colors.primary },
-                ]}
-                onPress={() => setSelectedPeriod('week')}
-              >
-                <Text
-                  style={[
-                    styles.periodButtonText,
-                    { color: selectedPeriod === 'week' ? colors.surface : colors.textSecondary },
-                  ]}
-                >
-                  Week
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.periodButton,
-                  selectedPeriod === 'month' && { backgroundColor: colors.primary },
-                ]}
-                onPress={() => setSelectedPeriod('month')}
-              >
-                <Text
-                  style={[
-                    styles.periodButtonText,
-                    { color: selectedPeriod === 'month' ? colors.surface : colors.textSecondary },
-                  ]}
-                >
-                  Month
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <ActivityChart data={progressData.activities} />
-        </Animated.View>
-
-        {/* Subjects Progress */}
-        <Animated.View
-          style={[
-            styles.section,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Topic Progress</Text>
-          {progressData.subjects.map((subject) => (
-            <SubjectCard key={subject.id} subject={subject} />
-          ))}
-        </Animated.View>
-
-        {/* Achievements */}
-        <Animated.View
-          style={[
-            styles.section,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Achievements</Text>
-            <TouchableOpacity>
-              <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.achievementsGrid}>
-            {progressData.achievements.map((achievement, index) => (
-              <View key={achievement.id} style={styles.achievementWrapper}>
-                <AchievementBadge
-                  achievement={achievement}
-                  index={index}
-                  onPress={triggerHapticFeedback}
-                />
-              </View>
-            ))}
-          </View>
-        </Animated.View>
-
-        {/* Goals */}
-        <Animated.View
-          style={[
-            styles.section,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Current Goals</Text>
-          {progressData.goals.map((goal) => (
-            <TouchableOpacity key={goal.id} style={[styles.goalCard,{
-                    backgroundColor: colors.background === '#121212'
-                      ? '#000000'
-                      : '#fff',
-                    shadowColor: colors.background === '#121212'
-                      ? '#fff'
-                      : '#000',
-                  },{ shadowColor: colors.shadow }]}>
-              <View style={styles.goalHeader}>
-                <View style={[styles.goalIcon, { backgroundColor: goal.color + '20' }]}>
-                  <Target size={20} color={goal.color} />
-                </View>
-                <View style={styles.goalInfo}>
-                  <Text style={[styles.goalTitle, { color: colors.text }]}>{goal.title}</Text>
-                  <Text style={[styles.goalDescription, { color: colors.textSecondary }]}>{goal.description}</Text>
-                </View>
-                <Text style={[styles.goalProgress, { color: colors.primary }]}>
-                  {Math.round((goal.progress / goal.target) * 100)}%
+    <>
+      <ScrollView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
+      >
+        {/* Header */}
+        <LinearGradient colors={[colors.surface, colors.charcoal]} style={[styles.header, { borderRadius: 30 }]}>
+          <Animated.View
+            style={[
+              styles.headerContent,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <View style={styles.headerTop}>
+              <View>
+                <Text style={[styles.headerTitle, { color: colors.Primary }]}>Your Progress</Text>
+                <Text style={[styles.headerSubtitle, { color: colors.primary }]}>
+                  Level {progressData.stats.level} • {progressData.stats.rank}
                 </Text>
               </View>
-              <View style={styles.goalProgressContainer}>
-                <View style={[styles.goalProgressBar, { backgroundColor: colors.border }]}>
-                  <View
+              <View style={[styles.pointsBadge, { backgroundColor: colors.primary }]}>
+                <Zap size={16} color="#FFD700" />
+                <Text style={[styles.pointsText, { color: colors.mutedGold}]}>{progressData.stats.totalPoints}</Text>
+              </View>
+            </View>
+
+            {/* Stats Grid */}
+            <View style={styles.statsGrid}>
+              <StatCard
+                icon={Target}
+                label="Challenges"
+                value={progressData.stats.challengesSolved}
+                color={colors.deepNavy}
+              />
+              <StatCard
+                icon={Trophy}
+                label="Topics"
+                value={progressData.stats.topicsLearned}
+                color={colors.mutedGold}
+              />
+              <StatCard
+                icon={Flame}
+                label="Goals"
+                value={progressData.stats.goalsDone}
+                color={colors.error}
+              />
+            </View>
+          </Animated.View>
+        </LinearGradient>
+
+        <View style={styles.content}>
+          {/* Activity Section */}
+          <Animated.View
+            style={[
+              styles.section,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Activity Overview</Text>
+              <View style={[styles.periodToggle, { backgroundColor: colors.surface }]}>
+                <TouchableOpacity
+                  style={[
+                    styles.periodButton,
+                    selectedPeriod === 'week' && { backgroundColor: colors.primary },
+                  ]}
+                  onPress={() => setSelectedPeriod('week')}
+                >
+                  <Text
                     style={[
-                      styles.goalProgressFill,
-                      {
-                        width: `${(goal.progress / goal.target) * 100}%`,
-                        backgroundColor: goal.color,
-                      },
+                      styles.periodButtonText,
+                      { color: selectedPeriod === 'week' ? colors.surface : colors.textSecondary },
                     ]}
-                  />
-                </View>
-                <Text style={[styles.goalProgressText, { color: colors.text }]}>
-                  {goal.progress}/{goal.target}
-                </Text>
+                  >
+                    Week
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.periodButton,
+                    selectedPeriod === 'month' && { backgroundColor: colors.primary },
+                  ]}
+                  onPress={() => setSelectedPeriod('month')}
+                >
+                  <Text
+                    style={[
+                      styles.periodButtonText,
+                      { color: selectedPeriod === 'month' ? colors.surface : colors.textSecondary },
+                    ]}
+                  >
+                    Month
+                  </Text>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
-          ))}
-        </Animated.View>
+            </View>
+            <ActivityChart data={progressData.activities} />
+          </Animated.View>
 
-        {/* Insights */}
-        <Animated.View
-          style={[
-            styles.section,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Learning Insights</Text>
-          <View style={styles.insightCard}>
-            <LinearGradient
-              colors={[colors.surface, colors.charcoal]}
-              style={styles.insightGradient}
-            >
-              <TrendingUp size={24} color={colors.primary} />
-              <Text style={[styles.insightTitle, { color: colors.text }]}>You're on Fire! 🔥</Text>
-              <Text style={[styles.insightText, { color: colors.primary }]}>
-                Your problem-solving speed has improved by 40% this week.
-                Keep challenging yourself with harder problems!
-              </Text>
-            </LinearGradient>
-          </View>
-        </Animated.View>
-      </View>
-    </ScrollView>
+          {/* Subjects Progress */}
+          <Animated.View
+            style={[
+              styles.section,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Topic Progress</Text>
+            {progressData.subjects.map((subject) => (
+              <SubjectCard key={subject.id} subject={subject} />
+            ))}
+          </Animated.View>
+
+          {/* Achievements */}
+          <Animated.View
+            style={[
+              styles.section,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Achievements</Text>
+              <TouchableOpacity onPress={openAchievementsModal}>
+                <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.achievementsGrid}>
+              {/* Show only the first 4 achievements */}
+              {achievements.slice(0, 4).map((achievement) => (
+                <View key={achievement.id} style={styles.achievementWrapper}>
+                  <PillAchievement achievement={achievement} />
+                </View>
+              ))}
+            </View>
+          </Animated.View>
+
+          {/* Goals */}
+          <Animated.View
+            style={[
+              styles.section,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Current Goals</Text>
+            {progressData.goals.map((goal) => (
+              <TouchableOpacity key={goal.id} style={[styles.goalCard,{
+                      backgroundColor: colors.background === '#121212'
+                        ? '#000000'
+                        : '#fff',
+                      shadowColor: colors.background === '#121212'
+                        ? '#fff'
+                        : '#000',
+                    },{ shadowColor: colors.shadow }]}>
+                <View style={styles.goalHeader}>
+                  <View style={[styles.goalIcon, { backgroundColor: goal.color + '20' }]}>
+                    <Target size={20} color={goal.color} />
+                  </View>
+                  <View style={styles.goalInfo}>
+                    <Text style={[styles.goalTitle, { color: colors.text }]}>{goal.title}</Text>
+                    <Text style={[styles.goalDescription, { color: colors.textSecondary }]}>{goal.description}</Text>
+                  </View>
+                  <Text style={[styles.goalProgress, { color: colors.primary }]}>
+                    {Math.round((goal.progress / goal.target) * 100)}%
+                  </Text>
+                </View>
+                <View style={styles.goalProgressContainer}>
+                  <View style={[styles.goalProgressBar, { backgroundColor: colors.border }]}>
+                    <View
+                      style={[
+                        styles.goalProgressFill,
+                        {
+                          width: `${(goal.progress / goal.target) * 100}%`,
+                          backgroundColor: goal.color,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.goalProgressText, { color: colors.text }]}>
+                    {goal.progress}/{goal.target}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+
+          {/* Insights */}
+          <Animated.View
+            style={[
+              styles.section,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Learning Insights</Text>
+            <View style={styles.insightCard}>
+              <LinearGradient
+                colors={[colors.surface, colors.charcoal]}
+                style={styles.insightGradient}
+              >
+                <TrendingUp size={24} color={colors.primary} />
+                <Text style={[styles.insightTitle, { color: colors.text }]}>You're on Fire! 🔥</Text>
+                <Text style={[styles.insightText, { color: colors.primary }]}>
+                  Your problem-solving speed has improved by 40% this week.
+                  Keep challenging yourself with harder problems!
+                </Text>
+              </LinearGradient>
+            </View>
+          </Animated.View>
+        </View>
+      </ScrollView>
+
+      {/* Achievements Modal */}
+      <Modal
+        visible={showAchievementsModal}
+        transparent
+        animationType="none"
+        onRequestClose={closeAchievementsModal}
+      >
+        <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.modalOverlay}>
+          <Animated.View
+            style={[
+              styles.modalContent,
+              {
+                transform: [
+                  {
+                    scale: modalAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.95, 1],
+                    }),
+                  },
+                ],
+                opacity: modalAnim,
+              },
+            ]}
+          >
+            <Pressable style={styles.closeButton} onPress={closeAchievementsModal}>
+              <Feather name="x" size={24} color={colors.textSecondary} />
+            </Pressable>
+            <Text style={[styles.modalTitle, { color: colors.primary }]}>All Achievements</Text>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
+              {achievements.map((achievement) => (
+                <PillAchievement key={achievement.id} achievement={achievement} />
+              ))}
+            </ScrollView>
+          </Animated.View>
+        </BlurView>
+      </Modal>
+    </>
   );
 }
 
@@ -643,6 +833,8 @@ const styles = StyleSheet.create({
   },
   achievementWrapper: {
     width: (width - 60) / 2,
+    aspectRatio: 1, // Makes it a square
+    marginBottom: 12,
   },
   goalCard: {
     borderRadius: 40,
@@ -653,7 +845,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.16,
-    shadowRadius: 4,
+    shadowRadius: 5,
     elevation: 3,
   },
   goalHeader: {
@@ -723,5 +915,119 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(35,37,46,0.05)',
+    padding: 20,
+  },
+  modalContent: {
+    borderRadius: 50,
+    padding: 20,
+    width: '110%',
+    maxHeight: '100%',
+    backgroundColor: 'rgba(35,37,46,0.30)',
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 1,
+    padding: 8,
+  },
+  modalTitle: {
+    textAlign: 'center',
+    fontWeight: '700',
+    fontSize: 22,
+    marginBottom: 24,
+    marginTop: 8,
+    letterSpacing: 0.5,
+  },
+  pillAchievement: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 60,
+    borderWidth: 1.5,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    backgroundColor: '#23252e',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
+    minWidth: 0,
+  },
+  pillIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    backgroundColor: '#fff2',
+  },
+  pillContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    minWidth: 0,
+  },
+  pillTitle: {
+    fontWeight: '700',
+    fontSize: 13,
+    marginBottom: 2,
+    letterSpacing: 0.2,
+    textAlign: 'center',
+  },
+  pillDesc: {
+    fontSize: 11,
+    marginBottom: 4,
+    opacity: 0.92,
+    textAlign: 'center',
+  },
+  pillProgressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  pillProgressBar: {
+    flex: 1,
+    height: 8,
+    borderRadius: 10,
+    marginRight: 10,
+    backgroundColor: '#fff3',
+    overflow: 'hidden',
+  },
+  pillProgressFill: {
+    height: '100%',
+    borderRadius: 10,
+  },
+  pillProgressText: {
+    fontWeight: '700',
+    fontSize: 12,
+    minWidth: 45,
+    letterSpacing: 0.5,
+  },
+  pillMeta: {
+    fontSize: 11,
+    marginTop: 2,
+    opacity: 0.7,
+  },
+  pillRarity: {
+    marginTop: 4,
+    alignSelf: 'center',
+    backgroundColor: '#fff1',
+    borderRadius: 19,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
   },
 });
