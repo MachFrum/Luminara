@@ -10,7 +10,6 @@ import {
   Animated,
   RefreshControl,
   TextInput,
-  FlatList,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
@@ -20,7 +19,7 @@ import GuestBanner from '@/components/GuestBanner';
 import { supabase } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -85,9 +84,11 @@ export default function HomeScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [localTodos, setLocalTodos] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Initialize animations
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -103,12 +104,31 @@ export default function HomeScreen() {
     ]).start();
   }, []);
 
+  // Load local todos on mount
+  useEffect(() => {
+    loadLocalTodos();
+  }, []);
+
+  // Fetch from API when user changes
   useEffect(() => {
     if (user) {
       fetchTodos();
     }
   }, [user]);
 
+  // Save local todos to AsyncStorage
+  useEffect(() => {
+    AsyncStorage.setItem('localTodos', JSON.stringify(localTodos));
+  }, [localTodos]);
+
+  const loadLocalTodos = async () => {
+    const cached = await AsyncStorage.getItem('localTodos');
+    if (cached) {
+      setLocalTodos(JSON.parse(cached));
+    }
+  };
+
+  // Fetch from API and update both todos and local cache
   const fetchTodos = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -118,26 +138,43 @@ export default function HomeScreen() {
 
     if (error) {
       console.error('Error fetching todos:', error);
-    } else {
+    } else if (data) {
       setTodos(data as Todo[]);
+      setLocalTodos(data as Todo[]); // Keep local cache in sync with server
     }
     setLoading(false);
   };
 
+  // Add todo locally and send to API
   const addTodo = async () => {
     if (!newTodoTitle.trim() || !user) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
+    // Add locally first
+    const localTodo: Todo = {
+      id: Date.now(),
+      title: newTodoTitle,
+      is_complete: false,
+    };
+    setLocalTodos([localTodo, ...localTodos]);
+    setNewTodoTitle('');
+
+    // Send to API
     const { data, error } = await supabase
       .from('todos')
-      .insert([{ title: newTodoTitle, user_id: user.id }])
+      .insert([{ title: localTodo.title, user_id: user.id }])
       .select();
 
     if (error) {
       console.error('Error adding todo:', error);
     } else if (data) {
+      // Replace the local todo with the one from the server (with real id)
+      setLocalTodos((prev) =>
+        prev.map((t) =>
+          t.id === localTodo.id ? (data[0] as Todo) : t
+        )
+      );
       setTodos([data[0] as Todo, ...todos]);
-      setNewTodoTitle('');
     }
   };
 
@@ -147,7 +184,7 @@ export default function HomeScreen() {
       title: 'Start Learning',
       description: 'Ask a question or solve a problem',
       icon: Brain,
-      color: colors.mutedGold,
+      color: colors.accent,
       route: '/learn',
     },
     {
@@ -155,7 +192,7 @@ export default function HomeScreen() {
       title: 'View Progress',
       description: 'Track your learning journey',
       icon: TrendingUp,
-      color: colors.error,
+      color: colors.accent,
       route: '/progress',
     },
     {
@@ -163,7 +200,7 @@ export default function HomeScreen() {
       title: 'Challenges',
       description: 'Tackle challenging questions.',
       icon: Plus,
-      color: colors.deepNavy,
+      color: colors.accent,
       route: '/groups',
     },
     {
@@ -199,7 +236,7 @@ export default function HomeScreen() {
       subject: 'Physics',
       timeAgo: '2 days ago',
       difficulty: 'hard',
-      imageUrl: 'https://images.pexels.com/photo/delicious-blueberry-lemon-cake-bars-on-blue-plate-32050434.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      imageUrl: 'https://images.pexels.com/photos/355952/pexels-photo-355952.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
     },
   ];
 
@@ -209,7 +246,7 @@ export default function HomeScreen() {
       title: 'Problem Solver',
       description: 'Solve 50 problems',
       icon: Target,
-      color: colors.error,
+      color: colors.accent,
       progress: 35,
       maxProgress: 50,
     },
@@ -218,7 +255,7 @@ export default function HomeScreen() {
       title: 'Streak Master',
       description: '7 day learning streak',
       icon: Flame,
-      color: colors.softBlush,
+      color: colors.accent,
       progress: 7,
       maxProgress: 7,
     },
@@ -244,12 +281,12 @@ export default function HomeScreen() {
     switch (difficulty) {
       case 'easy': return colors.accent;
       case 'medium': return colors.textSecondary;
-      case 'hard': return colors.mutedGold;
+      case 'hard': return colors.error;
       default: return colors.textSecondary;
     }
   };
 
- const getGreeting = () => {
+  const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
     if (hour < 18) return 'Good afternoon';
@@ -292,7 +329,7 @@ export default function HomeScreen() {
           {/* Stats Overview */}
           <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <BookOpen size={20} color={colors.mutedGold} />
+              <BookOpen size={20} color={colors.accent} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>127</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Problems</Text>
             </View>
@@ -350,10 +387,11 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
             <View>
-              {todos.length > 0 ? (
-                todos.map((item) => (
-                  <View 
-                    key={item.id.toString()} 
+              {/* Show only the latest 2 topics/todos from local cache */}
+              {localTodos.length > 0 ? (
+                localTodos.slice(0, 2).map((item) => (
+                  <View
+                    key={item.id.toString()}
                     style={[styles.todoListItem, { borderBottomColor: colors.textSecondary }]}
                   >
                     <Text style={[item.is_complete ? styles.completed : { color: colors.text, ...typography.body }]}>
@@ -380,7 +418,7 @@ export default function HomeScreen() {
             },
           ]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>Quick Actions </Text>
+          <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
             {quickActions.map((action, index) => (
               <TouchableOpacity
@@ -475,20 +513,19 @@ export default function HomeScreen() {
             >
               <BlurView
                 style={styles.achievementBlur}
-                blurType="light"
-                blurAmount={18}
-                reducedTransparencyFallbackColor="#595952"
+                intensity={80}
+                tint={colors.background === '#121212' ? 'dark' : 'light'}
               >
                 <View style={[styles.achievementIcon, { backgroundColor: colors.surface }]}>
                   <achievement.icon size={24} color={colors.accent} />
                 </View>
                 <View style={styles.achievementContent}>
                   <Text style={[styles.achievementTitle, { color: colors.primary, ...typography.body }]}>{achievement.title}</Text>
-                  <Text style={[styles.achievementDescription, { color: colors.textTertiary, ...typography.caption }]}>
+                  <Text style={[styles.achievementDescription, { color: colors.textSecondary, ...typography.caption }]}>
                     {achievement.description}
                   </Text>
                   <View style={styles.progressContainer}>
-                    <View style={[styles.progressBar, { backgroundColor: colors.textSecondary }]}>
+                    <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
                       <View
                         style={[
                           styles.progressFill,
@@ -521,11 +558,12 @@ export default function HomeScreen() {
         >
           <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.quoteCard}>
             <LinearGradient
-              colors={[colors.deepNavy, colors.charcoal, colors.mutedGold]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              colors={[colors.surface, colors.accent]}
+              start={{ x: 0, y: 0 }} 
+              end={{ x: 1, y: 1 }}
               style={styles.quoteGradient}
             >
-              <Star size={32} color={colors.ivory} />
+              <Star size={32} color={colors.primary} />
               <Text style={[styles.quoteText, { color: colors.primary, ...typography.body }]}>
                 "The beautiful thing about learning is that no one can take it away from you."
               </Text>
@@ -537,6 +575,7 @@ export default function HomeScreen() {
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -570,10 +609,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     width: '100%',
     borderWidth: 1.5,
-    borderColor: '#d9c4b0',
-    backgroundColor: '#4a432a',
+    borderColor: 'rgba(255,255,255,0.1)',
     overflow: 'hidden',
-    shadowColor: '#997350',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
@@ -582,20 +620,6 @@ const styles = StyleSheet.create({
   statItem: {
     alignItems: 'center',
     flex: 1,
-  },
-  statIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   statNumber: {
     marginBottom: 5,
@@ -608,7 +632,7 @@ const styles = StyleSheet.create({
     width: 1.5,
     height: 45,
     marginHorizontal: 18,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    opacity: 0.3,
     borderRadius: 1,
   },
   content: {
@@ -634,43 +658,27 @@ const styles = StyleSheet.create({
   quickActionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 17.5,
+    gap: 16,
   },
   quickActionCard: {
     width: (width - 66) / 2,
-    marginTop: 15,
     aspectRatio: 1,
-    borderRadius: 50,
-    borderWidth: 1.5,
-    borderColor: '#d9c4b0',
-    backgroundColor: '#10393d',
-    shadowColor: '#4a90e2',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.18,
-    shadowRadius: 20,
-    elevation: 10,
+    borderRadius: 24,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
   },
-
-  // Inner container to clip content
-  quickActionInner: {
-    borderRadius: 26,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: '#d9c4b0',
-  },
-
   quickActionBlur: {
     flex: 1,
     padding: 22,
     alignItems: 'center',
-    minHeight: 0,
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderRadius: 26,
+    borderRadius: 24,
     overflow: 'hidden',
   },
-
   quickActionIcon: {
     width: 54,
     height: 54,
@@ -678,177 +686,157 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
-    backgroundColor: 'rgba(255,255,255,0.25)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 4,
   },
-
   quickActionTitle: {
     fontWeight: '700',
     marginBottom: 6,
     textAlign: 'center',
-    color: '#fff',
     letterSpacing: 0.3,
   },
-
   quickActionDescription: {
     textAlign: 'center',
     lineHeight: 18,
-    color: '#f5f5f5',
     opacity: 0.95,
   },
-
-// Start here - Activity Cards
-
-activityCard: {
-  marginBottom: 14,
-  borderRadius: 55, // Match todoCard
-  overflow: 'hidden',
-  backgroundColor: '#264a2b', // Match todoCard
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 6 },
-  shadowOpacity: 0.12,
-  shadowRadius: 16,
-  elevation: 6,
-  borderWidth: 1.5,
-  borderColor: '#d9c4b0',
-},
-activityBlur: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  padding: 15,
-  backgroundColor: 'rgba(255,255,255,0.08)', // Match todoInput
-  borderRadius: 55,
-},
-activityImage: {
-  width: 64,
-  height: 64,
-  borderRadius: 18,
-  marginRight: 18,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.2,
-  shadowRadius: 8,
-  elevation: 4,
-},
-activityContent: {
-  flex: 1,
-},
-activityTitle: {
-  fontWeight: '700',
-  marginBottom: 6,
-  letterSpacing: 0.2,
-},
-activitySubject: {
-  marginBottom: 10,
-  opacity: 0.9,
-},
-activityMeta: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-},
-activityTime: {
-  opacity: 0.8,
-},
-difficultyBadge: {
-  paddingHorizontal: 12,
-  paddingVertical: 5,
-  borderRadius: 18,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 2,
-},
-difficultyText: {
-  fontWeight: '700',
-  textTransform: 'uppercase',
-  fontSize: 11,
-  letterSpacing: 0.8,
-},
-achievementCard: {
-  marginBottom: 14,
-  borderRadius: 50, // Match quickActionCard
-  overflow: 'hidden',
-  backgroundColor: '#10393d', // Match quickActionCard
-  shadowColor: '#4a90e2',
-  shadowOffset: { width: 0, height: 12 },
-  shadowOpacity: 0.18,
-  shadowRadius: 20,
-  elevation: 10,
-  borderWidth: 1.5,
-  borderColor: '#d9c4b0',
-},
-achievementBlur: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  padding: 22,
-  backgroundColor: 'rgba(255,255,255,0.12)', // Match quickActionBlur
-  borderRadius: 26,
-},
-achievementIcon: {
-  width: 56,
-  height: 56,
-  borderRadius: 16,
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginRight: 18,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.2,
-  shadowRadius: 8,
-  elevation: 4,
-},
-achievementContent: {
-  flex: 1,
-},
-achievementTitle: {
-  fontWeight: '700',
-  marginBottom: 6,
-  letterSpacing: 0.3,
-},
-achievementDescription: {
-  marginBottom: 12,
-  opacity: 0.9,
-  lineHeight: 18,
-},
-progressContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-},
-progressBar: {
-  flex: 1,
-  height: 10,
-  borderRadius: 6,
-  marginRight: 14,
-  backgroundColor: 'transparent',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 2,
-},
-progressFill: {
-  height: '100%',
-  borderRadius: 6,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 4,
-  elevation: 2,
-},
-progressText: {
-  fontWeight: '700',
-  minWidth: 45,
-  letterSpacing: 0.5,
-},
-
-//finish here  
-  
+  activityCard: {
+    marginBottom: 14,
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  activityBlur: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 18,
+    borderRadius: 24,
+  },
+  activityImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
+    marginRight: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityTitle: {
+    fontWeight: '700',
+    marginBottom: 6,
+    letterSpacing: 0.2,
+  },
+  activitySubject: {
+    marginBottom: 10,
+    opacity: 0.9,
+  },
+  activityMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  activityTime: {
+    opacity: 0.8,
+  },
+  difficultyBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  difficultyText: {
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    fontSize: 11,
+    letterSpacing: 0.8,
+  },
+  achievementCard: {
+    marginBottom: 14,
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  achievementBlur: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 22,
+    borderRadius: 24,
+  },
+  achievementIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  achievementContent: {
+    flex: 1,
+  },
+  achievementTitle: {
+    fontWeight: '700',
+    marginBottom: 6,
+    letterSpacing: 0.3,
+  },
+  achievementDescription: {
+    marginBottom: 12,
+    opacity: 0.9,
+    lineHeight: 18,
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressBar: {
+    flex: 1,
+    height: 10,
+    borderRadius: 6,
+    marginRight: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  progressText: {
+    fontWeight: '700',
+    minWidth: 45,
+    letterSpacing: 0.5,
+  },
   quoteCard: {
     borderRadius: 25,
     overflow: 'hidden',
@@ -857,8 +845,6 @@ progressText: {
     shadowOpacity: 0.15,
     shadowRadius: 16,
     elevation: 8,
-    borderWidth: 1.5,
-    borderColor: '#d9c4b0',
   },
   quoteGradient: {
     padding: 28,
@@ -881,9 +867,6 @@ progressText: {
     padding: 20,
     marginBottom: 15,
     overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: '#d9c4b0',
-    backgroundColor: '#264a2b',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.12,
@@ -901,8 +884,6 @@ progressText: {
     paddingHorizontal: 18,
     paddingVertical: 14,
     marginRight: 12,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderColor: 'rgba(255,255,255,0.15)',
   },
   addTodoButton: {
     width: 54,
@@ -918,7 +899,7 @@ progressText: {
   },
   todoListItem: {
     paddingVertical: 14,
-    borderBottomWidth: 1.5,
+    borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   completed: {
