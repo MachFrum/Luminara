@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -21,6 +22,7 @@ import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { useTabBarScroll } from './_layout';
 
 const { width } = Dimensions.get('window');
 
@@ -79,6 +81,7 @@ export default function HomeScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const router = useRouter();
+  const { onScroll } = useTabBarScroll();
 
   // Initialize animations
   useEffect(() => {
@@ -227,6 +230,8 @@ export default function HomeScreen() {
           colors={[colors.accent]}
         />
       }
+      onScroll={onScroll}
+      scrollEventThrottle={16}
     >
       {/* Header */}
       <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.header}>

@@ -43,9 +43,11 @@ import { useProblemSubmission } from '@/hooks/useProblemSubmission';
 import { useProblemHistory } from '@/hooks/useProblemHistory';
 import { ProblemEntry, InputMethod } from '@/types/learning';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useTabBarScroll } from './_layout';
 
 export default function LearnScreen() {
   const { colors, typography, spacing } = useTheme();
+  const { onScroll } = useTabBarScroll();
   const [refreshing, setRefreshing] = useState(false);
   const [showInputModal, setShowInputModal] = useState(false);
   const [selectedInputMethod, setSelectedInputMethod] = useState<string | null>(null);
@@ -382,7 +384,12 @@ export default function LearnScreen() {
         </TouchableOpacity>
 
         {/* Problems List */}
-        <ScrollView style={styles.problemsList} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          style={styles.problemsList} 
+          showsVerticalScrollIndicator={false} 
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+        >
           {(historyError || submissionError) && (
             <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.errorContainer}>
               <Text style={[styles.errorText, { color: colors.textSecondary, ...typography.body }]}>

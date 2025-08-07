@@ -39,6 +39,7 @@ import AnimatedCounter from '@/components/AnimatedCounter';
 import ProgressRing from '@/components/ProgressRing';
 import ActivityChart from '@/components/ActivityChart';
 import AchievementBadge from '@/components/AchievementBadge';
+import { useTabBarScroll } from './_layout';
 
 import { useLocalSearchParams } from 'expo-router';
 
@@ -55,6 +56,7 @@ const { width } = Dimensions.get('window');
 
 export default function ProgressScreen() {
   const { colors } = useTheme();
+  const { onScroll } = useTabBarScroll();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month'>('week');
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
@@ -411,6 +413,8 @@ export default function ProgressScreen() {
       <ScrollView
         style={[styles.container, { backgroundColor: colors.background }]}
         showsVerticalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

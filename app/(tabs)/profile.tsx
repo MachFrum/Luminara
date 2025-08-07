@@ -57,6 +57,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import GuestBanner from '@/components/GuestBanner';
 import EditProfileModal from '@/components/EditProfileModal';
+import { useTabBarScroll } from './_layout';
 
 // Utility to clear async storage (cache)
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -64,6 +65,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { colors, theme, toggleTheme } = useTheme();
+  const { onScroll } = useTabBarScroll();
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
@@ -127,7 +129,12 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
+    <ScrollView 
+      style={[styles.container, { backgroundColor: colors.background }]} 
+      showsVerticalScrollIndicator={false}
+      onScroll={onScroll}
+      scrollEventThrottle={16}
+    >
       <LinearGradient
         colors={[colors.surface, colors.charcoal, colors.deepNavy]}
         style={styles.header,{ borderRadius: 30 }}
