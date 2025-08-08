@@ -44,6 +44,7 @@ interface AuthContextType extends AuthState {
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
   continueAsGuest: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -252,6 +253,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const requestPasswordReset = async (email: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'CLEAR_ERROR' });
+
+    try {
+      // Simple validation
+      if (!email) {
+        throw new Error('Email is required');
+      }
+
+      // Mock password reset request - replace with real API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real implementation, this would send an email
+      console.log('Password reset requested for:', email);
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: (error as Error).message });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
   const logout = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
 
@@ -302,6 +325,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         continueAsGuest,
+        requestPasswordReset,
         clearError,
       }}
     >

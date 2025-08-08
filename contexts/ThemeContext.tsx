@@ -15,6 +15,11 @@ interface ThemeColors {
   border: string;
   overlayLight: string;
   surfaceSecondary: string;
+  mutedGold: string;
+  deepNavy: string;
+  softBlush: string;
+  charcoal: string;
+  ivory: string;
   success: string;
   warning: string;
   error: string;
