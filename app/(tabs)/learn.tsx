@@ -22,17 +22,17 @@ interface IconProps {
   size: number;
 }
 
-const RefreshCwIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="refresh-cw" size={size} color={color} />;
-const SearchIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="search" size={size} color={color} />;
-const FilterIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="filter" size={size} color={color} />;
-const TypeIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="type" size={size} color={color} />;
-const CameraIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
-const XIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="x" size={size} color={color} />;
-const SendIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="send" size={size} color={color} />;
-const SquareIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="square" size={size} color={color} />;
-const PlayIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="play" size={size} color={color} />;
-const PauseIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="pause" size={size} color={color} />;
-const ArrowLeftIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="arrow-left" size={size} color={color} />;
+const RefreshCw: React.FC<IconProps> = ({ color, size }) => <Feather name="refresh-cw" size={size} color={color} />;
+const Search: React.FC<IconProps> = ({ color, size }) => <Feather name="search" size={size} color={color} />;
+const Filter: React.FC<IconProps> = ({ color, size }) => <Feather name="filter" size={size} color={color} />;
+const Type: React.FC<IconProps> = ({ color, size }) => <Feather name="type" size={size} color={color} />;
+const Camera: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
+const X: React.FC<IconProps> = ({ color, size }) => <Feather name="x" size={size} color={color} />;
+const Send: React.FC<IconProps> = ({ color, size }) => <Feather name="send" size={size} color={color} />;
+const Square: React.FC<IconProps> = ({ color, size }) => <Feather name="square" size={size} color={color} />;
+const Play: React.FC<IconProps> = ({ color, size }) => <Feather name="play" size={size} color={color} />;
+const Pause: React.FC<IconProps> = ({ color, size }) => <Feather name="pause" size={size} color={color} />;
+const ArrowLeft: React.FC<IconProps> = ({ color, size }) => <Feather name="arrow-left" size={size} color={color} />;
 
 import ProblemPreview from '@/components/ProblemPreview';
 import InputMethodCard from '@/components/InputMethodCard';
@@ -45,7 +45,7 @@ import { ProblemEntry, InputMethod } from '@/types/learning';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTabBarScroll } from './_layout';
 
-function LearnScreen() {
+export default function LearnScreen() {
   const { colors, typography, spacing } = useTheme();
   const { onScroll } = useTabBarScroll();
   const [refreshing, setRefreshing] = useState(false);
@@ -282,7 +282,7 @@ function LearnScreen() {
                 {isProcessing ? (
                   <LoadingSpinner size={20} />
                 ) : (
-                  <SendIcon size={20} color={colors.primary} />
+                  <Send size={20} color={colors.primary} />
                 )}
                 <Text style={[styles.submitText, { color: colors.primary, ...typography.body }]}>
                   {isProcessing ? 'Processing...' : 'Submit'}
@@ -315,7 +315,7 @@ function LearnScreen() {
                   colors={[colors.accent, colors.primary]}
                   style={styles.cameraGradient}
                 >
-                  <CameraIcon size={32} color={colors.primary} />
+                  <Camera size={32} color={colors.primary} />
                 </LinearGradient>
               </TouchableOpacity>
               <Text style={[styles.cameraStatus, { color: colors.textSecondary, ...typography.body }]}>
@@ -351,7 +351,7 @@ function LearnScreen() {
           
           {/* Search Bar */}
           <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.searchContainer}>
-            <SearchIcon size={20} color={colors.textSecondary} />
+            <Search size={20} color={colors.textSecondary} />
             <TextInput
               style={[styles.searchInput, { color: colors.text, ...typography.body }]}
               placeholder="Search problems, topics, or tags..."
@@ -375,7 +375,7 @@ function LearnScreen() {
             {refreshing || isLoadingHistory ? (
               <LoadingSpinner size={20} />
             ) : (
-              <RefreshCwIcon size={20} color={colors.accent} />
+              <RefreshCw size={20} color={colors.accent} />
             )}
             <Text style={[styles.refreshText, { color: colors.accent, ...typography.body }]}>
               {refreshing || isLoadingHistory ? 'Loading...' : 'Refresh'}
@@ -447,7 +447,7 @@ function LearnScreen() {
             ]}
           >
             <TouchableOpacity style={styles.closeButton} onPress={closeInputModal}>
-              <XIcon size={24} color={colors.textSecondary} />
+              <X size={24} color={colors.textSecondary} />
             </TouchableOpacity>
             
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -519,8 +519,6 @@ function LearnScreen() {
     </View>
   );
 }
-
-export default LearnScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -606,7 +604,7 @@ const styles = StyleSheet.create({
     padding: 30,
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: '#23252e',
+    borderColor: '#d9c4b0',
     borderRadius: 30,
   },
   modalContent: {
@@ -617,7 +615,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(35,37,46,0.92)', // Less transparent
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: '#23252e',
+    borderColor: '#d9c4b0',
   },
   closeButton: {
     position: 'absolute',
@@ -715,10 +713,10 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   problemTitle: {
-    marginBottom: 8,
+    marginBottom: 20,
   },
   problemSubtitle: {
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'center',
   },
   problemActions: {
@@ -727,7 +725,7 @@ const styles = StyleSheet.create({
   },
   problemButton: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 20,
     marginHorizontal: 8,
     overflow: 'hidden',
   },
@@ -756,7 +754,9 @@ const styles = StyleSheet.create({
   doneButton: {
     alignSelf: 'center',
     marginTop: 16,
-    borderRadius: 16,
+    borderRadius: 25,
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
     paddingVertical: 12,
     paddingHorizontal: 40,
     marginBottom: 12,

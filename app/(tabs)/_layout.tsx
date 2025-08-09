@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useRef, useEffect, createContext, useContext } from 'react';
-import { Animated, View } from 'react-native';
+import { useRef, useEffect, createContext, useContext } from 'react';
+import { Animated } from 'react-native';
 
 // Create context for scroll handling
 const TabBarContext = createContext<{
@@ -17,7 +17,7 @@ export const useTabBarScroll = () => {
   return context;
 };
 
-function TabLayout() {
+export default function TabLayout() {
   const insets = useSafeAreaInsets();
   
   // Animation values
@@ -129,5 +129,3 @@ function TabLayout() {
     </TabBarContext.Provider>
   );
 }
-
-export default TabLayout;

@@ -18,18 +18,18 @@ interface IconProps {
   size: number;
 }
 
-const UserIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="user" size={size} color={color} />;
-const SettingsIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="settings" size={size} color={color} />;
-const BellIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="bell" size={size} color={color} />;
-const ShieldIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="shield" size={size} color={color} />;
-const HelpCircleIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="help-circle" size={size} color={color} />;
-const LogOutIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="log-out" size={size} color={color} />;
-const CameraIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
-const MoonIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="moon" size={size} color={color} />;
-const MonitorIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="monitor" size={size} color={color} />;
-const UsersIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
-const CrownIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
-const ChevronRightIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
+const User: React.FC<IconProps> = ({ color, size }) => <Feather name="user" size={size} color={color} />;
+const Settings: React.FC<IconProps> = ({ color, size }) => <Feather name="settings" size={size} color={color} />;
+const Bell: React.FC<IconProps> = ({ color, size }) => <Feather name="bell" size={size} color={color} />;
+const Shield: React.FC<IconProps> = ({ color, size }) => <Feather name="shield" size={size} color={color} />;
+const HelpCircle: React.FC<IconProps> = ({ color, size }) => <Feather name="help-circle" size={size} color={color} />;
+const LogOut: React.FC<IconProps> = ({ color, size }) => <Feather name="log-out" size={size} color={color} />;
+const Camera: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
+const Moon: React.FC<IconProps> = ({ color, size }) => <Feather name="moon" size={size} color={color} />;
+const Monitor: React.FC<IconProps> = ({ color, size }) => <Feather name="monitor" size={size} color={color} />;
+const Users: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
+const Crown: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const ChevronRight: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
 
 // Settings item types
 interface BaseSettingsItem {
@@ -62,7 +62,7 @@ import { useTabBarScroll } from './_layout';
 // Utility to clear async storage (cache)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function ProfileScreen() {
+export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { colors, theme, toggleTheme } = useTheme();
   const { onScroll } = useTabBarScroll();
@@ -107,23 +107,23 @@ function ProfileScreen() {
     {
       title: "Account",
       items: [
-        { icon: UserIcon, label: "Edit Profile", onPress: () => setShowEditProfile(true) },
-        { icon: CrownIcon, label: "Upgrade to Premium", onPress: () => {}, premium: true },
+        { icon: User, label: "Edit Profile", onPress: () => setShowEditProfile(true) },
+        { icon: Crown, label: "Upgrade to Premium", onPress: () => {}, premium: true },
       ]
     },
     {
       title: "Preferences",
       items: [
-        { icon: BellIcon, label: "Notifications", toggle: true, value: notificationsEnabled, onToggle: handleToggleNotifications },
-        { icon: MoonIcon, label: "Dark Mode", toggle: true, value: theme === 'dark', onToggle: toggleTheme },
+        { icon: Bell, label: "Notifications", toggle: true, value: notificationsEnabled, onToggle: handleToggleNotifications },
+        { icon: Moon, label: "Dark Mode", toggle: true, value: theme === 'dark', onToggle: toggleTheme },
       ]
     },
     {
       title: "Support",
       items: [
-        { icon: HelpCircleIcon, label: "Help Center", onPress: () => {} },
-        { icon: SettingsIcon, label: "App Settings", onPress: () => {} },
-        { icon: LogOutIcon, label: "Sign Out", onPress: handleLogout, danger: true },
+        { icon: HelpCircle, label: "Help Center", onPress: () => {} },
+        { icon: Settings, label: "App Settings", onPress: () => {} },
+        { icon: LogOut, label: "Sign Out", onPress: handleLogout, danger: true },
       ]
     }
   ];
@@ -137,7 +137,7 @@ function ProfileScreen() {
     >
       <LinearGradient
         colors={[colors.surface, colors.charcoal, colors.deepNavy]}
-        style={[styles.header, { borderRadius: 30 }]}
+        style={styles.header,{ borderRadius: 30 }}
       >
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
@@ -240,7 +240,7 @@ function ProfileScreen() {
                     thumbColor={item.value ? '#FFF' : '#FFF'}
                   />
                 ) : (
-                  <ChevronRightIcon size={16} color={colors.textTertiary} />
+                  <ChevronRight size={16} color={colors.textTertiary} />
                 )}
               </TouchableOpacity>
             ))}
@@ -280,8 +280,6 @@ function ProfileScreen() {
     </ScrollView>
   );
 }
-
-export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -389,10 +387,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     marginBottom: 16,
     borderRadius: 40,
-    // Add border color and width for the squirrcle buttons
     borderWidth: 1,
-    borderColor: '#d9c4b0', // Or use colors.border if you want to match your theme
-    shadowOffset: { width: 0, height: 4 },
+    borderColor: '#d9c4b0', 
     shadowRadius: 12,
     elevation: 4,
   },

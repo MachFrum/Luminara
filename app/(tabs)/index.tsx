@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -31,19 +32,19 @@ interface IconProps {
   size: number;
 }
 
-const BookOpenIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="book-open" size={size} color={color} />;
-const TrendingUpIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="trending-up" size={size} color={color} />;
-const TargetIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="target" size={size} color={color} />;
-const ClockIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="clock" size={size} color={color} />;
-const StarIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="star" size={size} color={color} />;
-const FlameIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
-const TrophyIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
-const ChevronRightIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
-const ZapIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
-const BrainIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="cpu" size={size} color={color} />;
-const UsersIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
-const AwardIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
-const PlusIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="plus" size={size} color={color} />;
+const BookOpen: React.FC<IconProps> = ({ color, size }) => <Feather name="book-open" size={size} color={color} />;
+const TrendingUp: React.FC<IconProps> = ({ color, size }) => <Feather name="trending-up" size={size} color={color} />;
+const Target: React.FC<IconProps> = ({ color, size }) => <Feather name="target" size={size} color={color} />;
+const Clock: React.FC<IconProps> = ({ color, size }) => <Feather name="clock" size={size} color={color} />;
+const Star: React.FC<IconProps> = ({ color, size }) => <Feather name="star" size={size} color={color} />;
+const Flame: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
+const Trophy: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const ChevronRight: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
+const Zap: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
+const Brain: React.FC<IconProps> = ({ color, size }) => <Feather name="cpu" size={size} color={color} />;
+const Users: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
+const Award: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const Plus: React.FC<IconProps> = ({ color, size }) => <Feather name="plus" size={size} color={color} />;
 
 interface QuickAction {
   id: string;
@@ -73,7 +74,7 @@ interface Achievement {
   maxProgress: number;
 }
 
-function HomeScreen() {
+export default function HomeScreen() {
   const { user } = useAuth();
   const { colors, typography, spacing } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
@@ -103,7 +104,7 @@ function HomeScreen() {
       id: '1',
       title: 'Start Learning',
       description: 'Ask a question or solve a problem.',
-      icon: BrainIcon,
+      icon: Brain,
       color: colors.accent,
       route: '/learn',
     },
@@ -111,7 +112,7 @@ function HomeScreen() {
       id: '2',
       title: 'View Progress',
       description: 'Track your learning journey.',
-      icon: TrendingUpIcon,
+      icon: TrendingUp,
       color: colors.accent,
       route: '/progress',
     },
@@ -119,7 +120,7 @@ function HomeScreen() {
       id: '3',
       title: 'Challenges',
       description: 'Tackle challenging questions.',
-      icon: PlusIcon,
+      icon: Plus,
       color: colors.accent,
       route: '/groups',
     },
@@ -127,7 +128,7 @@ function HomeScreen() {
       id: '4',
       title: 'Achievements',
       description: 'View your achievements.',
-      icon: AwardIcon,
+      icon: Award,
       color: colors.accent,
       route: '/achievements',
     },
@@ -165,7 +166,7 @@ function HomeScreen() {
       id: '1',
       title: 'Problem Solver',
       description: 'Solve 50 problems',
-      icon: TargetIcon,
+      icon: Target,
       color: colors.accent,
       progress: 35,
       maxProgress: 50,
@@ -174,7 +175,7 @@ function HomeScreen() {
       id: '2',
       title: 'Streak Master',
       description: '7 day learning streak',
-      icon: FlameIcon,
+      icon: Flame,
       color: colors.accent,
       progress: 7,
       maxProgress: 7,
@@ -183,7 +184,7 @@ function HomeScreen() {
       id: '3',
       title: 'Quick Learner',
       description: 'Complete 5 topics',
-      icon: ZapIcon,
+      icon: Zap,
       color: colors.accent,
       progress: 3,
       maxProgress: 5,
@@ -255,7 +256,7 @@ function HomeScreen() {
           {/* Stats Overview */}
           <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <BookOpenIcon size={20} color={colors.accent} />
+              <BookOpen size={20} color={colors.accent} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>127</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Problems</Text>
             </View>
@@ -263,7 +264,7 @@ function HomeScreen() {
             <View style={[styles.statDivider, { backgroundColor: colors.textSecondary }]} />
             
             <View style={styles.statItem}>
-              <ClockIcon size={20} color={colors.accent} />
+              <Clock size={20} color={colors.accent} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>42</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Hours</Text>
             </View>
@@ -271,7 +272,7 @@ function HomeScreen() {
             <View style={[styles.statDivider, { backgroundColor: colors.textSecondary }]} />
             
             <View style={styles.statItem}>
-              <FlameIcon size={20} color={colors.error} />
+              <Flame size={20} color={colors.error} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>7</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Day Streak</Text>
             </View>
@@ -364,7 +365,7 @@ function HomeScreen() {
                     </View>
                   </View>
                 </View>
-                <ChevronRightIcon size={20} color={colors.textSecondary} />
+                <ChevronRight size={20} color={colors.textSecondary} />
               </BlurView>
             </TouchableOpacity>
           ))}
@@ -441,7 +442,7 @@ function HomeScreen() {
               end={{ x: 1, y: 1 }}
               style={styles.quoteGradient}
             >
-              <StarIcon size={32} color={colors.primary} />
+              <Star size={32} color={colors.primary} />
               <Text style={[styles.quoteText, { color: colors.primary, ...typography.body }]}>
                 "The beautiful thing about learning is that no one can take it away from you."
               </Text>
@@ -453,8 +454,6 @@ function HomeScreen() {
     </ScrollView>
   );
 }
-
-export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -483,21 +482,14 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: 'row',
-    borderRadius: 55,
+    borderRadius: 35,
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
     padding: 20,
     alignItems: 'center',
     justifyContent: 'space-around',
     width: '100%',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.1)',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 6,
   },
   statItem: {
     alignItems: 'center',
@@ -543,18 +535,13 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   quickActionCard: {
-    width: (width - 66) / 2,
+    width: (width - 67) / 2,
     aspectRatio: 1,
-    borderRadius: 71,
+    borderRadius: 60,
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
     overflow: 'hidden',
     marginTop: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
   },
   quickActionBlur: {
     flex: 1,
@@ -594,11 +581,6 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 6,
   },
   activityBlur: {
     flexDirection: 'row',
@@ -611,7 +593,7 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 30,
     marginRight: 18,
-    shadowColor: '#000',
+    shadowColor: '#d9c4b0',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -659,11 +641,6 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#d9c4b0',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
   },
   achievementBlur: {
     flexDirection: 'row',
@@ -674,11 +651,11 @@ const styles = StyleSheet.create({
   achievementIcon: {
     width: 56,
     height: 56,
-    borderRadius: 16,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 18,
-    shadowColor: '#000',
+    shadowColor: '#d9c4b0',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
