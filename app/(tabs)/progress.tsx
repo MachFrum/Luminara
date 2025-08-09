@@ -20,41 +20,31 @@ interface IconProps {
   color: string;
   size: number;
 }
+const { width } = Dimensions.get('window');
 
-const TrendingUp: React.FC<IconProps> = ({ color, size }) => <Feather name="trending-up" size={size} color={color} />;
-const Calendar: React.FC<IconProps> = ({ color, size }) => <Feather name="calendar" size={size} color={color} />;
-const Award: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
-const Target: React.FC<IconProps> = ({ color, size }) => <Feather name="target" size={size} color={color} />;
-const Book: React.FC<IconProps> = ({ color, size }) => <Feather name="book" size={size} color={color} />;
-const Clock: React.FC<IconProps> = ({ color, size }) => <Feather name="clock" size={size} color={color} />;
-const Star: React.FC<IconProps> = ({ color, size }) => <Feather name="star" size={size} color={color} />;
-const Flame: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
-const Trophy: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
-const ChevronRight: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
-const BarChart3: React.FC<IconProps> = ({ color, size }) => <Feather name="bar-chart-3" size={size} color={color} />;
-const Users: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
-const Zap: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
+const TrendingUpIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="trending-up" size={size} color={color} />;
+const CalendarIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="calendar" size={size} color={color} />;
+const AwardIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const TargetIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="target" size={size} color={color} />;
+const BookIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="book" size={size} color={color} />;
+const ClockIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="clock" size={size} color={color} />;
+const StarIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="star" size={size} color={color} />;
+const FlameIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
+const TrophyIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const ChevronRightIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
+const BarChart3Icon: React.FC<IconProps> = ({ color, size }) => <Feather name="bar-chart-3" size={size} color={color} />;
+const UsersIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
+const ZapIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
 
 import AnimatedCounter from '@/components/AnimatedCounter';
 import ProgressRing from '@/components/ProgressRing';
 import ActivityChart from '@/components/ActivityChart';
 import AchievementBadge from '@/components/AchievementBadge';
 import { useTabBarScroll } from './_layout';
-
 import { useLocalSearchParams } from 'expo-router';
-
-const params = useLocalSearchParams();
-useEffect(() => {
-  if (params.showAchievements === '1') {
-    openAchievementsModal();
-  }
-}, [params]);
-
 import { useTheme } from '@/contexts/ThemeContext';
 
-const { width } = Dimensions.get('window');
-
-export default function ProgressScreen() {
+function ProgressScreen() {
   const { colors } = useTheme();
   const { onScroll } = useTabBarScroll();
   const [refreshing, setRefreshing] = useState(false);
@@ -63,6 +53,23 @@ export default function ProgressScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const modalAnim = useRef(new Animated.Value(0)).current;
+
+  // guard + refs to cancel timers/animations
+  const isMounted = useRef(true);
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const introAnimRef = useRef<Animated.CompositeAnimation | null>(null);
+  const modalAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  // global cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current as any);
+      introAnimRef.current?.stop?.();
+      modalAnimationRef.current?.stop?.();
+    };
+  }, []);
+
 
   // --- DRY: Single source of truth for all achievements ---
   const achievements = [
@@ -133,21 +140,30 @@ export default function ProgressScreen() {
 
   // Animate modal in/out
   const openAchievementsModal = () => {
+    if (!isMounted.current) return;
+    // show immediately, then animate in
     setShowAchievementsModal(true);
-    Animated.spring(modalAnim, {
+    modalAnimationRef.current = Animated.spring(modalAnim, {
       toValue: 1,
       tension: 100,
       friction: 8,
       useNativeDriver: true,
-    }).start();
+    });
+    modalAnimationRef.current.start();
   };
+
   const closeAchievementsModal = () => {
-    Animated.timing(modalAnim, {
+    modalAnimationRef.current = Animated.timing(modalAnim, {
       toValue: 0,
       duration: 300,
       useNativeDriver: true,
-    }).start(() => setShowAchievementsModal(false));
+    });
+    modalAnimationRef.current.start(() => {
+      // only update state if still mounted
+      if (isMounted.current) setShowAchievementsModal(false);
+    });
   };
+
 
   // --- DRY: Achievement pill component ---
   const PillAchievement = ({ achievement }: any) => (
@@ -168,7 +184,7 @@ export default function ProgressScreen() {
         {achievement.icon ? (
           achievement.icon
         ) : (
-          <Award size={22} color={achievement.color} />
+          <AwardIcon size={22} color={achievement.color} />
         )}
       </View>
       <View style={styles.pillContent}>
@@ -326,7 +342,7 @@ export default function ProgressScreen() {
   };
 
   useEffect(() => {
-    Animated.parallel([
+    introAnimRef.current = Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 800,
@@ -337,15 +353,19 @@ export default function ProgressScreen() {
         duration: 800,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]);
+    introAnimRef.current.start();
   }, []);
+
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setRefreshing(false);
+    await new Promise<void>((resolve) => {
+      refreshTimeoutRef.current = setTimeout(resolve, 1000);
+    });
+    if (isMounted.current) setRefreshing(false);
   };
+
 
   const triggerHapticFeedback = () => {
     if (Platform.OS !== 'web') {
@@ -404,7 +424,7 @@ export default function ProgressScreen() {
           <Text style={[styles.subjectActivity, { color: colors.textTertiary }]}>Last: {subject.lastActivity}</Text>
         </View>
       </View>
-      <ChevronRight size={20} color={colors.textTertiary} />
+      <ChevronRightIcon size={20} color={colors.textTertiary} />
     </TouchableOpacity>
   );
 
@@ -443,7 +463,7 @@ export default function ProgressScreen() {
                 </Text>
               </View>
               <View style={[styles.pointsBadge, { backgroundColor: colors.primary }]}>
-                <Zap size={16} color="#FFD700" />
+                <ZapIcon size={16} color="#FFD700" />
                 <Text style={[styles.pointsText, { color: colors.mutedGold}]}>{progressData.stats.totalPoints}</Text>
               </View>
             </View>
@@ -451,19 +471,19 @@ export default function ProgressScreen() {
             {/* Stats Grid */}
             <View style={styles.statsGrid}>
               <StatCard
-                icon={Target}
+                icon={TargetIcon}
                 label="Challenges"
                 value={progressData.stats.challengesSolved}
                 color={colors.deepNavy}
               />
               <StatCard
-                icon={Trophy}
+                icon={TrophyIcon}
                 label="Topics"
                 value={progressData.stats.topicsLearned}
                 color={colors.mutedGold}
               />
               <StatCard
-                icon={Flame}
+                icon={FlameIcon}
                 label="Goals"
                 value={progressData.stats.goalsDone}
                 color={colors.error}
@@ -587,7 +607,7 @@ export default function ProgressScreen() {
                     },{ shadowColor: colors.shadow }]}>
                 <View style={styles.goalHeader}>
                   <View style={[styles.goalIcon, { backgroundColor: goal.color + '20' }]}>
-                    <Target size={20} color={goal.color} />
+                    <TargetIcon size={20} color={goal.color} />
                   </View>
                   <View style={styles.goalInfo}>
                     <Text style={[styles.goalTitle, { color: colors.text }]}>{goal.title}</Text>
@@ -633,7 +653,7 @@ export default function ProgressScreen() {
                 colors={[colors.surface, colors.charcoal]}
                 style={styles.insightGradient}
               >
-                <TrendingUp size={24} color={colors.primary} />
+                <TrendingUpIcon size={24} color={colors.primary} />
                 <Text style={[styles.insightTitle, { color: colors.text }]}>You're on Fire! 🔥</Text>
                 <Text style={[styles.insightText, { color: colors.primary }]}>
                   Your problem-solving speed has improved by 40% this week.
@@ -684,6 +704,8 @@ export default function ProgressScreen() {
     </>
   );
 }
+
+export default ProgressScreen;
 
 const styles = StyleSheet.create({
   container: {

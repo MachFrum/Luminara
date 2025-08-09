@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -32,19 +31,19 @@ interface IconProps {
   size: number;
 }
 
-const BookOpen: React.FC<IconProps> = ({ color, size }) => <Feather name="book-open" size={size} color={color} />;
-const TrendingUp: React.FC<IconProps> = ({ color, size }) => <Feather name="trending-up" size={size} color={color} />;
-const Target: React.FC<IconProps> = ({ color, size }) => <Feather name="target" size={size} color={color} />;
-const Clock: React.FC<IconProps> = ({ color, size }) => <Feather name="clock" size={size} color={color} />;
-const Star: React.FC<IconProps> = ({ color, size }) => <Feather name="star" size={size} color={color} />;
-const Flame: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
-const Trophy: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
-const ChevronRight: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
-const Zap: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
-const Brain: React.FC<IconProps> = ({ color, size }) => <Feather name="cpu" size={size} color={color} />;
-const Users: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
-const Award: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
-const Plus: React.FC<IconProps> = ({ color, size }) => <Feather name="plus" size={size} color={color} />;
+const BookOpenIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="book-open" size={size} color={color} />;
+const TrendingUpIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="trending-up" size={size} color={color} />;
+const TargetIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="target" size={size} color={color} />;
+const ClockIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="clock" size={size} color={color} />;
+const StarIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="star" size={size} color={color} />;
+const FlameIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
+const TrophyIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const ChevronRightIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="chevron-right" size={size} color={color} />;
+const ZapIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="zap" size={size} color={color} />;
+const BrainIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="cpu" size={size} color={color} />;
+const UsersIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="users" size={size} color={color} />;
+const AwardIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="award" size={size} color={color} />;
+const PlusIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="plus" size={size} color={color} />;
 
 interface QuickAction {
   id: string;
@@ -74,7 +73,7 @@ interface Achievement {
   maxProgress: number;
 }
 
-export default function HomeScreen() {
+function HomeScreen() {
   const { user } = useAuth();
   const { colors, typography, spacing } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
@@ -104,7 +103,7 @@ export default function HomeScreen() {
       id: '1',
       title: 'Start Learning',
       description: 'Ask a question or solve a problem.',
-      icon: Brain,
+      icon: BrainIcon,
       color: colors.accent,
       route: '/learn',
     },
@@ -112,7 +111,7 @@ export default function HomeScreen() {
       id: '2',
       title: 'View Progress',
       description: 'Track your learning journey.',
-      icon: TrendingUp,
+      icon: TrendingUpIcon,
       color: colors.accent,
       route: '/progress',
     },
@@ -120,7 +119,7 @@ export default function HomeScreen() {
       id: '3',
       title: 'Challenges',
       description: 'Tackle challenging questions.',
-      icon: Plus,
+      icon: PlusIcon,
       color: colors.accent,
       route: '/groups',
     },
@@ -128,7 +127,7 @@ export default function HomeScreen() {
       id: '4',
       title: 'Achievements',
       description: 'View your achievements.',
-      icon: Award,
+      icon: AwardIcon,
       color: colors.accent,
       route: '/achievements',
     },
@@ -166,7 +165,7 @@ export default function HomeScreen() {
       id: '1',
       title: 'Problem Solver',
       description: 'Solve 50 problems',
-      icon: Target,
+      icon: TargetIcon,
       color: colors.accent,
       progress: 35,
       maxProgress: 50,
@@ -175,7 +174,7 @@ export default function HomeScreen() {
       id: '2',
       title: 'Streak Master',
       description: '7 day learning streak',
-      icon: Flame,
+      icon: FlameIcon,
       color: colors.accent,
       progress: 7,
       maxProgress: 7,
@@ -184,7 +183,7 @@ export default function HomeScreen() {
       id: '3',
       title: 'Quick Learner',
       description: 'Complete 5 topics',
-      icon: Zap,
+      icon: ZapIcon,
       color: colors.accent,
       progress: 3,
       maxProgress: 5,
@@ -256,7 +255,7 @@ export default function HomeScreen() {
           {/* Stats Overview */}
           <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <BookOpen size={20} color={colors.accent} />
+              <BookOpenIcon size={20} color={colors.accent} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>127</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Problems</Text>
             </View>
@@ -264,7 +263,7 @@ export default function HomeScreen() {
             <View style={[styles.statDivider, { backgroundColor: colors.textSecondary }]} />
             
             <View style={styles.statItem}>
-              <Clock size={20} color={colors.accent} />
+              <ClockIcon size={20} color={colors.accent} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>42</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Hours</Text>
             </View>
@@ -272,7 +271,7 @@ export default function HomeScreen() {
             <View style={[styles.statDivider, { backgroundColor: colors.textSecondary }]} />
             
             <View style={styles.statItem}>
-              <Flame size={20} color={colors.error} />
+              <FlameIcon size={20} color={colors.error} />
               <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>7</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Day Streak</Text>
             </View>
@@ -365,7 +364,7 @@ export default function HomeScreen() {
                     </View>
                   </View>
                 </View>
-                <ChevronRight size={20} color={colors.textSecondary} />
+                <ChevronRightIcon size={20} color={colors.textSecondary} />
               </BlurView>
             </TouchableOpacity>
           ))}
@@ -442,7 +441,7 @@ export default function HomeScreen() {
               end={{ x: 1, y: 1 }}
               style={styles.quoteGradient}
             >
-              <Star size={32} color={colors.primary} />
+              <StarIcon size={32} color={colors.primary} />
               <Text style={[styles.quoteText, { color: colors.primary, ...typography.body }]}>
                 "The beautiful thing about learning is that no one can take it away from you."
               </Text>
@@ -454,6 +453,8 @@ export default function HomeScreen() {
     </ScrollView>
   );
 }
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {

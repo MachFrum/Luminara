@@ -22,17 +22,17 @@ interface IconProps {
   size: number;
 }
 
-const RefreshCw: React.FC<IconProps> = ({ color, size }) => <Feather name="refresh-cw" size={size} color={color} />;
-const Search: React.FC<IconProps> = ({ color, size }) => <Feather name="search" size={size} color={color} />;
-const Filter: React.FC<IconProps> = ({ color, size }) => <Feather name="filter" size={size} color={color} />;
-const Type: React.FC<IconProps> = ({ color, size }) => <Feather name="type" size={size} color={color} />;
-const Camera: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
-const X: React.FC<IconProps> = ({ color, size }) => <Feather name="x" size={size} color={color} />;
-const Send: React.FC<IconProps> = ({ color, size }) => <Feather name="send" size={size} color={color} />;
-const Square: React.FC<IconProps> = ({ color, size }) => <Feather name="square" size={size} color={color} />;
-const Play: React.FC<IconProps> = ({ color, size }) => <Feather name="play" size={size} color={color} />;
-const Pause: React.FC<IconProps> = ({ color, size }) => <Feather name="pause" size={size} color={color} />;
-const ArrowLeft: React.FC<IconProps> = ({ color, size }) => <Feather name="arrow-left" size={size} color={color} />;
+const RefreshCwIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="refresh-cw" size={size} color={color} />;
+const SearchIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="search" size={size} color={color} />;
+const FilterIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="filter" size={size} color={color} />;
+const TypeIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="type" size={size} color={color} />;
+const CameraIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="camera" size={size} color={color} />;
+const XIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="x" size={size} color={color} />;
+const SendIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="send" size={size} color={color} />;
+const SquareIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="square" size={size} color={color} />;
+const PlayIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="play" size={size} color={color} />;
+const PauseIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="pause" size={size} color={color} />;
+const ArrowLeftIcon: React.FC<IconProps> = ({ color, size }) => <Feather name="arrow-left" size={size} color={color} />;
 
 import ProblemPreview from '@/components/ProblemPreview';
 import InputMethodCard from '@/components/InputMethodCard';
@@ -45,7 +45,7 @@ import { ProblemEntry, InputMethod } from '@/types/learning';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTabBarScroll } from './_layout';
 
-export default function LearnScreen() {
+function LearnScreen() {
   const { colors, typography, spacing } = useTheme();
   const { onScroll } = useTabBarScroll();
   const [refreshing, setRefreshing] = useState(false);
@@ -282,7 +282,7 @@ export default function LearnScreen() {
                 {isProcessing ? (
                   <LoadingSpinner size={20} />
                 ) : (
-                  <Send size={20} color={colors.primary} />
+                  <SendIcon size={20} color={colors.primary} />
                 )}
                 <Text style={[styles.submitText, { color: colors.primary, ...typography.body }]}>
                   {isProcessing ? 'Processing...' : 'Submit'}
@@ -315,7 +315,7 @@ export default function LearnScreen() {
                   colors={[colors.accent, colors.primary]}
                   style={styles.cameraGradient}
                 >
-                  <Camera size={32} color={colors.primary} />
+                  <CameraIcon size={32} color={colors.primary} />
                 </LinearGradient>
               </TouchableOpacity>
               <Text style={[styles.cameraStatus, { color: colors.textSecondary, ...typography.body }]}>
@@ -351,7 +351,7 @@ export default function LearnScreen() {
           
           {/* Search Bar */}
           <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.searchContainer}>
-            <Search size={20} color={colors.textSecondary} />
+            <SearchIcon size={20} color={colors.textSecondary} />
             <TextInput
               style={[styles.searchInput, { color: colors.text, ...typography.body }]}
               placeholder="Search problems, topics, or tags..."
@@ -375,7 +375,7 @@ export default function LearnScreen() {
             {refreshing || isLoadingHistory ? (
               <LoadingSpinner size={20} />
             ) : (
-              <RefreshCw size={20} color={colors.accent} />
+              <RefreshCwIcon size={20} color={colors.accent} />
             )}
             <Text style={[styles.refreshText, { color: colors.accent, ...typography.body }]}>
               {refreshing || isLoadingHistory ? 'Loading...' : 'Refresh'}
@@ -447,7 +447,7 @@ export default function LearnScreen() {
             ]}
           >
             <TouchableOpacity style={styles.closeButton} onPress={closeInputModal}>
-              <X size={24} color={colors.textSecondary} />
+              <XIcon size={24} color={colors.textSecondary} />
             </TouchableOpacity>
             
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -519,6 +519,8 @@ export default function LearnScreen() {
     </View>
   );
 }
+
+export default LearnScreen;
 
 const styles = StyleSheet.create({
   container: {
