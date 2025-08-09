@@ -1,4 +1,7 @@
 export interface ProgressStats {
+  challengesSolved: number;
+  topicsLearned: number;
+  goalsDone: number;
   problemsSolved: number;
   hoursLearned: number;
   dayStreak: number;
@@ -21,7 +24,6 @@ export interface SubjectProgress {
   color: string;
   problems: number;
   totalProblems: number;
-  icon: string;
   lastActivity: string;
 }
 
@@ -29,7 +31,6 @@ export interface Achievement {
   id: string;
   title: string;
   description: string;
-  icon: string;
   color: string;
   unlockedAt: string;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
