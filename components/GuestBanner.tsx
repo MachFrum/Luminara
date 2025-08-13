@@ -62,8 +62,10 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 4,
-  },s
-  subtitle: {},
+  },
+  subtitle: {
+    marginBottom: 8,
+  },
   actionButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
