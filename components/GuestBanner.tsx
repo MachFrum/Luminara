@@ -47,7 +47,9 @@ export default function GuestBanner({ onDismiss }: GuestBannerProps) {
 const styles = StyleSheet.create({
   container: {
     margin: 16,
-    borderRadius: 16,
+    borderRadius: 36,
+    borderWidth: 1,
+    borderColor: '#d9c4b0',
     overflow: 'hidden',
   },
   content: {
@@ -60,7 +62,7 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 4,
-  },
+  },s
   subtitle: {},
   actionButton: {
     paddingHorizontal: 20,

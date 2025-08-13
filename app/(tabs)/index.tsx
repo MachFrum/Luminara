@@ -17,10 +17,8 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import GuestBanner from '@/components/GuestBanner';
-import { supabase } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useTabBarScroll } from './_layout';
 

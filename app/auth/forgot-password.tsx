@@ -64,12 +64,12 @@ export default function ForgotPasswordScreen() {
         style={styles.container} 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <LinearGradient colors={['#8A2BE2', '#4B0082']} style={styles.gradient}>
+        <LinearGradient colors={['#2f1548ff', '#636064ff']} style={styles.gradient}>
           <View style={styles.content}>
             <View style={styles.successContainer}>
               <View style={styles.iconContainer}>
                 <LinearGradient
-                  colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)']}
+                  colors={['rgba(85, 35, 35, 0.2)', 'rgba(250, 143, 143, 0.1)']}
                   style={styles.iconGradient}
                 >
                   <Mail size={40} color="#FFFFFF" />
@@ -94,7 +94,7 @@ export default function ForgotPasswordScreen() {
                 onPress={handleBackToLogin}
               >
                 <LinearGradient
-                  colors={['#FFFFFF', '#F0F0F0']}
+                  colors={['#542960ff', '#F0F0F0']}
                   style={styles.backGradient}
                 >
                   <ArrowLeft size={20} color="#8A2BE2" />
@@ -120,7 +120,7 @@ export default function ForgotPasswordScreen() {
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <LinearGradient colors={['#8A2BE2', '#4B0082']} style={styles.gradient}>
+      <LinearGradient colors={['#c19be5ff', '#1d0d28ff']} style={styles.gradient}>
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
@@ -130,7 +130,7 @@ export default function ForgotPasswordScreen() {
             
             <View style={styles.logoContainer}>
               <LinearGradient
-                colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)']}
+                colors={['rgba(167, 98, 98, 0.2)', 'rgba(255,255,255,0.1)']}
                 style={styles.logoGradient}
               >
                 <Mail size={40} color="#FFFFFF" />
@@ -153,7 +153,7 @@ export default function ForgotPasswordScreen() {
 
             <View style={styles.inputContainer}>
               <View style={styles.inputWrapper}>
-                <Mail size={20} color="#8A2BE2" style={styles.inputIcon} />
+                <Mail size={20} color="#4e3c5fff" style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, emailError && styles.inputError]}
                   placeholder="Enter your email address"
