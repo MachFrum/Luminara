@@ -94,7 +94,7 @@ export default function LoginScreen() {
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <LinearGradient colors={['#8A2BE2', '#4B0082']} style={styles.gradient}>
+      <LinearGradient colors={['#483757', '#d9c4b0', '#110c47']} style={styles.gradient}>
         <ScrollView 
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -278,7 +278,9 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
+    borderRadius: 25,
+    borderWidth: 1.5,
+    borderColor: '#08080a',
     padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },

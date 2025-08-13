@@ -256,7 +256,9 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
+    borderRadius: 25,
+    borderWidth: 1.5,
+    borderColor: '#08080a',
     padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
