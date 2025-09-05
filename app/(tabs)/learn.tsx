@@ -432,7 +432,7 @@ export default function LearnScreen() {
             
             <View style={styles.cameraControls}> {/* Reusing cameraControls styles */}
               <TouchableOpacity
-                style={styles.cameraButton} {/* Reusing cameraButton styles */}
+                style={styles.cameraButton}
                 onPress={pickImage}
               >
                 <LinearGradient
