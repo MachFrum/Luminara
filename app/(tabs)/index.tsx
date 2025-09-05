@@ -338,7 +338,7 @@ export default function HomeScreen() {
             <Text style={[styles.sectionTitle, { color: colors.primary, ...typography.h2 }]}>Recent Activity</Text>
           </View>
           
-          {recentActivities.map((activity) => (
+          {dashboardData?.recentActivities.map((activity) => (
             <TouchableOpacity
               key={activity.id}
               style={styles.activityCard}
@@ -729,4 +729,6 @@ const styles = StyleSheet.create({
     opacity: 0.95,
   },
 });
+
+
 
