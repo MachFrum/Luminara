@@ -271,7 +271,7 @@ export default function HomeScreen() {
             
             <View style={styles.statItem}>
               <Flame size={20} color={colors.error} />
-              <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>7</Text>
+              <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>{dashboardData?.dayStreak}</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Day Streak</Text>
             </View>
           </BlurView>
@@ -689,6 +689,71 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  progressText: {
+    fontWeight: '700',
+    minWidth: 45,
+    letterSpacing: 0.5,
+  },
+  quoteCard: {
+    borderRadius: 25,
+    borderWidth: 1.5,
+    borderColor: '#d9c4b0',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  quoteGradient: {
+    padding: 28,
+    alignItems: 'center',
+  },
+  quoteText: {
+    fontStyle: 'italic',
+    textAlign: 'center',
+    lineHeight: 26,
+    marginVertical: 18,
+    letterSpacing: 0.2,
+  },
+  quoteAuthor: {
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    opacity: 0.95,
+  },
+});
+;
+
+hadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  quoteGradient: {
+    padding: 28,
+    alignItems: 'center',
+  },
+  quoteText: {
+    fontStyle: 'italic',
+    textAlign: 'center',
+    lineHeight: 26,
+    marginVertical: 18,
+    letterSpacing: 0.2,
+  },
+  quoteAuthor: {
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    opacity: 0.95,
+  },
+});
+eight: '100%',
     borderRadius: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

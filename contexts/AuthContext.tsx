@@ -314,33 +314,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        ...state,
-        login,
-        register,
-        logout,
-        continueAsGuest,
-        requestPasswordReset,
-        confirmSignUp,
-        resendSignUp,
-        updateProfile,
-        clearError,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-}
+  const confirmSignUp = async (email: string, code: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'CLEAR_ERROR' });
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};Error).message });
+    try {
+      // Simple validation
+      if (!email || !code) {
+        throw new Error('Email and code are required');
+      }
+
+      // Mock successful confirmation
+      console.log('Confirmation successful for:', email);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: (error as Error).message });
       throw error;
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -400,6 +389,9 @@ export const useAuth = () => {
         logout,
         continueAsGuest,
         requestPasswordReset,
+        confirmSignUp,
+        resendSignUp,
+        updateProfile,
         clearError,
       }}
     >

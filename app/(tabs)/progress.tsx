@@ -614,7 +614,50 @@ export default function ProgressScreen() {
             ))}
           </Animated.View>
 
-          {/* Insights */}
+          {/* Current Challenges */}
+          <Animated.View
+            style={[
+              styles.section,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Current Challenges</Text>
+            {progressData?.challenges.map((challenge: any) => (
+              <TouchableOpacity key={challenge.id} style={[styles.goalCard, { shadowColor: colors.shadow }]}>
+                <View style={styles.goalHeader}>
+                  <View style={[styles.goalIcon, { backgroundColor: colors.primary + '20' }]}>
+                    <Trophy size={20} color={colors.primary} />
+                  </View>
+                  <View style={styles.goalInfo}>
+                    <Text style={[styles.goalTitle, { color: colors.text }]}>{challenge.title}</Text>
+                    <Text style={[styles.goalDescription, { color: colors.textSecondary }]}>{challenge.questions} questions</Text>
+                  </View>
+                  <Text style={[styles.goalProgress, { color: colors.primary }]}>
+                    {Math.round((challenge.progress / challenge.questions) * 100)}%
+                  </Text>
+                </View>
+                <View style={styles.goalProgressContainer}>
+                  <View style={[styles.goalProgressBar, { backgroundColor: colors.border }]}>
+                    <View
+                      style={[
+                        styles.goalProgressFill,
+                        {
+                          width: `${(challenge.progress / challenge.questions) * 100}%`,
+                          backgroundColor: colors.primary,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.goalProgressText, { color: colors.text }]}>
+                    {challenge.progress}/{challenge.questions}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
           <Animated.View
             style={[
               styles.section,
