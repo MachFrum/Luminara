@@ -213,54 +213,14 @@ export default function EditProfileModal({
   const handleSave = async () => {
     try {
       // Validate required fields
-      if (!formData.firstName || !formData.username || !formData.country) {
+      if (!formData.firstName || !formData.username) {
         Alert.alert('Validation Error', 'Please fill in all required fields.');
         return;
       }
 
-      // Step 1: Cache form data locally first
-      const dataToCache = {
-        ...formData,
-        // Don't cache the image file, cache the URI
-        avatarUri: formData.avatarUri,
-      };
+      await onSave(formData);
       
-      // Cache to AsyncStorage
-      await AsyncStorage.setItem('profileFormCache', JSON.stringify(dataToCache));
-      
-      // Step 2: Upload image to S3 (prepare the structure)
-      let s3ImageUrl = null;
-      if (formData.avatarUri) {
-        // TODO: Implement S3 upload here
-        // const s3Response = await uploadToS3(formData.avatarUri);
-        // s3ImageUrl = s3Response.url;
-        
-        // For now, placeholder for manual implementation
-        console.log('Image ready for S3 upload:', formData.avatarUri);
-        s3ImageUrl = 'PLACEHOLDER_S3_URL'; // Replace with actual S3 URL
-      }
-      
-      // Step 3: Prepare data for API call
-      const apiPayload = {
-        ...formData,
-        avatarUrl: s3ImageUrl, // S3 URL reference
-        timestamp: new Date().toISOString(),
-      };
-      
-      // TODO: Send to your backend API
-      // const response = await fetch('YOUR_API_ENDPOINT', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(apiPayload)
-      // });
-      
-      console.log('Data ready for API upload:', apiPayload);
-      
-      // Step 4: Clear cache after successful upload (implement when API is ready)
-      // await AsyncStorage.removeItem('profileFormCache');
-      
-      Alert.alert('Success', 'Profile saved locally and ready for upload!');
-      onSave(apiPayload);
+      Alert.alert('Success', 'Profile updated successfully!');
       onClose();
       
     } catch (error) {

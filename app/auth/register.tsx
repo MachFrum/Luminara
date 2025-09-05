@@ -115,7 +115,7 @@ export default function RegisterScreen() {
 
     try {
       await register(formData);
-      router.replace('/(tabs)');
+      router.push({ pathname: '/auth/confirm-signup', params: { email: formData.email } });
     } catch (err) {
       // Error is handled by context
     }

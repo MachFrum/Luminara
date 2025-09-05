@@ -323,6 +323,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         continueAsGuest,
         requestPasswordReset,
+        confirmSignUp,
+        resendSignUp,
+        updateProfile,
+        clearError,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};Error).message });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
+
+  const resendSignUp = async (email: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'CLEAR_ERROR' });
+
+    try {
+      // Simple validation
+      if (!email) {
+        throw new Error('Email is required');
+      }
+
+      // Mock successful resend
+      console.log('Resending confirmation code to:', email);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: (error as Error).message });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
+
+  const updateProfile = async (data: Partial<User>) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'CLEAR_ERROR' });
+
+    try {
+      // Mock successful update
+      if (state.user) {
+        const updatedUser = { ...state.user, ...data };
+        await storeSecurely('user_data', JSON.stringify(updatedUser));
+        dispatch({ type: 'SET_USER', payload: updatedUser });
+        console.log('Profile updated:', updatedUser);
+      } else {
+        throw new Error('User not found');
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: (error as Error).message });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        ...state,
+        login,
+        register,
+        logout,
+        continueAsGuest,
+        requestPasswordReset,
         clearError,
       }}
     >

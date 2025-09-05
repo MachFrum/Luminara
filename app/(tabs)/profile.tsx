@@ -259,10 +259,13 @@ export default function ProfileScreen() {
       <EditProfileModal
         visible={showEditProfile}
         onClose={() => setShowEditProfile(false)}
-        onSave={(data) => {
-          console.log('Profile data saved:', data);
-          // TODO: Handle the saved profile data
-          setShowEditProfile(false);
+        onSave={async (data) => {
+          try {
+            await updateProfile(data);
+            setShowEditProfile(false);
+          } catch (error) {
+            console.log(error);
+          }
         }}
         initialData={{
           firstName: user?.firstName || '',
