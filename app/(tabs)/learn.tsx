@@ -435,9 +435,10 @@ export default function LearnScreen() {
                 style={styles.cameraButton}
                 onPress={pickImage}
               >
+                {/* Reusing cameraGradient styles */}
                 <LinearGradient
                   colors={[colors.accent, colors.primary]}
-                  style={styles.cameraGradient} {/* Reusing cameraGradient styles */}
+                  style={styles.cameraGradient}
                 >
                   <Feather name="upload-cloud" size={32} color={colors.primary} />
                 </LinearGradient>
@@ -477,7 +478,7 @@ export default function LearnScreen() {
           <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.searchContainer}>
             <Search size={20} color={colors.textSecondary} />
             <TextInput
-              style={[styles.searchInput, { color: colors.text, ...typography.body }]}>
+              style={[styles.searchInput, { color: colors.text, ...typography.body }]}
               placeholder="Search problems, topics, or tags..."
               placeholderTextColor={colors.textSecondary}
               value={searchQuery}
