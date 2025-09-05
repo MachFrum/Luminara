@@ -42,6 +42,9 @@ interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   continueAsGuest: () => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
+  confirmSignUp: (email: string, code: string) => Promise<void>;
+  resendSignUp: (email: string) => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
   clearError: () => void;
 }
 
