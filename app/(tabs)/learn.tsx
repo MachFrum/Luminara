@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { v4 as uuidv4 } from 'uuid'; // Assuming uuid is installed
+import * as ImagePicker from 'expo-image-picker';
 
 // Feather icon components with proper TypeScript types
 interface IconProps {
@@ -33,6 +36,7 @@ const Square: React.FC<IconProps> = ({ color, size }) => <Feather name="square" 
 const Play: React.FC<IconProps> = ({ color, size }) => <Feather name="play" size={size} color={color} />;
 const Pause: React.FC<IconProps> = ({ color, size }) => <Feather name="pause" size={size} color={color} />;
 const ArrowLeft: React.FC<IconProps> = ({ color, size }) => <Feather name="arrow-left" size={size} color={color} />;
+const UploadCloud: React.FC<IconProps> = ({ color, size }) => <Feather name="upload-cloud" size={size} color={color} />;
 
 import ProblemPreview from '@/components/ProblemPreview';
 import InputMethodCard from '@/components/InputMethodCard';
@@ -44,6 +48,14 @@ import { useProblemHistory } from '@/hooks/useProblemHistory';
 import { ProblemEntry, InputMethod } from '@/types/learning';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTabBarScroll } from './_layout';
+
+interface PendingSubmission {
+  id: string;
+  title: string;
+  inputType: 'text' | 'image';
+  textContent?: string;
+  imageUri?: string;
+}
 
 export default function LearnScreen() {
   const { colors, typography, spacing } = useTheme();
@@ -59,9 +71,26 @@ export default function LearnScreen() {
   const modalAnim = useRef(new Animated.Value(0)).current;
   const problemModalAnim = useRef(new Animated.Value(0)).current;
 
+  const [pendingSubmissions, setPendingSubmissions] = useState<PendingSubmission[]>([]);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
+
   const { submitProblem, isSubmitting: isSubmittingProblem, result, error: submissionError, clearResult } = useProblemSubmission();
   const { problems, isLoading: isLoadingHistory, error: historyError, refetch } = useProblemHistory();
   
+  useEffect(() => {
+    const loadPendingSubmissions = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('pendingSubmissions');
+        if (saved) {
+          setPendingSubmissions(JSON.parse(saved));
+        }
+      } catch (e) {
+        console.error("Failed to load pending submissions from AsyncStorage", e);
+      }
+    };
+    loadPendingSubmissions();
+  }, []);
+
   const inputMethods: InputMethod[] = [
     {
       id: 'text',
@@ -78,6 +107,14 @@ export default function LearnScreen() {
       icon: 'camera',
       color: colors.accent,
       type: 'camera',
+    },
+    {
+      id: 'file',
+      title: 'Upload File',
+      description: 'Select an image or document from your device',
+      icon: 'upload-cloud',
+      color: colors.accent,
+      type: 'file',
     },
   ];
 
@@ -145,7 +182,16 @@ export default function LearnScreen() {
       }
     } catch (error) {
       setIsProcessing(false);
-      Alert.alert('Error', 'Failed to submit problem. Please try again.');
+      const newPendingItem: PendingSubmission = {
+        id: uuidv4(),
+        title: textInput.substring(0, 50) + (textInput.length > 50 ? '...' : ''),
+        inputType: 'text',
+        textContent: textInput,
+      };
+      const updatedPending = [...pendingSubmissions, newPendingItem];
+      setPendingSubmissions(updatedPending);
+      await AsyncStorage.setItem('pendingSubmissions', JSON.stringify(updatedPending));
+      Alert.alert('Offline', 'Could not connect to the server. Your submission has been saved and will be sent later.');
     }
   };
 
@@ -157,6 +203,20 @@ export default function LearnScreen() {
   const handleCameraResult = (result: any) => {
     setShowCamera(false);
     submitImageProblem(result.uri);
+  };
+
+  const pickImage = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All, // Allow all media types
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      submitImageProblem(result.assets[0].uri); // Use submitImageProblem for consistency
+    }
   };
 
   const submitImageProblem = async (imageUri: string) => {
@@ -174,7 +234,16 @@ export default function LearnScreen() {
       }
     } catch (error) {
       setIsProcessing(false);
-      Alert.alert('Error', 'Failed to process image. Please try again.');
+      const newPendingItem: PendingSubmission = {
+        id: uuidv4(),
+        title: 'Image Problem',
+        inputType: 'image',
+        imageUri: imageUri,
+      };
+      const updatedPending = [...pendingSubmissions, newPendingItem];
+      setPendingSubmissions(updatedPending);
+      await AsyncStorage.setItem('pendingSubmissions', JSON.stringify(updatedPending));
+      Alert.alert('Offline', 'Could not connect to the server. Your submission has been saved and will be sent later.');
     }
   };
 
@@ -201,6 +270,30 @@ export default function LearnScreen() {
     }).start(() => {
       setSelectedProblem(null);
     });
+  };
+
+  const handleRetry = async (pendingItem: PendingSubmission) => {
+    setRetryingId(pendingItem.id);
+    try {
+      await submitProblem({
+        title: pendingItem.title,
+        inputType: pendingItem.inputType,
+        textContent: pendingItem.textContent,
+        imageUrl: pendingItem.imageUri,
+      });
+
+      // On success, remove from pending list
+      const updatedPending = pendingSubmissions.filter(p => p.id !== pendingItem.id);
+      setPendingSubmissions(updatedPending);
+      await AsyncStorage.setItem('pendingSubmissions', JSON.stringify(updatedPending));
+      Alert.alert('Success', 'Submission successful!');
+      refetch(); // Refresh the history
+    } catch (e) {
+      console.error('Retry failed', e);
+      Alert.alert('Error', 'Still couldn\'t connect. Please try again later.');
+    } finally {
+      setRetryingId(null);
+    }
   };
 
   // Handle submission result
@@ -262,8 +355,7 @@ export default function LearnScreen() {
             )}
             
             <TextInput
-              style={[styles.textInput, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.textSecondary, ...typography.body }]}
-              placeholder="Enter your question or problem here..."
+              style={[styles.textInput, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.textSecondary, ...typography.body }]}              placeholder="Enter your question or problem here..."
               placeholderTextColor={colors.textSecondary}
               multiline
               value={textInput}
@@ -271,8 +363,7 @@ export default function LearnScreen() {
               autoFocus
             />
             <TouchableOpacity
-              style={[styles.submitButton, !textInput.trim() && styles.submitButtonDisabled]}
-              onPress={handleTextSubmit}
+              style={[styles.submitButton, !textInput.trim() && styles.submitButtonDisabled]}              onPress={handleTextSubmit}
               disabled={!textInput.trim() || isProcessing}
             >
               <LinearGradient
@@ -325,6 +416,39 @@ export default function LearnScreen() {
           </View>
         );
 
+      case 'file':
+        return (
+          <View style={styles.cameraInputContainer}> {/* Reusing cameraInputContainer styles */}
+            <Text style={[styles.modalTitle, { color: colors.primary, ...typography.h2 }]}>Upload File</Text>
+            
+            {result && result.status === 'processing' && (
+              <BlurView intensity={80} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.processingContainer}>
+                <LoadingSpinner size={20} />
+                <Text style={[styles.processingText, { color: colors.textSecondary, ...typography.body }]}>
+                  AI is analyzing your file...
+                </Text>
+              </BlurView>
+            )}
+            
+            <View style={styles.cameraControls}> {/* Reusing cameraControls styles */}
+              <TouchableOpacity
+                style={styles.cameraButton} {/* Reusing cameraButton styles */}
+                onPress={pickImage}
+              >
+                <LinearGradient
+                  colors={[colors.accent, colors.primary]}
+                  style={styles.cameraGradient} {/* Reusing cameraGradient styles */}
+                >
+                  <Feather name="upload-cloud" size={32} color={colors.primary} />
+                </LinearGradient>
+              </TouchableOpacity>
+              <Text style={[styles.cameraStatus, { color: colors.textSecondary, ...typography.body }]}>
+                Tap to select file
+              </Text>
+            </View>
+          </View>
+        );
+
       default:
         return null;
     }
@@ -353,13 +477,38 @@ export default function LearnScreen() {
           <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.searchContainer}>
             <Search size={20} color={colors.textSecondary} />
             <TextInput
-              style={[styles.searchInput, { color: colors.text, ...typography.body }]}
+              style={[styles.searchInput, { color: colors.text, ...typography.body }]}>
               placeholder="Search problems, topics, or tags..."
               placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
           </BlurView>
+
+          {/* Chat and Journal Buttons */}
+          <View style={styles.headerButtonsContainer}>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/chat');
+              }}
+            >
+              <Feather name="message-square" size={20} color={colors.primary} />
+              <Text style={[styles.headerButtonText, { color: colors.primary }]}>Chat</Text>
+            </TouchableOpacity>
+            <View style={[styles.headerButtonDivider, { backgroundColor: colors.border }]} />
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/journal');
+              }}
+            >
+              <Feather name="book-open" size={20} color={colors.primary} />
+              <Text style={[styles.headerButtonText, { color: colors.primary }]}>Journal</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </BlurView>
 
@@ -382,6 +531,31 @@ export default function LearnScreen() {
             </Text>
           </BlurView>
         </TouchableOpacity>
+
+        {/* Pending Submissions */}
+        {pendingSubmissions.length > 0 && (
+          <View style={styles.pendingSubmissionsContainer}>
+            <Text style={[styles.pendingSubmissionsTitle, { color: colors.primary }]}>Pending Submissions</Text>
+            {pendingSubmissions.map(item => (
+              <View key={item.id} style={[styles.pendingItemCard, { backgroundColor: colors.surface }]}>
+                <Text style={[styles.pendingItemText, { color: colors.text }]}>{item.title}</Text>
+                <TouchableOpacity
+                  onPress={() => handleRetry(item)}
+                  disabled={retryingId === item.id}
+                  style={[styles.retryButton, { backgroundColor: colors.accent }]}                >
+                  {retryingId === item.id ? (
+                    <LoadingSpinner size={16} color={colors.background} />
+                  ) : (
+                    <Feather name="refresh-cw" size={16} color={colors.background} />
+                  )}
+                  <Text style={[styles.retryButtonText, { color: colors.background }]}>
+                    {retryingId === item.id ? 'Retrying...' : 'Retry'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
 
         {/* Problems List */}
         <ScrollView 
@@ -503,8 +677,7 @@ export default function LearnScreen() {
                 </View>
               </ScrollView>
               <TouchableOpacity
-                style={[styles.doneButton, { backgroundColor: colors.charcoal }]}
-                onPress={async () => {
+                style={[styles.doneButton, { backgroundColor: colors.charcoal }]}                onPress={async () => {
                   // Simulate API call
                   await new Promise(res => setTimeout(res, 1200));
                   closeProblemModal();
@@ -540,6 +713,33 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     marginBottom: 20,
+  },
+  headerButtonsContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+    marginBottom: 10,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  headerButtonText: {
+    marginLeft: 8,
+    fontWeight: '600',
+  },
+  headerButtonDivider: {
+    width: 1,
+    height: 24,
+    marginHorizontal: 16,
+    opacity: 0.5,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -765,5 +965,36 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
     letterSpacing: 1,
+  },
+  pendingSubmissionsContainer: {
+    marginBottom: 20,
+  },
+  pendingSubmissionsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  pendingItemCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  pendingItemText: {
+    flex: 1,
+    marginRight: 10,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  retryButtonText: {
+    marginLeft: 5,
+    fontWeight: 'bold',
   },
 });

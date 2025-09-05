@@ -108,6 +108,26 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="chat"
+          options={{
+            title: 'Chat',
+            tabBarIcon: ({ size, color }: { size: number; color: string }) => (
+              <Feather name="message-square" size={size} color={color} />
+            ),
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="journal"
+          options={{
+            title: 'Journal',
+            tabBarIcon: ({ size, color }: { size: number; color: string }) => (
+              <Feather name="book" size={size} color={color} />
+            ),
+            href: null,
+          }}
+        />
+        <Tabs.Screen
           name="progress"
           options={{
             title: 'Progress',
