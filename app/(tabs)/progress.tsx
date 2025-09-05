@@ -320,6 +320,20 @@ export default function ProgressScreen() {
         color: colors.primary,
       },
     ],
+    challenges: [
+      {
+        id: '1',
+        title: 'Math Challenge',
+        questions: 10,
+        progress: 7,
+      },
+      {
+        id: '2',
+        title: 'Science Challenge',
+        questions: 15,
+        progress: 10,
+      },
+    ]
   };
 
   useEffect(() => {

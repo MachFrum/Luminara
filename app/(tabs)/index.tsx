@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -72,6 +71,13 @@ interface Achievement {
   maxProgress: number;
 }
 
+interface DashboardData {
+  problemsSolved: number;
+  hoursLearned: number;
+  dayStreak: number;
+  recentActivities: RecentActivity[];
+}
+
 export default function HomeScreen() {
   const { user } = useAuth();
   const { colors, typography, spacing } = useTheme();
@@ -80,6 +86,39 @@ export default function HomeScreen() {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const router = useRouter();
   const { onScroll } = useTabBarScroll();
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      // Mock API call
+      const mockData: DashboardData = {
+        problemsSolved: 12,
+        hoursLearned: 25,
+        dayStreak: 5,
+        recentActivities: [
+          {
+            id: '1',
+            title: 'Quadratic Equations',
+            subject: 'Mathematics',
+            timeAgo: '2 hours ago',
+            difficulty: 'medium',
+            imageUrl: 'https://images.pexels.com/photos/6238297/pexels-photo-6238297.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+          },
+          {
+            id: '2',
+            title: 'Photosynthesis Process',
+            subject: 'Biology',
+            timeAgo: '1 day ago',
+            difficulty: 'easy',
+            imageUrl: 'https://images.pexels.com/photos/1072179/pexels-photo-1072179.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+          },
+        ],
+      };
+      setDashboardData(mockData);
+    };
+
+    fetchDashboardData();
+  }, []);
 
   // Initialize animations
   useEffect(() => {
@@ -255,7 +294,7 @@ export default function HomeScreen() {
           <BlurView intensity={90} tint={colors.background === '#121212' ? 'dark' : 'light'} style={styles.statsContainer}>
             <View style={styles.statItem}>
               <BookOpen size={20} color={colors.accent} />
-              <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>127</Text>
+              <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>{dashboardData?.problemsSolved}</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Problems</Text>
             </View>
             
@@ -263,7 +302,7 @@ export default function HomeScreen() {
             
             <View style={styles.statItem}>
               <Clock size={20} color={colors.accent} />
-              <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>42</Text>
+              <Text style={[styles.statNumber, { color: colors.primary, ...typography.h2 }]}>{dashboardData?.hoursLearned}</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary, ...typography.caption }]}>Hours</Text>
             </View>
             
@@ -729,6 +768,3 @@ const styles = StyleSheet.create({
     opacity: 0.95,
   },
 });
-
-
-
